@@ -119,7 +119,7 @@ class Component implements Bootable
 		// Add catchall page route.
 		$this->routes->add( '{*}', [
 			'name'       => 'page.single',
-			'controller' => Controllers\SinglePage::class
+			'controller' => Controllers\Page::class
 		] );
 	}
 }

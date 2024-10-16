@@ -17,7 +17,7 @@ use Novaris\Template\Tag\DocumentTitle;
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class SinglePage extends Single
+class Page extends Single
 {
 	/**
 	 * Callback method when route matches request.
