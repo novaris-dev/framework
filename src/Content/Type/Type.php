@@ -648,12 +648,12 @@ class Type implements ContentType
 		if ( $this->isTaxonomy() ) {
 			$this->routes[ $this->routePath( 'single.paged' ) ] = [
 				'name'       => "{$name}.single.paged",
-				'controller' => Controllers\CollectionTaxonomyTerm::class
+				'controller' => Controllers\Category::class
 			];
 
 			$this->routes[ $this->routePath( 'single' ) ] = [
 				'name'       => "{$name}.single",
-				'controller' => Controllers\CollectionTaxonomyTerm::class
+				'controller' => Controllers\Category::class
 			];
 		}
 
