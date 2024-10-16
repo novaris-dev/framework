@@ -620,7 +620,7 @@ class Type implements ContentType
 			foreach ( $archives as $time => $uri ) {
 				$this->routes[$uri] = [
 					'name'       => $time,
-					'controller' => Controllers\CollectionArchiveDate::class
+					'controller' => Controllers\Archive::class
 				];
 			}
 		}
@@ -639,7 +639,7 @@ class Type implements ContentType
 			foreach ( $archives as $date => $uri ) {
 				$this->routes[$uri] = [
 					'name'       => $date,
-					'controller' => Controllers\CollectionArchiveDate::class
+					'controller' => Controllers\Archive::class
 				];
 			}
 		}
