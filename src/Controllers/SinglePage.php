@@ -58,7 +58,7 @@ class SinglePage extends Single
 			$doctitle = new DocumentTitle( $single->title() );
 
 			return $this->response( $this->view(
-				Hierarchy::single( $single ),
+				Hierarchy::page( $single ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => false,
