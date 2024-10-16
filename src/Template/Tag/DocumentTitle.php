@@ -93,7 +93,8 @@ class DocumentTitle implements Displayable, Renderable
 			$this->doctitle = $this->build();
 		}
 
-		return sprintf( '<title>%s</title>', $this->doctitle );
+		// Adding a new line after </title>
+		return sprintf( '<title>%s</title>' . PHP_EOL, $this->doctitle );
 	}
 
 	/**
