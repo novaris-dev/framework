@@ -14,7 +14,7 @@
 
 namespace Novaris\Contracts\Content;
 
-use Blush\Tools\Media;
+use Novaris\Tools\Media;
 
 interface ContentEntry
 {
