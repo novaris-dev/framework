@@ -9,14 +9,14 @@
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Blush\Content\Entry;
+namespace Novaris\Content\Entry;
 
 // Abstracts.
-use Blush\Contracts\Content\{ContentEntry, ContentQuery, ContentType};
+use Novaris\Contracts\Content\{ContentEntry, ContentQuery, ContentType};
 
 // Concretes.
-use Blush\Core\Proxies\{App, Config, Query, Url};
-use Blush\Tools\{Media, Str};
+use Novaris\Core\Proxies\{App, Config, Query, Url};
+use Novaris\Tools\{Media, Str};
 
 abstract class Entry implements ContentEntry
 {
