@@ -11,7 +11,7 @@
 
 namespace Novaris\Contracts\Content;
 
-interface ContentType
+interface ContentTypes
 {
 	/**
 	 * Returns the content type name.
