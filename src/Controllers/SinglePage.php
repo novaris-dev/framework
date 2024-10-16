@@ -62,7 +62,7 @@ class SinglePage extends Single
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => false,
-					'single'     => $single,
+					'entry'     => $single,
 					'collection' => $collection
 				]
 			) );
