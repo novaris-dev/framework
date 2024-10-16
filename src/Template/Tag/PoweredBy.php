@@ -31,21 +31,32 @@ class PoweredBy implements Displayable, Renderable
 	public function __construct()
 	{
 		$this->superpowers = [
-			'Powered by heart and soul.',
-			'Powered by crazy ideas and passion.',
-			'Powered by the thing that holds all things together in the universe.',
-			'Powered by love.',
-			'Powered by the vast and endless void.',
-			'Powered by the code of a maniac.',
-			'Powered by peace and understanding.',
-			'Powered by coffee.',
-			'Powered by sleepless nights.',
-			'Powered by the love of all things.',
-			'Powered by something greater than myself.',
-			 // 2022-10-05
-			'Powered by elbow grease. Held together by tape and bubble gum.',
-			'Powered by an old mixtape and memories of lost love.',
-			'Powered by thoughts of old love letters.'
+			'Fueled by heartbeats and resilience.',
+			'Driven by wild dreams and untamed passion.',
+			'Powered by the force that weaves the universe together.',
+			'Energized by boundless love.',
+			'Fueled by the mystery of the endless abyss.',
+			'Crafted by the chaotic brilliance of a visionary.',
+			'Sustained by harmony and deep understanding.',
+			'Ignited by the finest brew of ambition.',
+			'Kept alive by sleepless quests and restless minds.',
+			'Driven by love for everything that breathes life.',
+			'Powered by something beyond the reach of imagination.',
+			'Whispered from futures unknown and yet to come.',
+			'Forged by the union of tech and infinite possibility.',
+			'Strengthened by kindness, the quiet force of humanity.',
+			'Inspired by the unseen melodies of hidden realms.',
+			'Empowered by voices that rise above silence.',
+			'Celebrating the beauty of the human soul’s infinite depth.',
+			'Fueled by the unending thirst for wisdom across time.',
+			'Charged by the pulse of undiscovered galaxies.',
+			'Illuminated by the everyday magic hidden in plain sight.',
+			'Carried by the legacy of ancient wisdom and stories untold.',
+			'Danced into existence by the eternal play of light and shadow.',
+			'Warmed by the first rays of a new day’s promise.',
+			'Guided by the secrets whispered by the depths of the ocean.',
+			'Brightened by echoes of joy and pure laughter.',
+			'Driven by the tireless pursuit of eternal truth.'
 		];
 	}
 
