@@ -89,9 +89,10 @@ class CollectionArchiveDate extends Controller
 		} elseif ( $day && $month && $year ) {
 			$title = date( 'F j, Y', strtotime( "{$year}-{$month}-{$day}" ) );
 		} elseif ( $month && $year ) {
-			$title = date( 'F Y', strtotime( "{$year}-{$month}" ) );
+			$title = date( 'F Y', strtotime( "{$year}-{$month}-01" ) );
 		} elseif ( $year ) {
-			$title = date( 'Y', strtotime( $year ) );
+			// Here we ensure that we're working with a full date string, setting month and day as 01-01
+			$title = date( 'Y', strtotime( "{$year}-01-01" ) );
 		}
 
 		// Create a virtual entry for the archive data.
