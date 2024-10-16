@@ -118,17 +118,15 @@ class Hierarchy
 	 *
 	 * @since 1.0.0
 	 */
-	public static function collectionTerm( ContentEntry $entry ): array
+	public static function category( ContentEntry $entry ): array
 	{
 		$entry_name = $entry->name();
 		$type_name  = $entry->type()->name();
 
 		return [
-			"collection-{$type_name}-{$entry_name}",
-			"collection-{$type_name}",
-			'collection-term',
-			'collection',
-			'index'
+			"{$type_name}-{$entry_name}",
+			"{$type_name}",
+			'archive'
 		];
 	}
 
