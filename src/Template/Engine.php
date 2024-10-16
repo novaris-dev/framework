@@ -12,12 +12,7 @@
 namespace Novaris\Template;
 
 // Abstracts.
-use Novaris\Contracts\Template\{
-	TemplateEngine,
-	TemplateTag,
-	TemplateTags,
-	TemplateView
-};
+use Novaris\Contracts\Template\{TemplateEngine, TemplateTag, TemplateTags, TemplateView};
 
 // Concretes.
 use Novaris\Core\Proxies\{App, Message};
@@ -26,7 +21,7 @@ use Novaris\Tools\Collection;
 class Engine implements TemplateEngine
 {
 	/**
-	 * Houses shared data to pass down to subviews.
+	 * Houses shared data to pass down to subviews.``
 	 *
 	 * @since 1.0.0
 	 */
@@ -49,10 +44,11 @@ class Engine implements TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function view( array|string $views, array|Collection $data = [] ): TemplateView
-	{
+	public function view( array|string $views, array|Collection $data = [] ): TemplateView {
+
 		// If an array is passed in, call `first()`.
 		if ( is_array( $views ) ) {
+
 			return $this->first( $views, $data );
 		}
 
@@ -85,8 +81,8 @@ class Engine implements TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function exists( string $name ): bool
-	{
+	public function exists( string $name ): bool {
+
 		$filename = str_replace( '.', '/', $name );
 
 		return file_exists( view_path( "{$filename}.php" ) );
@@ -97,10 +93,12 @@ class Engine implements TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function first( array $views, array|Collection $data = [] ): TemplateView
-	{
+	public function first( array $views, array|Collection $data = [] ): TemplateView {
+
 		foreach ( $views as $view ) {
+
 			if ( $this->exists( $view ) ) {
+
 				return $this->view( $view, $data );
 			}
 		}
@@ -119,10 +117,12 @@ class Engine implements TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function any( array $views, array|Collection $data = [] ): TemplateView|false
-	{
+	public function any( array $views, array|Collection $data = [] ): TemplateView|false {
+
 		foreach ( (array) $views as $name ) {
+
 			if ( $this->exists( $name ) ) {
+
 				return $this->view( $name, $data );
 			}
 		}
@@ -135,8 +135,8 @@ class Engine implements TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function include( array|string $views, array|Collection $data = [] ): void
-	{
+	public function include( array|string $views, array|Collection $data = [] ): void {
+
 		$this->first( (array) $views, $data )->display();
 	}
 
@@ -146,8 +146,8 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeIf( array|string $views, array|Collection $data = [] ): void
-	{
+	public function includeIf( array|string $views, array|Collection $data = [] ): void {
+
 		if ( $view = $this->any( (array) $views, $data ) ) {
 			$view->display();
 		}
@@ -158,13 +158,10 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeWhen(
-		mixed $when,
-		array|string $views,
-		array|Collection $data = []
-	): void
-	{
+	public function includeWhen( mixed $when, array|string $views, array|Collection $data = [] ): void {
+
 		if ( $when ) {
+
 			$this->include( $views, $data );
 		}
 	}
@@ -174,12 +171,7 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeUnless(
-		mixed $unless,
-		array|string $views,
-		array|Collection $data = []
-	): void
-	{
+	public function includeUnless( mixed $unless, array|string $views, array|Collection $data = [] ): void {
 		if ( ! $unless ) {
 			$this->include( $views, $data );
 		}
@@ -193,23 +185,17 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function each(
-		array|string $views,
-		iterable $items = [],
-		string $var = '',
-		array|string $empty = []
-	): void
-	{
+	public function each( array|string $views, iterable $items = [], string $var = '', array|string $empty = [] ): void {
+
 		if ( ! $items && $empty ) {
+
 			$this->include( $empty );
 			return;
 		}
 
 		foreach ( $items as $item ) {
-			$this->include(
-				$views,
-				$var ? [ $var => $item ] : []
-			);
+
+			$this->include( $views, $var ? [ $var => $item ] : [] );
 		}
 	}
 
@@ -220,8 +206,8 @@ class Engine implements TemplateEngine
 	 * @since  1.0.0
 	 * @deprecated 1.0.0
 	 */
-	public function subview( array|string $views, array|Collection $data = [] ): TemplateView
-	{
+	public function subview( array|string $views, array|Collection $data = [] ): TemplateView {
+
 		return $this->view( $views, $data );
 	}
 
@@ -230,8 +216,8 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function tag( string $name, mixed ...$args ): ?TemplateTag
-	{
+	public function tag( string $name, mixed ...$args ): ?TemplateTag {
+
 		return $this->tags->callback( $name, $this->shared, $args );
 	}
 
@@ -240,8 +226,8 @@ class Engine implements TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function __call( string $name, array $arguments ): mixed
-	{
+	public function __call( string $name, array $arguments ): mixed {
+
 		return $this->tag( $name, ...$arguments );
 	}
 }
