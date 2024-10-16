@@ -18,7 +18,7 @@ use Novaris\Template\Tag\{DocumentTitle, Pagination};
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class CollectionArchiveDate extends Controller
+class Archive extends Controller
 {
 	/**
 	 * Callback method when route matches request.
