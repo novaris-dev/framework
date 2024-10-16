@@ -42,6 +42,26 @@ class Hierarchy
 	}
 
 	/**
+	 * Returns the default page template hierarchy.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function page( ContentEntry $entry ): array
+	{
+		$entry_name = $entry->name();
+		$type_name  = $entry->type()->name();
+		$model_name = static::modelName( $entry->type() );
+
+		return array_merge( $entry->viewPaths(), [
+			"page-{$type_name}-{$entry_name}",
+			"page-{$type_name}",
+			"page-{$model_name}",
+			'page',
+			'index'
+		] );
+	}
+
+	/**
 	 * Returns the error 404 single template hierarchy.
 	 *
 	 * @todo  Create an `error` content type.
