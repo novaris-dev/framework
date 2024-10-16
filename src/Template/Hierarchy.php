@@ -137,16 +137,10 @@ class Hierarchy
 	 *
 	 * @since 1.0.0
 	 */
-	public static function collectionDate( ContentType $type ): array
-	{
-		$type_name = $type->name();
+	public static function archive( ContentType $type ): array {
 
 		return [
-			"collection-datetime-{$type_name}",
-			"collection-{$type_name}",
-			'collection-datetime',
-			'collection',
-			'index'
+			'archive'
 		];
 	}
 

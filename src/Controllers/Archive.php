@@ -118,7 +118,7 @@ class Archive extends Controller
 			] );
 
 			return $this->response( $this->view(
-				Hierarchy::collectionDate( $type ),
+				Hierarchy::archive( $type ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
