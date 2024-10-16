@@ -1,0 +1,24 @@
+{
+    "name": "novaris-dev/framework",
+    "description": "Novaris Framework: The core foundation of the Novaris Content Management System (CMS), providing a robust and flexible architecture designed to power dynamic content-driven websites",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Novaris\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Benjamin Lu"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "symfony/http-foundation": "^6.0",
+        "symfony/yaml": "^6.0",
+        "league/commonmark": "^2.5",
+        "symfony/var-dumper": "^6.0",
+        "vlucas/phpdotenv": "^5.6",
+        "league/config": "^1.2"
+    }
+}
