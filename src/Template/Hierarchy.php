@@ -54,10 +54,7 @@ class Hierarchy
 
 		return array_merge( $entry->viewPaths(), [
 			"page-{$type_name}-{$entry_name}",
-			"page-{$type_name}",
-			"page-{$model_name}",
 			'page',
-			'index'
 		] );
 	}
 
