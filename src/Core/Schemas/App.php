@@ -24,10 +24,10 @@ class App
 	public static function schema(): Schema
 	{
 		return Expect::structure( [
-			'url'         => Expect::string( 'http://localhost' ),
+			'url'         => Expect::string( '' ),
 			'title'       => Expect::string( 'Novaris' ),
 			'tagline'     => Expect::string( '' ),
-			'timezone'    => Expect::string( 'America/Chicago' ),
+			'timezone'    => Expect::string( 'America/Los_Angeles' ),
 			'primary'     => Expect::array( [] ),
 			'social'      => Expect::array( [] ),
 			'date_format' => Expect::string( 'F j, Y' ),
