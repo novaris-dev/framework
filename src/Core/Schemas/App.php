@@ -28,8 +28,8 @@ class App
 			'title'       => Expect::string( 'Novaris' ),
 			'tagline'     => Expect::string( '' ),
 			'timezone'    => Expect::string( 'America/Chicago' ),
-			'primary'     => Expect::array( [] );
-			'social'      => Expect::array( [] );
+			'primary'     => Expect::array( [] ),
+			'social'      => Expect::array( [] ),
 			'date_format' => Expect::string( 'F j, Y' ),
 			'time_format' => Expect::string( 'g:i a' ),
 			'home_alias'  => Expect::string( '' ),
