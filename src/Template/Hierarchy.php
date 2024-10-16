@@ -33,11 +33,8 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
-			"single-{$type_name}-{$entry_name}",
-			"single-{$type_name}",
-			"single-{$model_name}",
+			"single-{$entry_name}",
 			'single',
-			'index'
 		] );
 	}
 
@@ -67,10 +64,7 @@ class Hierarchy
 	public static function error404(): array
 	{
 		return [
-			'single-error-404',
-			'single-error',
-			'single',
-			'index'
+			'404',
 		];
 	}
 
@@ -86,11 +80,6 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
-			'single-home',
-			"single-{$type_name}-{$entry_name}",
-			"single-{$type_name}",
-			"single-{$model_name}",
-			'single',
 			'index'
 		] );
 	}
@@ -109,7 +98,6 @@ class Hierarchy
 			"collection-{$type_name}",
 			"collection-{$model_name}",
 			'collection',
-			'index'
 		];
 	}
 
