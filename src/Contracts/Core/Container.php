@@ -12,10 +12,10 @@
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace Blush\Contracts\Core;
+namespace Novaris\Contracts\Core;
 
 use Closure;
-use Blush\Core\ServiceProvider;
+use Novaris\Core\ServiceProvider;
 
 interface Container
 {
