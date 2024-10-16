@@ -1,6 +1,6 @@
 <?php
 /**
- * Content type interface.
+ * Content types interface.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -14,175 +14,23 @@ namespace Novaris\Contracts\Content;
 interface ContentTypes
 {
 	/**
-	 * Returns the content type name.
-	 *
-	 * @since 1.0.0
-	 */
-	public function name(): string;
-
-	/**
-	 * Returns the content type name (alias for `name()`).
-	 *
-	 * @since 1.0.0
-	 * @deprecated 1.0.0
-	 */
-	public function type(): string;
-
-	/**
-	 * Conditional check if the typs is the homepage alias.
-	 *
-	 * @since 1.0.0
-	 */
-	public function isHomeAlias(): bool;
-
-	/**
-	 * Returns the content type path.
-	 *
-	 * @since 1.0.0
-	 */
-	public function path(): string;
-
-	/**
-	 * Returns a keyed URL path.
-	 *
-	 * @since 1.0.0
-	 */
-	public function urlPath( string $key = '' ): string;
-
-	/**
-	 * Returns the content type URL.
-	 *
-	 * @since 1.0.0
-	 */
-	public function url(): string;
-
-	/**
-	 * Returns the content type URL for single entries.
-	 *
-	 * @since 1.0.0
-	 */
-	public function singleUrl( array $params = [] ): string;
-
-	/**
-	 * Returns the content type feed URL.
-	 *
-	 * @since 1.0.0
-	 */
-	public function feedUrl(): string;
-
-	/**
-	* Returns the content type RSS feed URL.
-	*
-	* @since 1.0.0
-	*/
-       public function rssFeedUrl(): string;
-
-       /**
-	* Returns the content type atom feed URL.
-	*
-	* @since 1.0.0
-	*/
-       public function atomFeedUrl(): string;
-
-	/**
-	 * Returns the content type URL for year archives.
-	 *
-	 * @since 1.0.0
-	 */
-	public function yearUrl( string $year ): string;
-
-	/**
-	 * Returns the content type URL for month archives.
-	 *
-	 * @since 1.0.0
-	 */
-	public function monthUrl( string $year, string $month ): string;
-
-	/**
-	 * Returns the content type URI for day archives.
-	 *
-	 * @since 1.0.0
-	 */
-	public function dayUrl( string $year, string $month, string $day ): string;
-
-	/**
-	 * Whether the content type should have a feed.
-	 *
-	 * @since 1.0.0
-	 */
-	public function hasFeed(): bool;
-
-	/**
-	 * Whether date archives are supported. If time archives are supported
-	 * date archives are required to be enabled.
-	 *
-	 * @since 1.0.0
-	 */
-	public function hasDateArchives(): bool;
-
-	/**
-	 * Whether time archives are supported.
-	 *
-	 * @since 1.0.0
-	 */
-	public function hasTimeArchives(): bool;
-
-	/**
-	 * Whether routing is enabled.
-	 *
-	 * @since 1.0.0
-	 */
-	public function routing(): array|bool;
-
-	/**
-	 * Returns the type this content type collects.
+	 * Gets a custom content type by its path.
 	 *
 	 * @since  1.0.0
 	 */
-	public function collect(): string|bool|null;
+	public function getTypeFromPath( string $path ): ContentType|false;
 
 	/**
-	 * Returns the type that terms of this type collects if a taxonomy.
+	 * Gets a custom content type by its URI.
 	 *
 	 * @since  1.0.0
 	 */
-	public function termCollect(): string|bool|null;
+	public function getTypeFromUri( string $uri ): ContentType|false;
 
 	/**
-	 * Returns an array of Query arguments when the content type is used in
-	 * a collection.
+	 * Sorts types by their path.
 	 *
 	 * @since 1.0.0
 	 */
-	public function collectionArgs(): array;
-
-	/**
-	 * Returns an array of Query arguments when the terms of the content
-	 * type is called as a collection. Only works for taxonomies.
-	 *
-	 * @since 1.0.0
-	 */
-	public function termCollectionArgs(): array;
-
-	/**
-	 * Returns an array of Query arguments when the content type is used in
-	 * a feed.
-	 *
-	 * @since 1.0.0
-	 */
-	public function feedArgs(): array;
-
-	/**
-	 * Whether this type is a taxonomy.
-	 *
-	 * @since 1.0.0
-	 */
-	public function isTaxonomy(): bool;
-
-	/**
-	 * Returns the content type routes as an array.
-	 *
-	 * @since 1.0.0
-	 */
-	public function routes(): array;
+	public function sortByPath(): array;
 }
