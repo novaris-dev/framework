@@ -36,19 +36,22 @@ class Taxonomy extends Controller {
 		// Extract the prefix from the URL (e.g., 'category')
 		$type_path = Str::beforeLast( $path, "/{$name}" );
 
-		// Dynamically resolve internal paths based on configuration
-		// First, attempt to get the type from _categories and _tags (routing configuration)
+		// Default behavior: 'category' and 'tag'
 		if ( $type_path === 'category' ) {
-
-			// Check if it's using _categories
-			$type = $types->getTypeFromPath( '_categories' );
+			$type = $types->getTypeFromPath( 'category' );  // Use 'category' by default
 		} elseif ( $type_path === 'tag' ) {
+			$type = $types->getTypeFromPath( 'tag' );  // Use 'tag' by default
+		}
 
-			// Check if it's using _tags
-			$type = $types->getTypeFromPath( '_tags' );
-		} else {
+		// Custom routing: '_categories' and '_tags'
+		if ( ! $type && $type_path === 'category' ) {
+			$type = $types->getTypeFromPath( '_categories' );  // Custom routing for categories
+		} elseif ( ! $type && $type_path === 'tag' ) {
+			$type = $types->getTypeFromPath( '_tags' );  // Custom routing for tags
+		}
 
-			// Fallback to default $type_path if not category or tag
+		// Fallback: If none is found, fallback to $type_path
+		if ( ! $type ) {
 			$type = $types->getTypeFromPath( $type_path );
 		}
 
