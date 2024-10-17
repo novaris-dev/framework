@@ -44,9 +44,9 @@ class Taxonomy extends Controller {
 		}
 
 		// Custom routing: '_categories' and '_tags'
-		if ( ! $type && $type_path === 'category' ) {
+		if ( $type_path === 'category' || $type_path === 'topics' ) {
 			$type = $types->getTypeFromPath( '_categories' );  // Custom routing for categories
-		} elseif ( ! $type && $type_path === 'tag' ) {
+		} elseif ( $type_path === 'tag' ) {
 			$type = $types->getTypeFromPath( '_tags' );  // Custom routing for tags
 		}
 
