@@ -17,49 +17,62 @@ use Novaris\Template\Tag\{DocumentTitle, Pagination};
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Taxonomy extends Controller
-{
+class Taxonomy extends Controller {
+
 	/**
 	 * Callback method when route matches request.
 	 *
 	 * @since  1.0.0
 	 */
-	public function __invoke( array $params, Request $request ): Response
-	{
+	public function __invoke( array $params, Request $request ): Response {
+
 		$types = App::get( 'content.types' );
 
-		$path = $params['path'];
-		$name = $params['name'];
-		$page = intval( $params['page'] ?? 1 );
+		// URL parameters
+		$path = $params['path'];   // e.g., 'category/my-category'
+		$name = $params['name'];   // e.g., 'my-category'
+		$page = intval($params['page'] ?? 1);
 
+		// Extract the prefix from the URL (e.g., 'category')
 		$type_path = Str::beforeLast( $path, "/{$name}" );
 
-		if ( Str::contains( $path, "/page/{$page}" ) ) {
+		// Dynamically resolve internal paths based on configuration
+		// First, attempt to get the type from _categories (routing configuration)
+		$type = $types->getTypeFromPath( '_categories' );
+
+		// If it's not found in _categories (no custom routing), fall back to default 'category'
+		if ( !$type ) {
+			$type = $types->getTypeFromPath( 'category' );
+		}
+
+		if (Str::contains( $path, "/page/{$page}" ) ) {
 			$path = Str::beforeFirst( $path, "/page/{$page}" );
 		}
 
-		// Get the taxonomy's content type.
-		$type    = $types->getTypeFromPath( $type_path );
+		if (!$type) {
+			return $this->forward404( $params, $request );  // Handle 404 if type is not found
+		}
+
+		// Fetch the content type it collects (e.g., 'post')
 		$collect = $types->get( $type->termCollect() );
 
-		// Query the taxonomy term.
+		// Query the taxonomy term
 		$single = Query::make( [
 			'path' => $type->path(),
 			'slug' => $name
 		] )->single();
 
-		// Merge the default collection query args for the type
-		// with user query args.
+		// Merge the default collection query args for the type with user query args
 		$query_args = array_merge(
 			$type->termCollectionArgs(),
 			$single ? $single->collectionArgs() : []
 		);
 
-		// Set required variables for the query.
+		// Set required variables for the query
 		$query_args['number'] = $query_args['number'] ?? 10;
-		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
+		$query_args['offset'] = $query_args['number'] * ($page - 1);
 
-		// Query the term's content collection.
+		// Query the term's content collection
 		$collection = Query::make( array_merge( $query_args, [
 			'meta_key'   => $type->type(),
 			'meta_value' => $name
@@ -70,7 +83,7 @@ class Taxonomy extends Controller
 
 			$doctitle = new DocumentTitle( $single->title(), [
 				'page' => $page
-			] );
+			]);
 
 			$pagination = new Pagination( [
 				'basepath' => $path,
@@ -79,8 +92,7 @@ class Taxonomy extends Controller
 			] );
 
 			return $this->response( $this->view(
-				Hierarchy::taxonomy( $single ),
-				[
+				Hierarchy::taxonomy($single), [
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'single'     => $single,
@@ -89,7 +101,8 @@ class Taxonomy extends Controller
 			) );
 		}
 
-		// If all else fails, return a 404.
+		// If all else fails, return a 404
 		return $this->forward404( $params, $request );
 	}
+
 }
