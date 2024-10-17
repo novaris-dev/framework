@@ -34,8 +34,8 @@ class Error404 extends Controller
 		// Create a virtual entry if no user-provided entry.
 		if ( ! $single ) {
 			$single = new Virtual( [
+				'meta'    => [ 'title' => 'Nothing Found' ],
 				'content' => '<p>Sorry, nothing was found here.</p>',
-				'meta'    => [ 'title' => 'Nothing Found' ]
 			] );
 		}
 
