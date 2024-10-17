@@ -40,9 +40,9 @@ class Taxonomy extends Controller {
 		// First, attempt to get the type from _categories (routing configuration)
 		$type = $types->getTypeFromPath( '_categories' );
 
-		// If it's not found in _categories (no custom routing), fall back to default 'category'
+		// If it's not found in _categories (no custom routing), fall back to default '$type_path'
 		if ( !$type ) {
-			$type = $types->getTypeFromPath( 'category' );
+			$type = $types->getTypeFromPath( $type_path );
 		}
 
 		if (Str::contains( $path, "/page/{$page}" ) ) {
