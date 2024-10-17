@@ -118,7 +118,7 @@ class Hierarchy
 	 *
 	 * @since 1.0.0
 	 */
-	public static function category( ContentEntry $entry ): array
+	public static function taxonomy( ContentEntry $entry ): array
 	{
 		$entry_name = $entry->name();
 		$type_name  = $entry->type()->name();
