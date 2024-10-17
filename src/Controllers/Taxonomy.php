@@ -17,7 +17,7 @@ use Novaris\Template\Tag\{DocumentTitle, Pagination};
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Category extends Controller
+class Taxonomy extends Controller
 {
 	/**
 	 * Callback method when route matches request.
@@ -79,7 +79,7 @@ class Category extends Controller
 			] );
 
 			return $this->response( $this->view(
-				Hierarchy::category( $single ),
+				Hierarchy::taxonomy( $single ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
