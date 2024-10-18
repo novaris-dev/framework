@@ -26,7 +26,8 @@
         "league/commonmark": "^2.5",
         "symfony/var-dumper": "^6.0",
         "vlucas/phpdotenv": "^5.6",
-        "league/config": "^1.2"
+        "league/config": "^1.2",
+        "guzzlehttp/guzzle": "^7.9"
     },
     "minimum-stability": "dev",
 	"prefer-stable": true
