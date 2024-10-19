@@ -33,6 +33,7 @@ class Engine implements TemplateEngine
 	 * @since 1.0.0
 	 */
 	public function __construct( protected TemplateTags $tags ) {
+
 		$this->shared = new Collection();
 	}
 
@@ -136,22 +137,6 @@ class Engine implements TemplateEngine
 	 * @since 1.0.0
 	 */
 	public function include( array|string $views, array|Collection $data = [] ): void {
-
-		// Convert $views to an array if it's not already
-		$views = ( array ) $views;
-
-		if ( in_array( 'header', $views ) ) {
-			$views = array_merge( [ 'header/default' ], $views );
-		}
-
-		// Add fallback for 'content', and remove 'content' if you only want the default version
-		if (in_array('content', $views)) {
-			$views = array_merge(['content/default'], array_diff($views, ['content'])); // Remove 'content'
-		}
-
-		if ( in_array( 'footer', $views ) ) {
-			$views = array_merge( [ 'footer/default' ], $views );
-		}
 
 		$this->first( ( array ) $views, $data )->display();
 	}

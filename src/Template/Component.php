@@ -22,9 +22,7 @@ class Component implements Bootable
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct(
-		protected TemplateTags $registry,
-		protected array $tags
+	public function __construct( protected TemplateTags $registry, protected array $tags
 	) {}
 
 	/**
