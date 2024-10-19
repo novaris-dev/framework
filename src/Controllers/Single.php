@@ -62,44 +62,52 @@ class Single extends Controller
         ])->single();
 
         if ($single && $single->isPublic()) {
-            // ClassicPress API call
+            $slug = $this->slugify($single->title()); // Generate slug
+
+            // ClassicPress APIs (Themes and Plugins)
             if (method_exists($type, 'isDirectory') && $type->isDirectory()) {
                 try {
                     $client = new Client([
-                        'base_uri' => 'https://directory.classicpress.net', // ClassicPress API endpoint
+                        'base_uri' => 'https://directory.classicpress.net',
                         'timeout'  => 5.0,
                     ]);
 
-                    $title = $single->title();
-                    $slug = $this->slugify($title);
+                    // Fetch ClassicPress Themes API
+                    $cp_themes_response = $client->request('GET', "/wp-json/wp/v2/themes?byslug={$slug}");
+                    $cp_themes_apiData = json_decode($cp_themes_response->getBody()->getContents(), true);
+                    $single->cp_themes_api = $cp_themes_apiData;
 
-                    $response = $client->request('GET', "/wp-json/wp/v2/themes?byslug={$slug}");
-                    $apiData = json_decode($response->getBody()->getContents(), true);
+                    // Fetch ClassicPress Plugins API
+                    $cp_plugins_response = $client->request('GET', "/wp-json/wp/v2/plugins?byslug={$slug}");
+                    $cp_plugins_apiData = json_decode($cp_plugins_response->getBody()->getContents(), true);
+                    $single->cp_plugins_api = $cp_plugins_apiData;
 
-                    $single->api = $apiData;
                 } catch (\Exception $e) {
-                    $single->api = ['error' => 'Failed to fetch API data from ClassicPress'];
+                    $single->cp_themes_api = ['error' => 'Failed to fetch data from ClassicPress Themes API'];
+                    $single->cp_plugins_api = ['error' => 'Failed to fetch data from ClassicPress Plugins API'];
                 }
             }
 
-            // WordPress API call
+            // WordPress APIs (Themes and Plugins)
             try {
                 $wp_client = new Client([
-                    'base_uri' => 'https://api.wordpress.org', // WordPress API base URL
+                    'base_uri' => 'https://api.wordpress.org',
                     'timeout'  => 5.0,
                 ]);
 
-                $slug = $this->slugify($single->title()); // Sanitize and slugify the title
-                $wp_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
+                // Fetch WordPress Themes API
+                $wp_themes_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
+                $wp_themes_apiData = json_decode($wp_themes_response->getBody()->getContents(), true);
+                $single->wp_themes_api = $wp_themes_apiData;
 
-                $wp_apiData = json_decode($wp_response->getBody()->getContents(), true);
-
-                // Embed WordPress API data into the $single object
-                $single->wp_api = $wp_apiData;
+                // Fetch WordPress Plugins API
+                $wp_plugins_response = $wp_client->request('GET', "/plugins/info/1.1/?action=plugin_information&request[slug]={$slug}");
+                $wp_plugins_apiData = json_decode($wp_plugins_response->getBody()->getContents(), true);
+                $single->wp_plugins_api = $wp_plugins_apiData;
 
             } catch (\Exception $e) {
-                // Handle the exception and log error
-                $single->wp_api = ['error' => 'Failed to fetch API data from WordPress'];
+                $single->wp_themes_api = ['error' => 'Failed to fetch data from WordPress Themes API'];
+                $single->wp_plugins_api = ['error' => 'Failed to fetch data from WordPress Plugins API'];
             }
 
             $type_name = sanitize_slug($type->type());
@@ -111,13 +119,13 @@ class Single extends Controller
 
             $doctitle = new DocumentTitle($single->title());
 
-            // Pass the single content (with both API data) to the view
+            // Pass the single content (with all API data) to the view
             return $this->response($this->view(
                 Hierarchy::single($single),
                 [
                     'doctitle'   => $doctitle,
                     'pagination' => false,
-                    'entry'      => $single,   // Single content with embedded API data
+                    'entry'      => $single,
                     'collection' => $collection
                 ]
             ));
