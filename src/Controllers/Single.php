@@ -89,7 +89,7 @@ class Single extends Controller
                     'timeout'  => 5.0,
                 ]);
 
-                $slug = esc_attr($this->slugify($single->title())); // Sanitize and slugify the title
+                $slug = $this->slugify($single->title()); // Sanitize and slugify the title
                 $wp_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
 
                 $wp_apiData = json_decode($wp_response->getBody()->getContents(), true);
