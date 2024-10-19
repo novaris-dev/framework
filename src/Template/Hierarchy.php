@@ -98,6 +98,7 @@ class Hierarchy
 		return [
 			"collection-{$type_name}",
 			"collection-{$model_name}",
+			"content.collection",
 			'collection',
 		];
 	}
