@@ -68,6 +68,13 @@ class Type implements ContentType
 	protected bool $taxonomy = false;
 
 	/**
+	 * Whether the content type is a taxonomy.
+	 *
+	 * @since 1.0.0
+	 */
+	protected bool $directory = false;
+
+	/**
 	 * The content type that this content type collects in archives. By
 	 * default, content types will collect themselves.
 	 *
@@ -133,6 +140,7 @@ class Type implements ContentType
 	 */
 	public function __construct( protected string $name, array $options = [] )
 	{
+
 		// Set up the object properties based on parameters.
 		$this->path            = $options['path']            ?? $name;
 		$this->public          = $options['public']          ?? true;
@@ -140,6 +148,7 @@ class Type implements ContentType
 		$this->routes          = $options['routes']          ?? [];
 		$this->date_archives   = $options['date_archives']   ?? false;
 		$this->time_archives   = $options['time_archives']   ?? false;
+		$this->directory       = $options['directory']        ?? false;
 		$this->taxonomy        = $options['taxonomy']        ?? false;
 		$this->term_collect    = $options['term_collect']    ?? null;
 		$this->term_collection = $options['term_collection'] ?? [];
@@ -564,6 +573,11 @@ class Type implements ContentType
 	public function isTaxonomy(): bool
 	{
 		return $this->taxonomy;
+	}
+
+	public function isDirectory(): bool {
+
+		return $this->directory;
 	}
 
 	/**
