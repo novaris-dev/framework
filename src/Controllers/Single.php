@@ -25,32 +25,33 @@ class Single extends Controller
      *
      * @since 1.0.0
      */
-    public function __invoke(array $params, Request $request): Response
-    {
+    public function __invoke(array $params, Request $request): Response {
+
         $types = App::resolve('content.types');
 
-        foreach ($types as $type) {
-            if (isset($params[$type->name()])) {
+        foreach ( $types as $type ) {
+            if ( isset( $params[ $type->name() ] ) ) {
                 $meta_key = $type->name();
-                $meta_value = $params[$type->name()];
+                $meta_value = $params[ $type->name() ];
             }
         }
 
         $name = $params['name'];
         $path = $params['path'] ?? '';
-        $parts = explode('/', $path);
+        $parts = explode( '/', $path );
 
-        foreach (array_reverse($parts) as $part) {
-            $path = Str::beforeLast($path, "/{$part}");
+        foreach ( array_reverse( $parts ) as $part ) {
 
-            if ($type = $types->getTypeFromPath($path)) {
+            $path = Str::beforeLast( $path, "/{$part}" );
+
+            if ( $type = $types->getTypeFromPath( $path ) ) {
                 break;
-            } elseif ($type = $types->getTypeFromUri($path)) {
+            } elseif ( $type = $types->getTypeFromUri( $path ) ) {
                 break;
             }
         }
 
-        $single = Query::make([
+        $single = Query::make( [
             'path'       => $type ? $type->path() : $path,
             'slug'       => $name,
             'year'       => $params['year'] ?? null,
@@ -59,39 +60,41 @@ class Single extends Controller
             'author'     => $params['author'] ?? null,
             'meta_key'   => $meta_key ?? null,
             'meta_value' => $meta_value ?? null
-        ])->single();
+        ] )->single();
 
-        if ($single && $single->isPublic()) {
+        if ( $single && $single->isPublic() ) {
 
             if ( method_exists( $type, 'isDirectory' ) && $type->isDirectory() ) {
-                $slug = $this->slugify($single->title()); // Generate slug
+
+                $slug = $this->slugify( $single->title() ); // Generate slug
 
                 // Initialize Guzzle client for ClassicPress API
-                $client = new Client([
+                $client = new Client( [
                     'base_uri' => 'https://directory.classicpress.net',
                     'timeout'  => 5.0,
-                ]);
+                ] );
 
                 // Initialize Guzzle client for WordPress API
-                $wp_client = new Client([
+                $wp_client = new Client( [
                     'base_uri' => 'https://api.wordpress.org',
                     'timeout'  => 5.0,
-                ]);
+                ] );
 
                 // 1. First, attempt to fetch from ClassicPress API
                 try {
                     // Fetch ClassicPress Themes API
-                    $cp_themes_response = $client->request('GET', "/wp-json/wp/v2/themes?byslug={$slug}");
-                    $cp_themes_apiData = json_decode($cp_themes_response->getBody()->getContents(), true);
+                    $cp_themes_response = $client->request( 'GET', "/wp-json/wp/v2/themes?byslug={$slug}" );
+                    $cp_themes_apiData = json_decode( $cp_themes_response->getBody()->getContents(), true );
 
                     // Check if valid theme data is returned
-                    if (!empty($cp_themes_apiData)) {
+                    if ( ! empty( $cp_themes_apiData ) ) {
                         $single->cp_themes_api = $cp_themes_apiData;
                     } else {
                         throw new \Exception('ClassicPress theme not found.');
                     }
 
                 } catch (\Exception $e) {
+
                     // ClassicPress theme not found, log error and move to WordPress fallback
                     $single->cp_themes_api = ['error' => 'Failed to fetch data from ClassicPress Themes API. Trying WordPress...'];
 
