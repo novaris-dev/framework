@@ -31,6 +31,7 @@ class Content
 			'sitemap'         => Expect::bool( true ),
 			'date_archives'   => Expect::bool( false ),
 			'time_archives'   => Expect::bool( false ),
+			'directory'       => Expect::bool( false ),
 			'taxonomy'        => Expect::bool( false ),
 			'term_collect'    => Expect::string()->nullable(),
 			'term_collection' => Expect::array(),
