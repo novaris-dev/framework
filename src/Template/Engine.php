@@ -137,7 +137,23 @@ class Engine implements TemplateEngine
 	 */
 	public function include( array|string $views, array|Collection $data = [] ): void {
 
-		$this->first( (array) $views, $data )->display();
+		// Convert $views to an array if it's not already
+		$views = ( array ) $views;
+
+		if ( in_array( 'header', $views ) ) {
+			$views = array_merge( [ 'header/default' ], $views );
+		}
+
+		// Add fallback for 'content', and remove 'content' if you only want the default version
+		if (in_array('content', $views)) {
+			$views = array_merge(['content/default'], array_diff($views, ['content'])); // Remove 'content'
+		}
+
+		if ( in_array( 'footer', $views ) ) {
+			$views = array_merge( [ 'footer/default' ], $views );
+		}
+
+		$this->first( ( array ) $views, $data )->display();
 	}
 
 	/**
