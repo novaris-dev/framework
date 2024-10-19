@@ -21,9 +21,5 @@ interface TemplateTags
 	 *
 	 * @since 1.0.0
 	 */
-	public function callback(
-		string $name,
-		Collection $data,
-		array $args = []
-	): ?TemplateTag;
+	public function callback( string $name, Collection $data, array $args = [] ): ?TemplateTag;
 }

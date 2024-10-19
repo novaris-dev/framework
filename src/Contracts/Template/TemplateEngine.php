@@ -22,10 +22,7 @@ interface TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function view(
-		array|string $views,
-		array|Collection $data = []
-	): TemplateView;
+	public function view( array|string $views, array|Collection $data = [] ): TemplateView;
 
 	/**
 	 * Checks if a view template exists.
@@ -39,30 +36,21 @@ interface TemplateEngine
 	 *
 	 * @since 1.0.0
 	 */
-	public function first(
-		array $views,
-		array|Collection $data = []
-	): TemplateView;
+	public function first( array $views, array|Collection $data = [] ): TemplateView;
 
 	/**
 	 * Returns any found view.
 	 *
 	 * @since 1.0.0
 	 */
-	public function any(
-		array $views,
-		array|Collection $data = []
-	): TemplateView|false;
+	public function any( array $views, array|Collection $data = [] ): TemplateView|false;
 
 	/**
 	 * Includes a subview.
 	 *
 	 * @since  1.0.0
 	 */
-	public function include(
-		array|string $paths,
-		array|Collection $data = []
-	): void;
+	public function include( array|string $paths, array|Collection $data = [] ): void;
 
 	/**
 	 * Includes a subview only if it exists. No errors or warnings if no
@@ -70,32 +58,21 @@ interface TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeIf(
-		array|string $paths,
-		array|Collection $data = []
-	): void;
+	public function includeIf( array|string $paths, array|Collection $data = [] ): void;
 
 	/**
 	 * Includes a subview when `$when` is `true`.
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeWhen(
-		mixed $when,
-		array|string $paths,
-		array|Collection $data = []
-	): void;
+	public function includeWhen( mixed $when, array|string $paths, array|Collection $data = [] ): void;
 
 	/**
 	 * Includes a subview unless `$unless` is `true`.
 	 *
 	 * @since  1.0.0
 	 */
-	public function includeUnless(
-		mixed $unless,
-		array|string $paths,
-		array|Collection $data = []
-	): void;
+	public function includeUnless( mixed $unless, array|string $paths, array|Collection $data = [] ): void;
 
 	/**
 	 * Loops through an array of items and includes a subview for each.  Use
@@ -105,12 +82,7 @@ interface TemplateEngine
 	 *
 	 * @since  1.0.0
 	 */
-	public function each(
-		array|string $paths,
-		iterable $items = [],
-		string $var = '',
-		array|string $empty = []
-	): void;
+	public function each( array|string $paths, iterable $items = [], string $var = '', array|string $empty = [] ): void;
 
 	/**
 	* Returns a template tag object or null when it doesn't exist.
