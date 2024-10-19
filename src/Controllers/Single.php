@@ -64,49 +64,69 @@ class Single extends Controller
         if ($single && $single->isPublic()) {
             $slug = $this->slugify($single->title()); // Generate slug
 
-            // ClassicPress APIs (Themes and Plugins)
-            if (method_exists($type, 'isDirectory') && $type->isDirectory()) {
-                try {
-                    $client = new Client([
-                        'base_uri' => 'https://directory.classicpress.net',
-                        'timeout'  => 5.0,
-                    ]);
+            // Initialize Guzzle client for ClassicPress API
+            $client = new Client([
+                'base_uri' => 'https://directory.classicpress.net',
+                'timeout'  => 5.0,
+            ]);
 
-                    // Fetch ClassicPress Themes API
-                    $cp_themes_response = $client->request('GET', "/wp-json/wp/v2/themes?byslug={$slug}");
-                    $cp_themes_apiData = json_decode($cp_themes_response->getBody()->getContents(), true);
+            // Initialize Guzzle client for WordPress API
+            $wp_client = new Client([
+                'base_uri' => 'https://api.wordpress.org',
+                'timeout'  => 5.0,
+            ]);
+
+            // 1. First, attempt to fetch from ClassicPress API
+            try {
+                // Fetch ClassicPress Themes API
+                $cp_themes_response = $client->request('GET', "/wp-json/wp/v2/themes?byslug={$slug}");
+                $cp_themes_apiData = json_decode($cp_themes_response->getBody()->getContents(), true);
+
+                // Check if valid theme data is returned
+                if (!empty($cp_themes_apiData)) {
                     $single->cp_themes_api = $cp_themes_apiData;
+                } else {
+                    throw new \Exception('ClassicPress theme not found.');
+                }
 
-                    // Fetch ClassicPress Plugins API
-                    $cp_plugins_response = $client->request('GET', "/wp-json/wp/v2/plugins?byslug={$slug}");
-                    $cp_plugins_apiData = json_decode($cp_plugins_response->getBody()->getContents(), true);
-                    $single->cp_plugins_api = $cp_plugins_apiData;
+            } catch (\Exception $e) {
+                // ClassicPress theme not found, log error and move to WordPress fallback
+                $single->cp_themes_api = ['error' => 'Failed to fetch data from ClassicPress Themes API. Trying WordPress...'];
 
-                } catch (\Exception $e) {
-                    $single->cp_themes_api = ['error' => 'Failed to fetch data from ClassicPress Themes API'];
-                    $single->cp_plugins_api = ['error' => 'Failed to fetch data from ClassicPress Plugins API'];
+                // 2. Attempt to fetch from WordPress API if ClassicPress failed
+                try {
+                    // Fetch WordPress Themes API
+                    $wp_themes_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
+                    $wp_themes_apiData = json_decode($wp_themes_response->getBody()->getContents(), true);
+
+                    if (!empty($wp_themes_apiData)) {
+                        $single->wp_themes_api = $wp_themes_apiData;
+                    } else {
+                        throw new \Exception('WordPress theme not found.');
+                    }
+
+                } catch (\Exception $wp_e) {
+                    $single->wp_themes_api = ['error' => 'Failed to fetch data from WordPress Themes API: ' . $wp_e->getMessage()];
                 }
             }
 
-            // WordPress APIs (Themes and Plugins)
+            // Fetch ClassicPress Plugins API
             try {
-                $wp_client = new Client([
-                    'base_uri' => 'https://api.wordpress.org',
-                    'timeout'  => 5.0,
-                ]);
+                $cp_plugins_response = $client->request('GET', "/wp-json/wp/v2/plugins?byslug={$slug}");
+                $cp_plugins_apiData = json_decode($cp_plugins_response->getBody()->getContents(), true);
+                $single->cp_plugins_api = $cp_plugins_apiData;
 
-                // Fetch WordPress Themes API
-                $wp_themes_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
-                $wp_themes_apiData = json_decode($wp_themes_response->getBody()->getContents(), true);
-                $single->wp_themes_api = $wp_themes_apiData;
+            } catch (\Exception $e) {
+                $single->cp_plugins_api = ['error' => 'Failed to fetch data from ClassicPress Plugins API'];
+            }
 
-                // Fetch WordPress Plugins API
+            // WordPress Plugins API (if necessary)
+            try {
                 $wp_plugins_response = $wp_client->request('GET', "/plugins/info/1.1/?action=plugin_information&request[slug]={$slug}");
                 $wp_plugins_apiData = json_decode($wp_plugins_response->getBody()->getContents(), true);
                 $single->wp_plugins_api = $wp_plugins_apiData;
 
             } catch (\Exception $e) {
-                $single->wp_themes_api = ['error' => 'Failed to fetch data from WordPress Themes API'];
                 $single->wp_plugins_api = ['error' => 'Failed to fetch data from WordPress Plugins API'];
             }
 
