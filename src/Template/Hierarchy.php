@@ -35,7 +35,6 @@ class Hierarchy
 		return array_merge( $entry->viewPaths(), [
 			"single-{$entry_name}",
 			"single-{$type_name}",
-			"content.single",
 			'single',
 		] );
 	}
@@ -99,7 +98,6 @@ class Hierarchy
 		return [
 			"collection-{$type_name}",
 			"collection-{$model_name}",
-			"content.collection",
 			'collection',
 		];
 	}
