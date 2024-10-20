@@ -101,7 +101,7 @@ class Single extends Controller
                     // 2. Attempt to fetch from WordPress API if ClassicPress failed
                     try {
                         // Fetch WordPress Themes API
-                        $wp_themes_response = $wp_client->request('GET', "/themes/info/1.1/?action=theme_information&request[slug]={$slug}");
+                        $wp_themes_response = $wp_client->request('GET', "/themes/info/1.2/?action=theme_information&request[slug]={$slug}");
                         $wp_themes_apiData = json_decode($wp_themes_response->getBody()->getContents(), true);
 
                         if (!empty($wp_themes_apiData)) {
