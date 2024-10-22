@@ -27,18 +27,18 @@ class ImageRenderer implements NodeRendererInterface
 	 *
 	 * @since 1.0.0
 	 */
-        public function render( Node $node, ChildNodeRendererInterface $childRenderer )
-	{
-                $url        = $node->getUrl();
-		$alt        = '';
+	public function render( Node $node, ChildNodeRendererInterface $childRenderer ) {
+
+		$url = $node->getUrl();
+		$alt = '';
 		$figcaption = '';
-		$attr       = [];
+		$attr = [];
 
-                $media = new Media( $url );
+		$media = new Media( $url );
 
-                if ( 1 === count( $node->children() ) && $node->firstChild() instanceof Text ) {
-                	$alt = $childRenderer->renderNodes( $node->children() );
-                }
+		if ( 1 === count( $node->children() ) && $node->firstChild() instanceof Text ) {
+			$alt = $childRenderer->renderNodes( $node->children() );
+		}
 
 		$parent = $this->parent ?? $node->parent();
 
@@ -89,18 +89,18 @@ class ImageRenderer implements NodeRendererInterface
 			], $image );
 		}
 
-                if ( $node->getTitle() ) {
-                        $figcaption = new HtmlElement(
-                                'figcaption',
-                                [],
-                                $node->getTitle()
-                        );
-                }
+		if ( $node->getTitle() ) {
+				$figcaption = new HtmlElement(
+						'figcaption',
+						[],
+						$node->getTitle()
+				);
+		}
 
-                return new HtmlElement(
-                        'figure',
-                        $attr,
-                        "{$image}\n{$figcaption}"
-                );
-        }
+		return new HtmlElement(
+				'figure',
+				$attr,
+				"{$image}\n{$figcaption}"
+		);
+	}
 }
