@@ -17,8 +17,8 @@ use Novaris\Template\Hierarchy;
 use Novaris\Template\Tag\DocumentTitle;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Error404 extends Controller
-{
+class Error404 extends Controller {
+
 	/**
 	 * Callback method when route matches request.
 	 *
@@ -44,7 +44,7 @@ class Error404 extends Controller
 			[
 				'doctitle'   => new DocumentTitle( $single->title() ),
 				'pagination' => false,
-				'single'     => $single,
+				'entry'     => $single,
 				'collection' => false
 			]
 		), Response::HTTP_NOT_FOUND );
