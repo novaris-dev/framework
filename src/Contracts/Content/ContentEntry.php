@@ -15,8 +15,8 @@ namespace Novaris\Contracts\Content;
 
 use Novaris\Tools\Media;
 
-interface ContentEntry
-{
+interface ContentEntry {
+
 	/**
 	 * Returns the entry type.
 	 *

@@ -13,8 +13,8 @@
 
 namespace Novaris\Contracts\Content;
 
-interface ContentQuery
-{
+interface ContentQuery {
+
 	/**
 	 * Returns the located entries as an array.
 	 *

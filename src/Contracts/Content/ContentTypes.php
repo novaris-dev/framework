@@ -11,8 +11,8 @@
 
 namespace Novaris\Contracts\Content;
 
-interface ContentTypes
-{
+interface ContentTypes {
+
 	/**
 	 * Gets a custom content type by its path.
 	 *

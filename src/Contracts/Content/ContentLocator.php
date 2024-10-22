@@ -13,8 +13,8 @@
 
 namespace Novaris\Contracts\Content;
 
-interface ContentLocator
-{
+interface ContentLocator {
+
 	/**
 	 * Sets the locator path.
 	 *
