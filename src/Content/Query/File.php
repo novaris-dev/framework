@@ -699,15 +699,30 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 			return $entries;
 		}
 
-		// Order by filename.
-        	if ( 'asc' === $this->order ) {
-        		ksort( $entries );
-        	} elseif ( 'desc' === $this->order ) {
-        		krsort( $entries );
-        	}
+		// Handle random ordering
+		if ( $this->order === 'random' ) {
 
-        	return $entries;
-        }
+			// Shuffle the entries in-place
+			$keys = array_keys( $entries );
+			shuffle($keys);
+
+			$shuffled = [];
+			foreach ($keys as $key) {
+				$shuffled[$key] = $entries[$key];
+			}
+
+			return $shuffled;
+		}
+
+	// Order by filename.
+		if ( 'asc' === $this->order ) {
+			ksort( $entries );
+		} elseif ( 'desc' === $this->order ) {
+			krsort( $entries );
+		}
+
+		return $entries;
+	}
 
 	/**
 	 * Needed for implementing the `IteratorAggregate` interface. This
