@@ -74,7 +74,7 @@ class Pagination implements Displayable, Renderable
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( array $options = [] )
+	public function -construct( array $options = [] )
 	{
 		$options = array_merge( [
 			'total'    => 1,
@@ -127,12 +127,12 @@ class Pagination implements Displayable, Renderable
 			'item_tag'           => 'li',
 
 			// Attributes.
-			'container_class'    => 'block-pagination',
-			'nav_class'          => 'block-pagination__nav',
-			'title_class'        => 'block-pagination__title',
-			'list_class'         => 'block-pagination__items',
-			'item_class'         => 'block-pagination__item block-pagination__item--%s',
-			'anchor_class'       => 'block-pagination__anchor block-pagination__anchor--%s',
+			'container_class'    => 'pagination',
+			'nav_class'          => 'pagination-nav',
+			'title_class'        => 'pagination-title',
+			'list_class'         => 'pagination-items',
+			'item_class'         => 'pagination-item pagination-item--%s',
+			'anchor_class'       => 'pagination-anchor pagination-anchor--%s',
 			'aria_current'       => 'page'
 		], $options );
 	}
