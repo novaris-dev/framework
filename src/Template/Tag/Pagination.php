@@ -74,7 +74,7 @@ class Pagination implements Displayable, Renderable
 	 *
 	 * @since 1.0.0
 	 */
-	public function -construct( array $options = [] )
+	public function __construct( array $options = [] )
 	{
 		$options = array_merge( [
 			'total'    => 1,
