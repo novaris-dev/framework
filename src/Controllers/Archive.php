@@ -122,7 +122,7 @@ class Archive extends Controller
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
-					'single'     => $single,
+					'entry'     => $single,
 					'collection' => $collection
 				]
 			) );
