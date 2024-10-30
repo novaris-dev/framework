@@ -22,6 +22,7 @@ use Novaris\Messenger\Message;
 use Novaris\Tools\{Collection, Config, Str};
 use Dotenv\Dotenv;
 use League\Config\Configuration;
+use Novaris\Template\Tag\Navigation;
 
 /**
  * Application class.
