@@ -54,3 +54,45 @@ function render_site_title( array $args = [] ): string {
 
     return $html;
 }
+
+/**
+ * Outputs the site link HTML for Novaris.
+ *
+ * @since  1.0.0
+ * @access public
+ * @param  array  $args
+ * @return void
+ */
+function display_home_link( array $args = [] ): void {
+
+    echo render_home_link( $args );
+}
+
+/**
+ * Returns the site link HTML for Novaris.
+ *
+ * @since  1.0.0
+ * @access public
+ * @param  array  $args
+ * @return string
+ */
+function render_home_link( array $args = [] ): string {
+
+    // Set default arguments
+    $args = array_merge( [
+        'text'   => '%s',
+        'class'  => 'home-link',
+        'before' => '',
+        'after'  => ''
+    ], $args );
+
+    // Assume home URL and site name are handled in display_site_title
+    $html = sprintf(
+        '<a class="%s" href="/" rel="home">%s</a>',
+        htmlspecialchars( $args['class'], ENT_QUOTES, 'UTF-8' ),
+        sprintf( $args['text'], htmlspecialchars( $args['text'], ENT_QUOTES, 'UTF-8' ) )
+    );
+
+    // Return the final HTML, including 'before' and 'after' elements
+    return $args['before'] . $html . $args['after'];
+}
