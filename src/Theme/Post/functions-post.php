@@ -7,8 +7,8 @@ namespace Novaris\Theme\Post;
  * @param  array $args Optional arguments to override defaults.
  * @return void
  */
-function display_title( array $args = [] ): void {
-    echo render_title( $args );
+function display_title( $entry, array $args = [] ): void {
+    echo render_title( $entry, $args );
 }
 
 /**
@@ -17,10 +17,11 @@ function display_title( array $args = [] ): void {
  * @param  array $args Optional arguments to override defaults.
  * @return string
  */
-function render_title( array $args = [] ): string {
+function render_title( $entry, array $args = [] ): string {
 
     // Set a default title if none is provided in $args
-    $args['title'] = $args['title'] ?? '';
+    $args['title'] = $args['title'] ?? $entry->title();
+    $args['url'] = $args['url'] ?? $entry->uri();
 
     // Merge additional defaults for `class`, `before`, `after`, and `tag`
     $args = array_merge([
