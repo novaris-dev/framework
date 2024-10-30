@@ -162,6 +162,12 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'url.content',  Str::appendPath( $this['url.user'],    'content'   ) );
 		$this->instance( 'url.media',    Str::appendPath( $this['url.user'],    'media'     ) );
 		$this->instance( 'url.vendor',   Str::appendPath( $this['url'],         'vendor'    ) );
+
+		// Register Navigation as a singleton with the default items
+		$this->singleton( 'navigation', function () {
+			$items = config( 'app.primary' ) ?? [];  // Default items for the menu
+			return new Navigation( $items );         // Pass items directly in the constructor
+		});
 	}
 
 	/**
