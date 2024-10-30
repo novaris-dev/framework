@@ -4,7 +4,7 @@ namespace Novaris\Theme\Post;
 /**
  * Outputs the post title HTML for Novaris.
  *
- * @param  array $args
+ * @param  array $args Optional arguments to override defaults.
  * @return void
  */
 function display_title( array $args = [] ): void {
@@ -14,36 +14,37 @@ function display_title( array $args = [] ): void {
 /**
  * Returns the post title HTML for Novaris.
  *
- * @param  array $args
+ * @param  array $args Optional arguments to override defaults.
  * @return string
  */
 function render_title( array $args = [] ): string {
 
-    // Set default arguments with 'tag' passed in to set h1 or h2 based on context
-    $args = array_merge( [
+    // Set a default title if none is provided in $args
+    $args['title'] = $args['title'] ?? '';
+
+    // Merge additional defaults for `class`, `before`, `after`, and `tag`
+    $args = array_merge([
         'after'  => '',
         'before' => '',
         'class'  => 'entry-title',
-        'link'   => false, // Default to no link
-        'tag'    => 'h2',  // Default to h2, can be set to h1 in single views
+        'tag'    => 'h2',
         'text'   => '%s',
-    ], $args );
-
-    // Assume title is passed in $args; otherwise, use a fallback
-    $title = $args['title'] ?? 'Default Title';
+        'link'   => false,
+    ], $args);
 
     // Format the title text
-    $text = sprintf( $args['text'], htmlspecialchars( $title, ENT_QUOTES, 'UTF-8' ) );
+    $text = sprintf( $args['text'], htmlspecialchars( $args['title'], ENT_QUOTES, 'UTF-8' ) );
 
-    // Optionally wrap the title in a link if 'link' is true
-    if ( $args['link'] ) {
+    // Optionally wrap the title in a link if 'link' and 'url' are set
+    if ( $args['link'] && isset( $args['url'] ) ) {
         $text = sprintf(
-            '<a href="/" class="title-link">%s</a>',
+            '<a href="%s" class="title-link">%s</a>',
+            htmlspecialchars( $args['url'], ENT_QUOTES, 'UTF-8' ),
             $text
         );
     }
 
-    // Construct the HTML output
+    // Construct the final HTML for the title
     $html = sprintf(
         '<%1$s class="%2$s">%3$s</%1$s>',
         htmlspecialchars( $args['tag'], ENT_QUOTES, 'UTF-8' ),
@@ -51,5 +52,6 @@ function render_title( array $args = [] ): string {
         $text
     );
 
+    // Return the final HTML, including before and after content
     return $args['before'] . $html . $args['after'];
 }
