@@ -151,7 +151,7 @@ class Single extends Controller
                 [
                     'doctitle'   => $doctitle,
                     'pagination' => false,
-                    'entry'      => $single,
+                    'single'      => $single,
                     'collection' => $collection
                 ]
             ));
