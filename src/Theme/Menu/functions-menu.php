@@ -13,14 +13,15 @@ function display_nav_menu( $args = [] ) {
         'menu_id'         => '',
         'menu_class'      => '',
         'echo'            => true,
-        'fallback_cb'     => false // Set to a function name for fallback
+        'fallback_cb'     => false, // Set to a function name for fallback
+        'theme_location'  => ''
     ];
 
     // Merge user-defined args with defaults
     $args = array_merge( $defaults, $args );
 
     // Retrieve menu items
-    $items = config( "app.{$args['menu']}" ); // Assuming this returns an array
+    $items = config( "app.{$args['theme_location']}" ); // Assuming this returns an array
 
     // If no items exist and a fallback is set, call it
     if (!$items && is_callable($args['fallback_cb'])) {
