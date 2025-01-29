@@ -15,6 +15,7 @@
             "Novaris\\": "src/"
         },
 		"files" : [
+            "src/Menu/functions-menu.php",
 			"src/Theme/Post/functions-post.php",
 			"src/Theme/Site/functions-site.php",
 			"src/functions-helpers.php",
