@@ -133,10 +133,14 @@ function render_home_link( array $args = [] ): string {
         'after'  => ''
     ], $args );
 
+    // Get the site URL
+    $home_url = e( uri() );
+
     // Assume home URL and site name are handled in display_site_title
     $html = sprintf(
-        '<a class="%s" href="/" rel="home">%s</a>',
+        '<a class="%s" href="%s" rel="home">%s</a>',
         htmlspecialchars( $args['class'], ENT_QUOTES, 'UTF-8' ),
+        $home_url,
         sprintf( $args['text'], htmlspecialchars( $args['text'], ENT_QUOTES, 'UTF-8' ) )
     );
 
