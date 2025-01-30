@@ -42,9 +42,10 @@ function display_nav_menu( $args = [] ) {
     echo '<ul id="' . htmlspecialchars($args['menu_id'], ENT_QUOTES, 'UTF-8') . '" class="' . htmlspecialchars($args['menu_class'], ENT_QUOTES, 'UTF-8') . '">';
 
     foreach ($items as $name => $url) {
+        $full_url = e( uri( $url ) ); // Ensure proper URL escaping
         $class = ($currentPath == $url) ? 'menu-item current-menu-item' : 'menu-item';
         echo '<li class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '">';
-        echo '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+        echo '<a href="' . $full_url . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
         echo '</li>';
     }
 
