@@ -44,7 +44,7 @@ class Error404 extends Controller {
 			[
 				'doctitle'   => new DocumentTitle( $single->title() ),
 				'pagination' => false,
-				'entry'     => $single,
+				'single'     => $single,
 				'collection' => false
 			]
 		), Response::HTTP_NOT_FOUND );
