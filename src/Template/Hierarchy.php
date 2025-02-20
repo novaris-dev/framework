@@ -33,9 +33,9 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
-			"single-{$entry_name}",
-			"single-{$type_name}",
-			'single',
+			"content.single.{$entry_name}",
+			"content.single.{$type_name}",
+			'content.single',
 		] );
 	}
 
