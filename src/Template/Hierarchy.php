@@ -51,8 +51,8 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
-			"page-{$entry_name}",
-			'page',
+			"content.page.{$entry_name}",
+			'content.page',
 		] );
 	}
 
