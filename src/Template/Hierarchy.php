@@ -53,6 +53,7 @@ class Hierarchy
 
 		return array_merge( $entry->viewPaths(), [
 			"content.page.{$entry_name}",
+			"content.page.default",
 			'content.page',
 		] );
 	}
