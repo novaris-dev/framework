@@ -127,7 +127,7 @@ class Hierarchy
 		return [
 			"{$type_name}-{$entry_name}",
 			"{$type_name}",
-			'archive'
+			'content.archive'
 		];
 	}
 
@@ -139,7 +139,7 @@ class Hierarchy
 	public static function archive( ContentType $type ): array {
 
 		return [
-			'archive'
+			'content.archive'
 		];
 	}
 
