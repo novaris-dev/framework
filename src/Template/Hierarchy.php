@@ -29,13 +29,12 @@ class Hierarchy
 	public static function single( ContentEntry $entry ): array
 	{
 		$entry_name = $entry->name();
-		$type_name  = $entry->type()->name();
+		$post_type  = $entry->type()->name();
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
 			"content.single.{$entry_name}",
-			"content.single.{$type_name}",
-			'content.single.default',
+			"content.single-{$post_type}",
 			"content.single"
 		] );
 	}
@@ -52,8 +51,7 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
-			"content.page.{$entry_name}",
-			"content.page.default",
+			"content.page-{$entry_name}",
 			'content.page',
 		] );
 	}
