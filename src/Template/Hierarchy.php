@@ -65,7 +65,7 @@ class Hierarchy
 	public static function error404(): array
 	{
 		return [
-			'404',
+			'content.404',
 		];
 	}
 
