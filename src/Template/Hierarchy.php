@@ -35,7 +35,7 @@ class Hierarchy
 		return array_merge( $entry->viewPaths(), [
 			"content.single.{$entry_name}",
 			"content.single.{$type_name}",
-			'content.single',
+			'content.single.default',
 		] );
 	}
 
