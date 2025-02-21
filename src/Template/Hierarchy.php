@@ -36,6 +36,7 @@ class Hierarchy
 			"content.single.{$entry_name}",
 			"content.single.{$type_name}",
 			'content.single.default',
+			"content.single"
 		] );
 	}
 
