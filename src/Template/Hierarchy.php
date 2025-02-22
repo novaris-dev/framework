@@ -96,8 +96,8 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return [
-			"content.collection.{$type_name}",
-			"content.collection.{$model_name}",
+			"content.collection-{$type_name}",
+			"content.collection-{$model_name}",
 			'content.collection',
 		];
 	}
