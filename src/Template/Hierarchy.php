@@ -125,8 +125,8 @@ class Hierarchy
 		$type_name  = $entry->type()->name();
 
 		return [
-			"{$type_name}-{$entry_name}",
-			"{$type_name}",
+			"content.{$type_name}-{$entry_name}",
+			"content.{$type_name}",
 			'content.archive'
 		];
 	}
