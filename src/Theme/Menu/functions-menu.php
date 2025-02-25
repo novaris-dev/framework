@@ -24,8 +24,8 @@ function display_nav_menu( $args = [] ) {
     $items = config( "app.{$args['theme_location']}" ); // Assuming this returns an array
 
     // If no items exist and a fallback is set, call it
-    if (!$items && is_callable($args['fallback_cb'])) {
-        call_user_func($args['fallback_cb']);
+    if ( ! $items && is_callable( $args['fallback_cb'] ) ) {
+        call_user_func( $args['fallback_cb'] );
         return;
     }
 
@@ -34,18 +34,18 @@ function display_nav_menu( $args = [] ) {
 
     // Build the menu
     ob_start();
-    if ($args['container']) {
+    if ( $args['container'] ) {
         echo "<{$args['container']} id=\"" . htmlspecialchars($args['container_id'], ENT_QUOTES, 'UTF-8') . "\" class=\"" . htmlspecialchars($args['container_class'], ENT_QUOTES, 'UTF-8') . "\">";
     }
 
     echo '<button class="menu-toggle" aria-controls="' . htmlspecialchars($args['menu_id'], ENT_QUOTES, 'UTF-8') . '" aria-expanded="false">Menu</button>';
-    echo '<ul id="' . htmlspecialchars($args['menu_id'], ENT_QUOTES, 'UTF-8') . '" class="' . htmlspecialchars($args['menu_class'], ENT_QUOTES, 'UTF-8') . '">';
+    echo '<ul id="' . htmlspecialchars( $args['menu_id'], ENT_QUOTES, 'UTF-8' ) . '" class="' . htmlspecialchars($args['menu_class'], ENT_QUOTES, 'UTF-8') . '">';
 
     foreach ($items as $name => $url) {
         $full_url = e( uri( $url ) ); // Ensure proper URL escaping
         $class = ($currentPath == $url) ? 'menu-item current-menu-item' : 'menu-item';
-        echo '<li class="' . htmlspecialchars($class, ENT_QUOTES, 'UTF-8') . '">';
-        echo '<a href="' . $full_url . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
+        echo '<li class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '">';
+        echo '<a href="' . $full_url . '">' . htmlspecialchars( $name, ENT_QUOTES, 'UTF-8' ) . '</a>';
         echo '</li>';
     }
 
