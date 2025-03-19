@@ -28,38 +28,41 @@ class Taxonomy extends Controller {
 
 		$types = App::get( 'content.types' );
 
+		foreach ( $types as $type ) {
+			if ( isset( $params[ $type->name() ] ) ) {
+				$meta_key = $type->name();
+				$meta_value = $params[ $type->name() ];
+			}
+		}
+
 		// URL parameters
-		$path = $params['path'];   // e.g., 'category/my-category'
-		$name = $params['name'];   // e.g., 'my-category'
+		$name = $params['name'];
+		$path = $params['path'] ?? '';
+		$parts = explode( '/', $path );
+
+		foreach ( array_reverse( $parts ) as $part ) {
+			$path = Str::beforeLast( $path, "/{$part}" );
+			
+			if ( $type = $types->getTypeFromPath( $path ) ) {
+				break;
+			} elseif ( $type = $types->getTypeFromUri( $path ) ){
+				break;
+			}
+		}
+
+		// Extract the prefix from the URL (e.g., 'category')
+		$type_path = Str::beforeLast( $path, "/{$name}" );
+
 		$page = intval($params['page'] ?? 1);
 
 		// Extract the prefix from the URL (e.g., 'category')
 		$type_path = Str::beforeLast( $path, "/{$name}" );
 
-		// Default behavior: 'category' and 'tag'
-		if ( $type_path === 'category' ) {
-			$type = $types->getTypeFromPath( 'category' );  // Use 'category' by default
-		} elseif ( $type_path === 'tag' ) {
-			$type = $types->getTypeFromPath( 'tag' );  // Use 'tag' by default
-		}
-
-		// Custom routing: '_categories' and '_tags'
-		if ( $type_path === 'category' || $type_path === 'topics' ) {
-			$type = $types->getTypeFromPath( '_categories' );  // Custom routing for categories
-		} elseif ( $type_path === 'tag' ) {
-			$type = $types->getTypeFromPath( '_tags' );  // Custom routing for tags
-		}
-
-		// Fallback: If none is found, fallback to $type_path
-		if ( ! $type ) {
-			$type = $types->getTypeFromPath( $type_path );
-		}
-
-		if (Str::contains( $path, "/page/{$page}" ) ) {
+		if ( Str::contains( $path, "/page/{$page}" ) ) {
 			$path = Str::beforeFirst( $path, "/page/{$page}" );
 		}
 
-		if (!$type) {
+		if ( ! $type ) {
 			return $this->forward404( $params, $request );  // Handle 404 if type is not found
 		}
 
@@ -102,7 +105,7 @@ class Taxonomy extends Controller {
 			] );
 
 			return $this->response( $this->view(
-				Hierarchy::taxonomy($single), [
+				Hierarchy::taxonomy( $single ), [
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'single'     => $single,
