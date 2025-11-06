@@ -369,19 +369,26 @@ if ( ! function_exists( 'vendor_url' ) ) {
 }
 
 if ( ! function_exists( 'asset' ) ) {
-	/**
-	 * Returns an asset URI with an ID query var attached to it based on the
-	 * file's last modified time. Used for cache busting. The `$path` param
-	 * must be a filename relative to the public path.
-	 *
-	 * @since 1.0.0
-	 */
-	function asset( string $path ): string
-	{
-		$asset_url = public_url( $path );
-		$modified  = filemtime( public_path( $path ) );
+	function asset( string $entry ): string {
+		
+		static $manifest = null;
 
-		return false !== $modified ? "{$asset_url}?id={$modified}" : $asset_url;
+		$manifest_file = public_path( 'assets/manifest.json' );
+
+		if ( $manifest === null ) {
+			if ( ! is_file( $manifest_file ) ) {
+
+				throw new Exception( "Vite manifest not found: {$manifest_file}" );
+			}
+			$manifest = json_decode( file_get_contents( $manifest_file), true ) ?: [];
+		}
+
+		if (!isset($manifest[$entry]['file'])) {
+			throw new Exception("Missing manifest entry: {$entry}");
+		}
+
+		// web URL relative to /public → prefix with 'assets/'
+		return public_url('assets/' . ltrim($manifest[$entry]['file'], '/'));
 	}
 }
 
