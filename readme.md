@@ -1,2 +1,2 @@
 # Novaris Framework
-An awesome looking framework got that right
+An awesome looking framework got that right!
