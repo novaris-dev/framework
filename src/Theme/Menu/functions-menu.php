@@ -2,6 +2,23 @@
 
 namespace Novaris\Theme\Menu;
 
+function normalize_path($value): string {
+    $value = (string) $value;
+
+    // If it's a full URL, extract just the path. If it's already a path, this still works.
+    $path = parse_url($value, PHP_URL_PATH);
+    if ($path === null || $path === false) {
+        $path = $value;
+    }
+
+    // Ensure leading slash
+    $path = '/' . ltrim($path, '/');
+
+    // Remove trailing slash except for root "/"
+    $path = rtrim($path, '/');
+    return $path === '' ? '/' : $path;
+}
+
 function display_nav_menu( $args = [] ) {
 
     // Default arguments
@@ -30,7 +47,7 @@ function display_nav_menu( $args = [] ) {
     }
 
     // Get the current URL path
-    $currentPath = $_SERVER['REQUEST_URI'];
+    $currentPath = normalize_path($_SERVER['REQUEST_URI']);
 
     // Build the menu
     ob_start();
