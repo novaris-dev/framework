@@ -88,7 +88,7 @@ class Message
 	 */
 	public function dump(): void
 	{
-		echo $this->display();
+		$this->display();
 	}
 
 	/**
