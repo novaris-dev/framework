@@ -134,21 +134,23 @@ class File extends Driver
 	 */
 	public function put( string $key, mixed $data, int $seconds = 0 ): bool
 	{
-		$data = serialize( [
+		$cache_data = [
 			'meta' => [
 				'expires' => $this->availableAt( $seconds ),
 				'created' => $this->createdAt()
 			],
 			'data' => $data
-		] );
+		];
 
-		$put = file_put_contents( $this->filepath( $key ), $data );
+		$put = file_put_contents(
+			$this->filepath( $key ),
+			serialize( $cache_data )
+		);
 
 		if ( false !== $put ) {
-			$this->setData( $key, $data );
+			$this->setData( $key, $cache_data );
 		}
 
-		// `file_put_contents()` returns `int|false`.
 		return false !== $put;
 	}
 
@@ -173,12 +175,15 @@ class File extends Driver
 	 */
 	public function forget( string $key ): bool
 	{
+		$had_data = $this->hasData( $key );
+
+		$this->removeData( $key );
+
 		if ( $this->fileExists( $key ) ) {
-			$this->removeData( $key );
 			return unlink( $this->filepath( $key ) );
 		}
 
-		return false;
+		return $had_data;
 	}
 
 	/**
@@ -201,9 +206,10 @@ class File extends Driver
 	{
 		$data = $this->get( $key );
 
-		if ( ! $data ) {
+		if ( null === $data ) {
 			$data = $callback();
-			if ( $data ) {
+
+			if ( null !== $data ) {
 				$this->put( $key, $data, $seconds );
 			}
 		}
