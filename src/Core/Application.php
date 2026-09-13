@@ -64,7 +64,26 @@ class Application extends Container implements ApplicationContract, Bootable
 	{
 		$this->registerProviders();
 		$this->registerProxies();
+		$this->loadTheme();
 		$this->bootProviders();
+	}
+
+	/**
+	 * Loads the active theme bootstrap file.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function loadTheme(): void
+	{
+		$filepath = $this->themePath( 'theme.php' );
+
+		if ( ! is_file( $filepath ) ) {
+			Message::make(
+				"Theme bootstrap file not found: {$filepath}"
+			)->dd();
+		}
+
+		require_once $filepath;
 	}
 
 	/**
@@ -189,6 +208,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		// Register Navigation as a singleton with the default items
 		$this->singleton( 'navigation', function () {
 			$items = config( 'app.primary' ) ?? [];
+
 			return new Navigation( $items );
 		});
 	}
