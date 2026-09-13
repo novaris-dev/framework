@@ -107,16 +107,17 @@ class View implements TemplateView, Stringable
 			return '';
 		}
 
-		// Extract the data into individual variables. Each of
-		// these variables will be available in the template.
-		extract( $this->data->all() );
-
 		// Make `$data` and `$view` variables available to templates.
 		$data = $this->data;
 		$view = $this;
 
+		// Extract the data into individual variables. Each of
+		// these variables will be available in the template.
+		extract( $this->data->all(), EXTR_SKIP );
+
 		ob_start();
 		include $this->template();
+
 		return ob_get_clean();
 	}
 
