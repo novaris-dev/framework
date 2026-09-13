@@ -27,6 +27,7 @@ class App
 			'url'         => Expect::string( '' ),
 			'title'       => Expect::string( 'Novaris' ),
 			'tagline'     => Expect::string( '' ),
+			'theme'        => Expect::string( '' ),
 			'timezone'    => Expect::string( 'America/Los_Angeles' ),
 			'primary'     => Expect::array( [] ),
 			'social'      => Expect::array( [] ),
