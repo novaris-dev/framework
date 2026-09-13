@@ -102,7 +102,11 @@ class Router implements RoutingRouter
 			// Only cache status 200 content.
 			// @todo Add cache config to for status to cache or not.
 			if ( $response->isOk() ) {
-				$content = $response->getContent();
+				$content = [
+					'content' => $response->getContent(),
+					'status'  => $response->getStatusCode(),
+					'headers' => $response->headers->all()
+				];
 
 				Cache::put(
 					"global.{$cache_key}",
@@ -114,8 +118,11 @@ class Router implements RoutingRouter
 
 		// If no response is set, add the cached content to new response.
 		if ( ! $response ) {
-			$response = new Response();
-			$response->setContent( $content );
+			$response = new Response(
+				$content['content'] ?? '',
+				$content['status'] ?? Response::HTTP_OK,
+				$content['headers'] ?? []
+			);
 		}
 
 		// Return HTTP response.
