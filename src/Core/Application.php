@@ -184,7 +184,9 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'path.themes',   Str::appendPath( $this['path'],         'themes'    ) );
 		$this->instance(
 			'path.theme',
-			Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme' ) )
+			$this['config']->get( 'app.private', false )
+				? $this['path']
+				: Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme' ) )
 		);
 
 		// Add default URIs.
