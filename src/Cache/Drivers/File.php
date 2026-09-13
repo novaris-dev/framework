@@ -109,6 +109,13 @@ class File extends Driver
 	public function get( string $key ): mixed
 	{
 		if ( $this->hasData( $key ) ) {
+			$data = $this->data[ $key ];
+
+			if ( $this->hasExpired( $data ) ) {
+				$this->forget( $key );
+				return null;
+			}
+
 			return $this->getData( $key );
 		}
 
@@ -124,7 +131,7 @@ class File extends Driver
 			$this->setData( $key, $data );
 		}
 
-		return $this->data[$key]['data'] ?? null;
+		return $this->data[ $key ]['data'] ?? null;
 	}
 
 	/**
