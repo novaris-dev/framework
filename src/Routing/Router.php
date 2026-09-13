@@ -101,7 +101,7 @@ class Router implements RoutingRouter
 
 			// Only cache status 200 content.
 			// @todo Add cache config to for status to cache or not.
-			if ( $response->isOk() ) {
+			if ( $response->isOk() && ! $response->headers->getCookies() ) {
 				$content = [
 					'content' => $response->getContent(),
 					'status'  => $response->getStatusCode(),
