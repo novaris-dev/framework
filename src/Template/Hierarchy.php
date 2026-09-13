@@ -29,7 +29,6 @@ class Hierarchy
 	{
 		$entry_name = $entry->name();
 		$post_type  = $entry->type()->name();
-		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
 			"content.single.{$entry_name}",
@@ -46,8 +45,6 @@ class Hierarchy
 	public static function page( ContentEntry $entry ): array
 	{
 		$entry_name = $entry->name();
-		$type_name  = $entry->type()->name();
-		$model_name = static::modelName( $entry->type() );
 
 		return array_merge( $entry->viewPaths(), [
 			"content.page-{$entry_name}",
@@ -75,10 +72,6 @@ class Hierarchy
 	 */
 	public static function singleHome( ContentEntry $entry ): array
 	{
-		$entry_name = $entry->name();
-		$type_name  = $entry->type()->name();
-		$model_name = static::modelName( $entry->type() );
-
 		return array_merge( $entry->viewPaths(), [
 			'index'
 		] );
