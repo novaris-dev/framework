@@ -75,6 +75,10 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	protected function loadTheme(): void
 	{
+		if ( $this['config']->get( 'app.private' ) ) {
+			return;
+		}
+
 		$filepath = $this->themePath( 'theme.php' );
 
 		if ( ! is_file( $filepath ) ) {
