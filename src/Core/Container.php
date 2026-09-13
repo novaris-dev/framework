@@ -326,7 +326,7 @@ class Container implements ContainerContract, ArrayAccess
 		foreach ( $dependencies as $dependency ) {
 
 			// If a dependency is set via the parameters passed in, use it.
-			if ( isset( $parameters[ $dependency->getName() ] ) ) {
+			if ( array_key_exists( $dependency->getName(), $parameters ) ) {
 				$args[] = $parameters[ $dependency->getName() ];
 				continue;
 			}
