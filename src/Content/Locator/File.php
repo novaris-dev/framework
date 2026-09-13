@@ -22,11 +22,18 @@ use Symfony\Component\Yaml\Yaml;
 class File implements ContentLocator
 {
 	/**
-	 * Full path to the folder to search for content.
+	 * Full path to the user content folder to search.
 	 *
 	 * @since 1.0.0
 	 */
 	protected string $path;
+
+	/**
+	 * Full path to the active theme content folder to search.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $theme_path;
 
 	/**
 	 * File extension for the store's files without the preceding dot.
@@ -50,14 +57,14 @@ class File implements ContentLocator
 	protected string $cache_key = '';
 
 	/**
-	 * Stores the result of `filemtime()` on the content folder.
+	 * Stores the newest result of `filemtime()` for the content folders.
 	 *
 	 * @since 1.0.0
 	 */
-	protected ?int $content_time = null;
+	protected int|false|null $content_time = null;
 
 	/**
-	 * Stores the result of `filemetime()` on the cache file.
+	 * Stores the result of `filemtime()` on the cache file.
 	 *
 	 * @since 1.0.0
 	 */
@@ -70,7 +77,8 @@ class File implements ContentLocator
 	 */
 	public function __construct( string $path = '' )
 	{
-		$this->path = App::resolve( 'path.content' );
+		$this->path       = App::resolve( 'path.content' );
+		$this->theme_path = theme_path( 'content' );
 
 		if ( $path ) {
 			$this->setPath( $path );
@@ -78,8 +86,8 @@ class File implements ContentLocator
 	}
 
 	/**
-	 * Sets the locator path. The path is relative to the user content
-	 * folder. If no value is passed in, it will be the root.
+	 * Sets the locator path. The path is relative to the user and theme
+	 * content folders. If no value is passed in, it will be the root.
 	 *
 	 * @since 1.0.0
 	 */
@@ -89,11 +97,12 @@ class File implements ContentLocator
 		$path = trim( $path, '/.' );
 
 		if ( $path ) {
-			$this->path = Str::appendPath( $this->path, $path );
+			$this->path       = Str::appendPath( $this->path, $path );
+			$this->theme_path = Str::appendPath( $this->theme_path, $path );
 		}
 
 		// Replace slash with dot for cache key.
-		$this->cache_key = str_replace( '/' , '.', $path ?: 'index' );
+		$this->cache_key = str_replace( '/', '.', $path ?: 'index' );
 	}
 
 	/**
@@ -147,9 +156,14 @@ class File implements ContentLocator
 		$this->located = [];
 
 		// Loop through the entries and re-add the full filepath as the
-		// key. We previously removed it for the cache.
+		// key. User content takes precedence over theme content.
 		foreach ( $entries as $basename => $data ) {
-			$filepath = Str::appendPath( $this->path, $basename );
+			$user_filepath = Str::appendPath( $this->path, $basename );
+
+			$filepath = file_exists( $user_filepath )
+				? $user_filepath
+				: Str::appendPath( $this->theme_path, $basename );
+
 			$this->located[ $filepath ] = $data;
 		}
 
@@ -176,11 +190,22 @@ class File implements ContentLocator
 			return $cache;
 		}
 
-		// If the persistent cache exists, let's see if it needs
-		// refreshing based on file modified times. Note that the
-		// `$store->created()` method syould always be called after the
-		// data is set/get from the cache store.
-		$this->content_time = filemtime( $this->path );
+		// Get the newest modified time from either the user content
+		// folder or the active theme content folder.
+		$user_time = is_dir( $this->path )
+			? filemtime( $this->path )
+			: false;
+
+		$theme_time = is_dir( $this->theme_path )
+			? filemtime( $this->theme_path )
+			: false;
+
+		$times = array_filter(
+			[ $user_time, $theme_time ],
+			fn( $time ) => false !== $time
+		);
+
+		$this->content_time = $times ? max( $times ) : false;
 		$this->cache_time   = $store->created( $this->cache_key );
 
 		// If there are no modified file times or the content folder is
@@ -202,12 +227,39 @@ class File implements ContentLocator
 	 * Locates content files and returns them as an array with the filename
 	 * as the key and the metadata as the value.
 	 *
+	 * Theme content is loaded first so matching user content can override it.
+	 *
 	 * @since 1.0.0
 	 */
 	protected function locate(): array
 	{
+		$located = [];
+
+		// Locate theme content first.
+		if ( is_dir( $this->theme_path ) ) {
+			$located = $this->locatePath( $this->theme_path );
+		}
+
+		// Locate user content second so matching files override theme files.
+		if ( is_dir( $this->path ) ) {
+			$located = array_replace(
+				$located,
+				$this->locatePath( $this->path )
+			);
+		}
+
+		return $located;
+	}
+
+	/**
+	 * Locates content files within a specific content folder.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function locatePath( string $path ): array
+	{
 		$search = Str::appendPath(
-			$this->path,
+			$path,
 			sprintf( '*.%s', $this->extension() )
 		);
 
@@ -223,7 +275,7 @@ class File implements ContentLocator
 		$exclude = Config::get( 'cache.content_exclude_meta' );
 		$exclude = is_array( $exclude ) ? array_flip( $exclude ) : [];
 
-		// Don't allow exclusion of visbility.
+		// Don't allow exclusion of visibility.
 		unset( $exclude['visibility'] );
 
 		// Loop through filepaths and add them to the located array
@@ -233,7 +285,7 @@ class File implements ContentLocator
 			// Set up empty array in case there's no data.
 			$data = [];
 
-			// Get the first 4 kb of data from the file.  We're only
+			// Get the first 4 kb of data from the file. We're only
 			// grabbing the frontmatter. Anything even encroaching
 			// this number would be insane.
 			$content = file_get_contents(
@@ -265,7 +317,7 @@ class File implements ContentLocator
 
 			// Create the array key with just the file basename.
 			$key = Str::trimSlashes(
-				str_replace( $this->path, '', $filepath )
+				str_replace( $path, '', $filepath )
 			);
 
 			$located[ $key ] = $data;
