@@ -79,15 +79,11 @@ class Application extends Container implements ApplicationContract, Bootable
 			return;
 		}
 
-		$filepath = $this->themePath( 'theme.php' );
+		$theme = $this['config']->get( 'app.theme' );
 
-		if ( ! is_file( $filepath ) ) {
-			( new Message() )->make(
-				"Theme bootstrap file not found: {$filepath}"
-			)->dd();
+		if ( empty( $theme ) ) {
+			return;
 		}
-
-		require_once $filepath;
 	}
 
 	/**
