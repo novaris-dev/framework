@@ -96,7 +96,7 @@ class Router implements RoutingRouter
 		$response  = false;
 
 		// If no cached content, get a new response and cache it.
-		if ( ! $content ) {
+		if ( null === $content ) {
 			$response = $this->getResponse();
 
 			// Only cache status 200 content.
