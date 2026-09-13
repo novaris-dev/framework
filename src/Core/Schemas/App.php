@@ -41,7 +41,7 @@ class App
 			// @deprecated 1.0.0 Soft deprecation in favor of `url`.
 			'uri'         => Expect::string( '' ),
 
-			'private' => Expect::bool( false );
+			'private' => Expect::bool( false ),
 		] );
 	}
 }
