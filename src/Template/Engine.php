@@ -86,7 +86,8 @@ class Engine implements TemplateEngine
 
 		$filename = str_replace( '.', '/', $name );
 
-		return file_exists( view_path( "{$filename}.php" ) );
+		return file_exists( theme_path( "public/views/{$filename}.php" ) )
+			|| file_exists( view_path( "{$filename}.php" ) );
 	}
 
 	/**
