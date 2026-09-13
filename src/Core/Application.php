@@ -162,6 +162,11 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'path.content',  Str::appendPath( $this['path.user'],    'content'   ) );
 		$this->instance( 'path.media',    Str::appendPath( $this['path.user'],    'media'     ) );
 		$this->instance( 'path.vendor',   Str::appendPath( $this['path'],         'vendor'    ) );
+		$this->instance( 'path.themes',   Str::appendPath( $this['path'],         'themes'    ) );
+		$this->instance(
+			'path.theme',
+			Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme' ) )
+		);
 
 		// Add default URIs.
 		if ( ! $url = $this->config->get( 'app.uri' ) ) {
@@ -358,6 +363,26 @@ class Application extends Container implements ApplicationContract, Bootable
 	public function vendorPath( string $append = '' ): string
 	{
 		return $this->path( 'vendor', $append );
+	}
+
+	/**
+	 * Returns themes path with optional appended path/file.
+	 *
+	 * @since 1.0.0
+	 */
+	public function themesPath( string $append = '' ): string
+	{
+		return $this->path( 'themes', $append );
+	}
+
+	/**
+	 * Returns active theme path with optional appended path/file.
+	 *
+	 * @since 1.0.0
+	 */
+	public function themePath( string $append = '' ): string
+	{
+		return $this->path( 'theme', $append );
 	}
 
 	/**

@@ -222,6 +222,32 @@ if ( ! function_exists( 'vendor_path' ) ) {
 	}
 }
 
+if ( ! function_exists( 'themes_path' ) ) {
+	/**
+	 * Returns themes path with optional appended path/file.
+	 *
+	 * @since 1.0.0
+	 */
+	function themes_path( string $append = '' ): string
+	{
+		return app()->themesPath( $append );
+	}
+}
+
+if ( ! function_exists( 'theme_path' ) ) {
+	/**
+	 * Returns active theme path with optional appended path/file.
+	 *
+	 * @since 1.0.0
+	 */
+	function theme_path( string $append = '' ): string
+	{
+		return app()->themePath( $append );
+	}
+}
+
+if ( ! function_exists( 'url' ) ) {
+
 if ( ! function_exists( 'url' ) ) {
 	/**
 	 * Returns app URL with optional appended path. If no appended path,
