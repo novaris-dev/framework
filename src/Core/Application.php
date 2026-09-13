@@ -18,11 +18,11 @@ namespace Novaris\Core;
 use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
-use Novaris\Messenger\Message;
 use Novaris\Tools\{Collection, Str};
 use Dotenv\Dotenv;
 use League\Config\Configuration;
 use Novaris\Template\Tag\Navigation;
+use RuntimeException;
 
 /**
  * Application class.
@@ -117,10 +117,10 @@ class Application extends Container implements ApplicationContract, Bootable
 			! file_exists( Str::appendPath( $this['path'], '.env' ) ) &&
 			! file_exists( Str::appendPath( $this['path'], '.env.local' ) )
 		) {
-			( new Message() )->make(
-				'No <code>.env</code> or <code>.env.local</code> file found for the application. If setting up Novaris for the first time, copy and rename the <code>.env.example</code> file.'
-			)->dd();
-		}
+			throw new RuntimeException(
+				'No .env or .env.local file found for the application. If setting up Novaris for the first time, copy and rename the .env.example file.'
+			);
+	}
 
 		// Load the dotenv file and parse its data, making it available
 		// through the `$_ENV` and `$_SERVER` super-globals.
