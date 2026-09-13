@@ -53,10 +53,18 @@ class JsonFile extends File
 	 */
 	public function put( string $key, mixed $data, int $seconds = 0 ): bool
 	{
-		$put = $this->putJsonFileContents( $key, $data, $seconds );
+		$cache_data = [
+			'meta' => [
+				'expires' => $this->availableAt( $seconds ),
+				'created' => $this->createdAt()
+			],
+			'data' => $data
+		];
+
+		$put = $this->putJsonFileContents( $key, $cache_data );
 
 		if ( true === $put ) {
-			$this->setData( $key, $data );
+			$this->setData( $key, $cache_data );
 		}
 
 		return $put;
@@ -85,15 +93,13 @@ class JsonFile extends File
 	 *
 	 * @since  1.0.0
 	 */
-	protected function putJsonFileContents( string $key, array $data, int $seconds ): bool
+	protected function putJsonFileContents( string $key, array $data ): bool
 	{
-		$data = json_encode( [
-			'meta' => [
-				'expires' => $this->availableAt( $seconds ),
-				'created' => $this->createdAt()
-			],
-			'data' => $data
-		], JSON_PRETTY_PRINT );
+		$data = json_encode( $data, JSON_PRETTY_PRINT );
+
+		if ( false === $data ) {
+			return false;
+		}
 
 		$put = file_put_contents( $this->filepath( $key ), $data );
 
