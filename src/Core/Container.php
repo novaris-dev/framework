@@ -338,6 +338,10 @@ class Container implements ContainerContract, ArrayAccess
 				$resolved_type = false;
 
 				foreach ( $types as $type ) {
+					if ( $type->isBuiltin() ) {
+						continue;
+					}
+
 					$name = $type->getName();
 
 					if (
@@ -346,6 +350,7 @@ class Container implements ContainerContract, ArrayAccess
 					) {
 						$args[] = $this->resolve( $name );
 						$resolved_type = true;
+						break;
 					}
 				}
 
