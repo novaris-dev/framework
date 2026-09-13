@@ -183,8 +183,8 @@ abstract class Driver implements DriverContract, Makeable
 	 */
 	protected function hasExpired( array $data ): bool
 	{
-		// If no metadata is set, assume it does not expire.
-		if ( ! isset( $data['meta'] ) && ! isset( $data['meta']['expires'] ) ) {
+		// If no expiration metadata is set, assume it does not expire.
+		if ( ! isset( $data['meta']['expires'] ) ) {
 			return false;
 		}
 
