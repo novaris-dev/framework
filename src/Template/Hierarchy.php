@@ -17,7 +17,6 @@
 namespace Novaris\Template;
 
 use Novaris\Contracts\Content\{ContentEntry, ContentType};
-use Novaris\Template\Feed\Feed;
 
 class Hierarchy
 {
