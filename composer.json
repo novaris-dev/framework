@@ -32,6 +32,5 @@
         "league/config": "^1.2",
         "guzzlehttp/guzzle": "^7.9"
     },
-    "minimum-stability": "dev",
 	"prefer-stable": true
 }
