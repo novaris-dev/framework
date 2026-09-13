@@ -136,7 +136,7 @@ class Application extends Container implements ApplicationContract, Bootable
 			! file_exists( Str::appendPath( $this['path'], '.env' ) ) &&
 			! file_exists( Str::appendPath( $this['path'], '.env.local' ) )
 		) {
-			Message::make(
+			( new Message() )->make(
 				'No .env or .env.local file found for the application. If setting up Novaris for the first time, copy and rename the .env.example file.'
 			)->dd();
 		}
