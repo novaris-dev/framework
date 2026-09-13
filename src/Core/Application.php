@@ -18,7 +18,7 @@ namespace Novaris\Core;
 use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
-use Novaris\Core\Proxies\Message;
+use Novaris\Messenger\Message;
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -78,7 +78,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$filepath = $this->themePath( 'theme.php' );
 
 		if ( ! is_file( $filepath ) ) {
-			Message::make(
+			( new Message() )->make(
 				"Theme bootstrap file not found: {$filepath}"
 			)->dd();
 		}
