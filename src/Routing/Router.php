@@ -118,11 +118,15 @@ class Router implements RoutingRouter
 
 		// If no response is set, add the cached content to new response.
 		if ( ! $response ) {
-			$response = new Response(
-				$content['content'] ?? '',
-				$content['status'] ?? Response::HTTP_OK,
-				$content['headers'] ?? []
-			);
+			if ( is_array( $content ) && array_key_exists( 'content', $content ) ) {
+				$response = new Response(
+					$content['content'] ?? '',
+					$content['status'] ?? Response::HTTP_OK,
+					$content['headers'] ?? []
+				);
+			} else {
+				$response = new Response( (string) $content );
+			}
 		}
 
 		// Return HTTP response.
