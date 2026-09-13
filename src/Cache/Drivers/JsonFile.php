@@ -30,6 +30,13 @@ class JsonFile extends File
 	public function get( string $key ): mixed
 	{
 		if ( $this->hasData( $key ) ) {
+			$data = $this->data[ $key ];
+
+			if ( $this->hasExpired( $data ) ) {
+				$this->forget( $key );
+				return null;
+			}
+
 			return $this->getData( $key );
 		}
 
@@ -43,7 +50,7 @@ class JsonFile extends File
 			$this->setData( $key, $data );
 		}
 
-		return $this->data[$key]['data'] ?? null;
+		return $this->data[ $key ]['data'] ?? null;
 	}
 
 	/**
