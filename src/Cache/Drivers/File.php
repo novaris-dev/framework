@@ -168,11 +168,23 @@ class File extends Driver
 	 */
 	public function add( string $key, $data, int $seconds = 0 ): bool
 	{
-		if ( ! $this->fileExists( $key ) ) {
-			return $this->put( $key, $data, $seconds );
+		if ( $this->hasData( $key ) ) {
+			if ( $this->hasExpired( $this->data[ $key ] ) ) {
+				$this->forget( $key );
+			} else {
+				return false;
+			}
 		}
 
-		return false;
+		if ( $this->fileExists( $key ) ) {
+			$this->get( $key );
+
+			if ( $this->fileExists( $key ) ) {
+				return false;
+			}
+		}
+
+		return $this->put( $key, $data, $seconds );
 	}
 
 	/**
