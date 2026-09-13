@@ -411,7 +411,6 @@ if ( ! function_exists( 'asset' ) ) {
 			throw new Exception("Missing manifest entry: {$entry}");
 		}
 
-		// Web URL relative to the active theme's public assets folder.
 		return app_url(
 			'themes/' .
 			config( 'app.theme' ) .
