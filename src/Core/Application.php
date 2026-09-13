@@ -19,7 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
-use Novaris\Tools\{Collection, Config, Str};
+use Novaris\Tools\{Collection, Str};
 use Dotenv\Dotenv;
 use League\Config\Configuration;
 use Novaris\Template\Tag\Navigation;
