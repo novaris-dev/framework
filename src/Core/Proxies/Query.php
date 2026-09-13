@@ -12,7 +12,6 @@
 namespace Novaris\Core\Proxies;
 
 use Novaris\Core\Proxy;
-use Novaris\Contracts\Content\Query as QueryContract;
 
 class Query extends Proxy
 {
