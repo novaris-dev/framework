@@ -22,10 +22,10 @@ use Novaris\Contracts\Core\Container as ContainerContract;
 class Container implements ContainerContract, ArrayAccess
 {
 	/**
-	* Stored definitions of objects.
-	*
-	* @since 1.0.0
-	*/
+	 * Stored definitions of objects.
+	 *
+	 * @since 1.0.0
+	 */
 	protected array $bindings = [];
 
 	/**
@@ -36,17 +36,17 @@ class Container implements ContainerContract, ArrayAccess
 	protected array $aliases = [];
 
 	/**
-	* Array of single instance objects.
-	*
-	* @since 1.0.0
-	*/
+	 * Array of single instance objects.
+	 *
+	 * @since 1.0.0
+	 */
 	protected array $instances = [];
 
 	/**
-	* Array of object extensions.
-	*
-	* @since 1.0.0
-	*/
+	 * Array of object extensions.
+	 *
+	 * @since 1.0.0
+	 */
 	protected array $extensions = [];
 
 	/**
@@ -64,10 +64,10 @@ class Container implements ContainerContract, ArrayAccess
 	protected array $proxies = [];
 
 	/**
-	* Set up a new container.
-	*
-	* @since 1.0.0
-	*/
+	 * Set up a new container.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct( array $definitions = [] )
 	{
 		foreach ( $definitions as $abstract => $concrete ) {
@@ -96,10 +96,10 @@ class Container implements ContainerContract, ArrayAccess
 	}
 
 	/**
-	* Alias for `bind()`.
-	*
-	* @since  1.0.0
-	*/
+	 * Alias for `bind()`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function add( string $abstract, mixed $concrete = null, bool $shared = false ): void
 	{
 		$this->bind( $abstract, $concrete, $shared );
@@ -180,10 +180,10 @@ class Container implements ContainerContract, ArrayAccess
 	}
 
 	/**
-	* Alias for `resolve()`.
-	*
-	* @since  1.0.0
-	*/
+	 * Alias for `resolve()`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function get( string $abstract ): mixed
 	{
 		return $this->resolve( $abstract );
@@ -201,10 +201,10 @@ class Container implements ContainerContract, ArrayAccess
 	}
 
 	/**
-	* Check if a binding exists.
-	*
-	* @since 1.0.0
-	*/
+	 * Check if a binding exists.
+	 *
+	 * @since 1.0.0
+	 */
 	public function has( string $abstract ): bool
 	{
 		return isset( $this->bindings[ $abstract ] ) || isset( $this->instances[ $abstract ] );
@@ -266,14 +266,13 @@ class Container implements ContainerContract, ArrayAccess
 	 */
 	protected function getConcrete( string $abstract ): mixed
 	{
-		$concrete = false;
 		$abstract = $this->getAbstract( $abstract );
 
-		if ( $this->has( $abstract ) ) {
-			$concrete = $this->bindings[ $abstract ]['concrete'];
+		if ( array_key_exists( $abstract, $this->bindings ) ) {
+			return $this->bindings[ $abstract ]['concrete'];
 		}
 
-		return $concrete ?: $abstract;
+		return $abstract;
 	}
 
 	/**
@@ -387,12 +386,12 @@ class Container implements ContainerContract, ArrayAccess
 
 	/**
 	 * `ReflectionParameter::getType()` in PHP may return an instance of
-	 * `ReflectionNamedType` or an `ReflectionUnionType`.  The latter class's
+	 * `ReflectionNamedType` or an `ReflectionUnionType`. The latter class's
 	 * `getTypes()` method returns an array of the former objects. This
 	 * method ensures that we always get an array of `ReflectionNamedType`
 	 * objects.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	protected function getReflectionTypes( ReflectionParameter $dependency ): array
 	{
@@ -513,80 +512,80 @@ class Container implements ContainerContract, ArrayAccess
 	}
 
 	/**
-	* Sets a property via `ArrayAccess`.
-	*
-	* @since  1.0.0
-	*/
+	 * Sets a property via `ArrayAccess`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function offsetSet( mixed $name, mixed $value ): void
 	{
 		$this->add( $name, $value );
 	}
 
 	/**
-	* Unsets a property via `ArrayAccess`.
-	*
-	* @since  1.0.0
-	*/
+	 * Unsets a property via `ArrayAccess`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function offsetUnset( mixed $name ): void
 	{
 		$this->remove( $name );
 	}
 
 	/**
-	* Checks if a property exists via `ArrayAccess`.
-	*
-	* @since  1.0.0
-	*/
+	 * Checks if a property exists via `ArrayAccess`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function offsetExists( mixed $name ): bool
 	{
 		return $this->has( $name );
 	}
 
 	/**
-	* Returns a property via `ArrayAccess`.
-	*
-	* @since  1.0.0
-	*/
+	 * Returns a property via `ArrayAccess`.
+	 *
+	 * @since  1.0.0
+	 */
 	public function offsetGet( mixed $name ): mixed
 	{
 		return $this->get( $name );
 	}
 
 	/**
-	* Magic method when trying to set a property.
-	*
-	* @since  1.0.0
-	*/
+	 * Magic method when trying to set a property.
+	 *
+	 * @since  1.0.0
+	 */
 	public function __set( string $name, mixed $value ): void
 	{
 		$this->add( $name, $value );
 	}
 
 	/**
-	* Magic method when trying to unset a property.
-	*
-	* @since  1.0.0
-	*/
+	 * Magic method when trying to unset a property.
+	 *
+	 * @since  1.0.0
+	 */
 	public function __unset( string $name ): void
 	{
 		$this->remove( $name );
 	}
 
 	/**
-	* Magic method when trying to check if a property exists.
-	*
-	* @since  1.0.0
-	*/
+	 * Magic method when trying to check if a property exists.
+	 *
+	 * @since  1.0.0
+	 */
 	public function __isset( string $name ): bool
 	{
 		return $this->has( $name );
 	}
 
 	/**
-	* Magic method when trying to get a property.
-	*
-	* @since  1.0.0
-	*/
+	 * Magic method when trying to get a property.
+	 *
+	 * @since  1.0.0
+	 */
 	public function __get( string $name ): mixed
 	{
 		return $this->get( $name );
