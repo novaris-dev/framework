@@ -247,8 +247,6 @@ if ( ! function_exists( 'theme_path' ) ) {
 }
 
 if ( ! function_exists( 'url' ) ) {
-
-if ( ! function_exists( 'url' ) ) {
 	/**
 	 * Returns app URL with optional appended path. If no appended path,
 	 * returns the `Url` object, which can be used as a string to get the
