@@ -300,7 +300,7 @@ class Registry implements CacheRegistry
 	{
 		[ 'store' => $store, 'key' => $key ] = $this->parseDotName( $name );
 
-		return $this->store( $store )->expires( $key );
+		return $this->store( $store )->expired( $key );
 	}
 
 	/**
