@@ -82,7 +82,9 @@ class Application extends Container implements ApplicationContract, Bootable
 		$theme = $this['config']->get( 'app.theme' );
 
 		if ( empty( $theme ) ) {
-			return;
+			( new Message() )->make(
+				'No active theme has been configured.'
+			)->dd();
 		}
 	}
 
