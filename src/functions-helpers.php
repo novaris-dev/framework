@@ -397,7 +397,11 @@ if ( ! function_exists( 'asset' ) ) {
 		
 		static $manifest = null;
 
-		$manifest_file = theme_path( 'public/assets/manifest.json' );
+		$private = config( 'app.private' );
+
+		$manifest_file = $private
+			? public_path( 'assets/manifest.json' )
+			: theme_path( 'public/assets/manifest.json' );
 
 		if ( $manifest === null ) {
 			if ( ! is_file( $manifest_file ) ) {
@@ -411,11 +415,17 @@ if ( ! function_exists( 'asset' ) ) {
 			throw new Exception("Missing manifest entry: {$entry}");
 		}
 
+		$file = ltrim( $manifest[$entry]['file'], '/' );
+
+		if ( $private ) {
+			return public_url( 'assets/' . $file );
+		}
+
 		return app_url(
 			'themes/' .
 			config( 'app.theme' ) .
 			'/public/assets/' .
-			ltrim( $manifest[$entry]['file'], '/' )
+			$file
 		);
 	}
 }
