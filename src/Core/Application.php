@@ -18,7 +18,7 @@ namespace Novaris\Core;
 use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
-use Novaris\Tools\{Collection, Str};
+use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
 use Novaris\Template\Tag\Navigation;
