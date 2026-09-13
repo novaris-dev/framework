@@ -18,11 +18,11 @@ namespace Novaris\Core;
 use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
+use Novaris\Core\Proxies\Message;
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
 use Novaris\Template\Tag\Navigation;
-use RuntimeException;
 
 /**
  * Application class.
@@ -117,10 +117,10 @@ class Application extends Container implements ApplicationContract, Bootable
 			! file_exists( Str::appendPath( $this['path'], '.env' ) ) &&
 			! file_exists( Str::appendPath( $this['path'], '.env.local' ) )
 		) {
-			throw new RuntimeException(
+			Message::make(
 				'No .env or .env.local file found for the application. If setting up Novaris for the first time, copy and rename the .env.example file.'
-			);
-	}
+			)->dd();
+		}
 
 		// Load the dotenv file and parse its data, making it available
 		// through the `$_ENV` and `$_SERVER` super-globals.
@@ -183,8 +183,8 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		// Register Navigation as a singleton with the default items
 		$this->singleton( 'navigation', function () {
-			$items = config( 'app.primary' ) ?? [];  // Default items for the menu
-			return new Navigation( $items );         // Pass items directly in the constructor
+			$items = config( 'app.primary' ) ?? [];
+			return new Navigation( $items );
 		});
 	}
 
@@ -246,6 +246,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	public function path( string $accessor = '', string $append = '' ): string
 	{
 		$path = $accessor ? $this->get( "path.{$accessor}" ) : $this->path;
+
 		return Str::appendPath( $path, $append );
 	}
 
@@ -366,8 +367,9 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function url( string $accessor = '', string $append = '' ): string
 	{
-	        $url = $accessor ? $this->get( "url.{$accessor}" ) : $this->url;
-	        return Str::appendPath( $url, $append );
+		$url = $accessor ? $this->get( "url.{$accessor}" ) : $this->url;
+
+		return Str::appendPath( $url, $append );
 	}
 
 	/**
@@ -377,7 +379,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function appUrl( string $append = '' ): string
 	{
-	        return $this->url( 'app', $append );
+		return $this->url( 'app', $append );
 	}
 
 	/**
@@ -387,7 +389,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function configUrl( string $append = '' ): string
 	{
-	        return $this->url( 'config', $append );
+		return $this->url( 'config', $append );
 	}
 
 	/**
@@ -397,7 +399,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function publicUrl( string $append = '' ): string
 	{
-	        return $this->url( 'public', $append );
+		return $this->url( 'public', $append );
 	}
 
 	/**
@@ -407,7 +409,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function viewUrl( string $append = '' ): string
 	{
-	        return $this->url( 'view', $append );
+		return $this->url( 'view', $append );
 	}
 
 	/**
@@ -417,7 +419,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function resourceUrl( string $append = '' ): string
 	{
-	        return $this->url( 'resource', $append );
+		return $this->url( 'resource', $append );
 	}
 
 	/**
@@ -427,7 +429,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function storageUrl( string $append = '' ): string
 	{
-	        return $this->url( 'storage', $append );
+		return $this->url( 'storage', $append );
 	}
 
 	/**
@@ -437,7 +439,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function cacheUrl( string $append = '' ): string
 	{
-	        return $this->url( 'cache', $append );
+		return $this->url( 'cache', $append );
 	}
 
 	/**
@@ -447,7 +449,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function userUrl( string $append = '' ): string
 	{
-	        return $this->url( 'user', $append );
+		return $this->url( 'user', $append );
 	}
 
 	/**
@@ -457,7 +459,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function contentUrl( string $append = '' ): string
 	{
-	        return $this->url( 'content', $append );
+		return $this->url( 'content', $append );
 	}
 
 	/**
@@ -467,7 +469,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	public function mediaUrl( string $append = '' ): string
 	{
-	        return $this->url( 'media', $append );
+		return $this->url( 'media', $append );
 	}
 
 	/**
