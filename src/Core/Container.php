@@ -16,6 +16,7 @@ use Closure;
 use ReflectionClass;
 use ReflectionParameter;
 use ReflectionUnionType;
+use RuntimeException;
 use Novaris\Contracts\Core\Container as ContainerContract;
 
 class Container implements ContainerContract, ArrayAccess
@@ -316,7 +317,6 @@ class Container implements ContainerContract, ArrayAccess
 	/**
 	 * Resolves the dependencies for a method's parameters.
 	 *
-	 * @todo  Handle errors when we can't solve a dependency.
 	 * @since 1.0.0
 	 */
 	protected function resolveDependencies( array $dependencies, array $parameters ): array
@@ -357,7 +357,24 @@ class Container implements ContainerContract, ArrayAccess
 			// Else, use the default parameter value.
 			if ( $dependency->isDefaultValueAvailable() ) {
 				$args[] = $dependency->getDefaultValue();
+				continue;
 			}
+
+			// If the dependency allows null, use null.
+			if ( $dependency->allowsNull() ) {
+				$args[] = null;
+				continue;
+			}
+
+			// Required dependency could not be resolved.
+			$declaring = $dependency->getDeclaringClass();
+			$class     = $declaring ? $declaring->getName() : 'callable';
+
+			throw new RuntimeException( sprintf(
+				'Unable to resolve required dependency $%s while building %s.',
+				$dependency->getName(),
+				$class
+			) );
 		}
 
 		return $args;
