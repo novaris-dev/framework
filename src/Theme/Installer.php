@@ -2,7 +2,8 @@
 /**
  * Theme installer.
  *
- * Handles locating and downloading theme release packages from GitHub.
+ * Handles locating, downloading, and installing theme release packages
+ * from GitHub.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -15,6 +16,7 @@ namespace Novaris\Theme;
 
 use GuzzleHttp\Client;
 use RuntimeException;
+use ZipArchive;
 
 class Installer
 {
@@ -128,5 +130,70 @@ class Installer
 		}
 
 		return $file;
+	}
+
+	/**
+	 * Install the latest theme release.
+	 *
+	 * @since 1.0.0
+	 */
+	public function install(
+		string $theme,
+		string $repository,
+		string $themes
+	): string {
+		if ( ! class_exists( ZipArchive::class ) ) {
+			throw new RuntimeException(
+				'The PHP ZIP extension is required to install themes.'
+			);
+		}
+
+		if ( ! is_dir( $themes ) ) {
+			if ( ! mkdir( $themes, 0755, true ) && ! is_dir( $themes ) ) {
+				throw new RuntimeException(
+					"Unable to create themes directory: {$themes}"
+				);
+			}
+		}
+
+		$archive = $this->download(
+			$theme,
+			$repository,
+			$themes
+		);
+
+		$zip = new ZipArchive();
+
+		if ( $zip->open( $archive ) !== true ) {
+			throw new RuntimeException(
+				"Unable to open theme archive: {$archive}"
+			);
+		}
+
+		$extracted = $zip->extractTo( $themes );
+
+		$zip->close();
+
+		if ( ! $extracted ) {
+			throw new RuntimeException(
+				"Unable to extract theme archive: {$archive}"
+			);
+		}
+
+		if ( is_file( $archive ) ) {
+			unlink( $archive );
+		}
+
+		$themePath = rtrim( $themes, '/\\' )
+			. DIRECTORY_SEPARATOR
+			. $theme;
+
+		if ( ! is_dir( $themePath ) ) {
+			throw new RuntimeException(
+				"Installed theme directory not found: {$theme}"
+			);
+		}
+
+		return $themePath;
 	}
 }
