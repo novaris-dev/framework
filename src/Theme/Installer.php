@@ -245,4 +245,67 @@ class Installer
 			'>'
 		);
 	}
+
+	/**
+	 * Update an installed theme to the latest release.
+	 *
+	 * @since 1.0.0
+	 */
+	public function update( string $themePath ): string
+	{
+		$metadata = ( new Metadata() )->read( $themePath );
+
+		$theme      = $metadata['slug'] ?? '';
+		$repository = $metadata['repository'] ?? '';
+
+		if ( empty( $theme ) || empty( $repository ) ) {
+			throw new RuntimeException(
+				"Theme metadata is incomplete: {$themePath}"
+			);
+		}
+
+		if ( ! $this->updateAvailable( $themePath ) ) {
+			return $themePath;
+		}
+
+		$themes = dirname( $themePath );
+
+		$archive = $this->download(
+			$theme,
+			$repository,
+			$themes
+		);
+
+		$zip = new ZipArchive();
+
+		if ( $zip->open( $archive ) !== true ) {
+			throw new RuntimeException(
+				"Unable to open theme archive: {$archive}"
+			);
+		}
+
+		$extracted = $zip->extractTo( $themes );
+
+		$zip->close();
+
+		if ( ! $extracted ) {
+			throw new RuntimeException(
+				"Unable to extract theme archive: {$archive}"
+			);
+		}
+
+		if ( is_file( $archive ) ) {
+			unlink( $archive );
+		}
+
+		$metadata = ( new Metadata() )->read( $themePath );
+
+		if ( ( $metadata['slug'] ?? '' ) !== $theme ) {
+			throw new RuntimeException(
+				"Theme metadata does not match installed theme: {$theme}"
+			);
+		}
+
+		return $themePath;
+	}
 }
