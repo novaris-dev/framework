@@ -394,7 +394,6 @@ if ( ! function_exists( 'vendor_url' ) ) {
 
 if ( ! function_exists( 'asset' ) ) {
 	function asset( string $entry ): string {
-		
 		static $manifest = null;
 
 		$private = config( 'app.private' );
@@ -405,14 +404,17 @@ if ( ! function_exists( 'asset' ) ) {
 
 		if ( $manifest === null ) {
 			if ( ! is_file( $manifest_file ) ) {
-
 				throw new Exception( "Vite manifest not found: {$manifest_file}" );
 			}
-			$manifest = json_decode( file_get_contents( $manifest_file), true ) ?: [];
+
+			$manifest = json_decode(
+				file_get_contents( $manifest_file ),
+				true
+			) ?: [];
 		}
 
-		if (!isset($manifest[$entry]['file'])) {
-			throw new Exception("Missing manifest entry: {$entry}");
+		if ( ! isset( $manifest[$entry]['file'] ) ) {
+			throw new Exception( "Missing manifest entry: {$entry}" );
 		}
 
 		$file = ltrim( $manifest[$entry]['file'], '/' );
@@ -421,9 +423,11 @@ if ( ! function_exists( 'asset' ) ) {
 			return public_url( 'assets/' . $file );
 		}
 
+		$theme = config( 'app.theme' );
+
 		return app_url(
 			'themes/' .
-			config( 'app.theme' ) .
+			( $theme['name'] ?? '' ) .
 			'/public/assets/' .
 			$file
 		);
