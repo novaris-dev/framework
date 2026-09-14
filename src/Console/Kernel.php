@@ -51,25 +51,35 @@ class Kernel
 		};
 	}
 
-	/**
-	 * Update the active theme.
-	 *
-	 * @since 1.0.0
-	 */
+    /**
+     * Update the active theme.
+     *
+     * @since 1.0.0
+     */
     protected function updateTheme(): int
     {
         $installer = $this->app['theme.installer'];
+        $metadata  = $this->app['theme.metadata'];
         $themePath = $this->app->themePath();
 
+        $current = $metadata->read( $themePath );
+
+        $theme   = $current['name'] ?? $current['slug'] ?? 'Theme';
+        $version = $current['version'] ?? '';
+
         if ( ! $installer->updateAvailable( $themePath ) ) {
-            echo "Theme is already up to date.\n";
+            echo "Theme: {$theme} {$version} is already up to date.\n";
 
             return 0;
         }
 
         $installer->update( $themePath );
 
-        echo "Theme updated successfully.\n";
+        $updated = $metadata->read( $themePath );
+
+        $newVersion = $updated['version'] ?? '';
+
+        echo "Theme: {$theme} updated successfully from {$version} to {$newVersion}.\n";
 
         return 0;
     }
