@@ -86,6 +86,12 @@ class Application extends Container implements ApplicationContract, Bootable
 				'No active theme has been configured.'
 			)->dd();
 		}
+
+		if ( ! is_dir( $this->themePath() ) ) {
+			( new Message() )->make(
+				"Theme not found: {$theme}"
+			)->dd();
+		}
 	}
 
 	/**
