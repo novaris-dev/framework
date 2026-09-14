@@ -79,7 +79,7 @@ class Application extends Container implements ApplicationContract, Bootable
 			return;
 		}
 
-		$theme = $this['config']->get( 'app.theme' );
+		$theme = $this['config']->get( 'app.theme.name' );
 
 		if ( empty( $theme ) ) {
 			( new Message() )->make(
