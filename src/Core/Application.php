@@ -24,6 +24,7 @@ use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
 use Novaris\Template\Tag\Navigation;
+use Throwable;
 
 /**
  * Application class.
@@ -98,13 +99,19 @@ class Application extends Container implements ApplicationContract, Bootable
 				)->dd();
 			}
 
-			$installer = new Installer();
+			try {
+				$installer = new Installer();
 
-			$installer->install(
-				$theme,
-				$repository,
-				$this['path.themes']
-			);
+				$installer->install(
+					$theme,
+					$repository,
+					$this['path.themes']
+				);
+			} catch ( Throwable $e ) {
+				( new Message() )->make(
+					$e->getMessage()
+				)->dd();
+			}
 		}
 	}
 
