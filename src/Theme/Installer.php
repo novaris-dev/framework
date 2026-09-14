@@ -2,8 +2,8 @@
 /**
  * Theme installer.
  *
- * Handles locating, downloading, installing, and checking theme release packages
- * from GitHub.
+ * Handles locating, downloading, installing, checking, and updating theme
+ * release packages from GitHub.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -14,7 +14,10 @@
 
 namespace Novaris\Theme;
 
+use FilesystemIterator;
 use GuzzleHttp\Client;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
 use ZipArchive;
 
@@ -253,6 +256,12 @@ class Installer
 	 */
 	public function update( string $themePath ): string
 	{
+		if ( ! class_exists( ZipArchive::class ) ) {
+			throw new RuntimeException(
+				'The PHP ZIP extension is required to update themes.'
+			);
+		}
+
 		$metadata = ( new Metadata() )->read( $themePath );
 
 		$theme      = $metadata['slug'] ?? '';
@@ -270,42 +279,120 @@ class Installer
 
 		$themes = dirname( $themePath );
 
-		$archive = $this->download(
-			$theme,
-			$repository,
-			$themes
+		$temporary = $themes
+			. DIRECTORY_SEPARATOR
+			. ".{$theme}-update-" . uniqid();
+
+		$backup = $themes
+			. DIRECTORY_SEPARATOR
+			. ".{$theme}-backup-" . uniqid();
+
+		if ( ! mkdir( $temporary, 0755, true ) && ! is_dir( $temporary ) ) {
+			throw new RuntimeException(
+				"Unable to create temporary theme directory: {$temporary}"
+			);
+		}
+
+		$archive = '';
+
+		try {
+			$archive = $this->download(
+				$theme,
+				$repository,
+				$temporary
+			);
+
+			$zip = new ZipArchive();
+
+			if ( $zip->open( $archive ) !== true ) {
+				throw new RuntimeException(
+					"Unable to open theme archive: {$archive}"
+				);
+			}
+
+			$extracted = $zip->extractTo( $temporary );
+
+			$zip->close();
+
+			if ( ! $extracted ) {
+				throw new RuntimeException(
+					"Unable to extract theme archive: {$archive}"
+				);
+			}
+
+			$updatedThemePath = $temporary
+				. DIRECTORY_SEPARATOR
+				. $theme;
+
+			if ( ! is_dir( $updatedThemePath ) ) {
+				throw new RuntimeException(
+					"Updated theme directory not found: {$theme}"
+				);
+			}
+
+			$updatedMetadata = ( new Metadata() )->read( $updatedThemePath );
+
+			if ( ( $updatedMetadata['slug'] ?? '' ) !== $theme ) {
+				throw new RuntimeException(
+					"Theme metadata does not match installed theme: {$theme}"
+				);
+			}
+
+			if ( ! rename( $themePath, $backup ) ) {
+				throw new RuntimeException(
+					"Unable to create backup for theme: {$theme}"
+				);
+			}
+
+			if ( ! rename( $updatedThemePath, $themePath ) ) {
+				rename( $backup, $themePath );
+
+				throw new RuntimeException(
+					"Unable to replace installed theme: {$theme}"
+				);
+			}
+
+			$this->removeDirectory( $backup );
+
+			return $themePath;
+		} finally {
+			if ( $archive && is_file( $archive ) ) {
+				unlink( $archive );
+			}
+
+			if ( is_dir( $temporary ) ) {
+				$this->removeDirectory( $temporary );
+			}
+		}
+	}
+
+	/**
+	 * Remove a directory and all of its contents.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function removeDirectory( string $directory ): void
+	{
+		if ( ! is_dir( $directory ) ) {
+			return;
+		}
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$directory,
+				FilesystemIterator::SKIP_DOTS
+			),
+			RecursiveIteratorIterator::CHILD_FIRST
 		);
 
-		$zip = new ZipArchive();
-
-		if ( $zip->open( $archive ) !== true ) {
-			throw new RuntimeException(
-				"Unable to open theme archive: {$archive}"
-			);
+		foreach ( $iterator as $item ) {
+			if ( $item->isDir() ) {
+				rmdir( $item->getPathname() );
+			} else {
+				unlink( $item->getPathname() );
+			}
 		}
 
-		$extracted = $zip->extractTo( $themes );
-
-		$zip->close();
-
-		if ( ! $extracted ) {
-			throw new RuntimeException(
-				"Unable to extract theme archive: {$archive}"
-			);
-		}
-
-		if ( is_file( $archive ) ) {
-			unlink( $archive );
-		}
-
-		$metadata = ( new Metadata() )->read( $themePath );
-
-		if ( ( $metadata['slug'] ?? '' ) !== $theme ) {
-			throw new RuntimeException(
-				"Theme metadata does not match installed theme: {$theme}"
-			);
-		}
-
-		return $themePath;
+		rmdir( $directory );
 	}
 }
