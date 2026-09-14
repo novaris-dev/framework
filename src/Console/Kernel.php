@@ -68,7 +68,7 @@ class Kernel
         $version = $current['version'] ?? '';
 
         if ( ! $installer->updateAvailable( $themePath ) ) {
-            echo "Theme: {$theme} {$version} is already up to date.\n";
+            echo "Theme: {$theme} is already up to date.\n";
 
             return 0;
         }
