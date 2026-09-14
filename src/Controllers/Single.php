@@ -77,7 +77,7 @@ class Single extends Controller
 
 			if ( $type && method_exists( $type, 'isDirectory' ) && $type->isDirectory() ) {
 				$repository = new Repository();
-                $directory = $repository->get( Str::slug( $single->title() ) );
+				$directory  = $repository->get( Str::slug( $single->title() ) );
 
 				foreach ( $directory as $key => $value ) {
 					$single->{$key} = $value;
@@ -106,3 +106,4 @@ class Single extends Controller
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
+}
