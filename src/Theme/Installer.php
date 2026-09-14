@@ -2,7 +2,7 @@
 /**
  * Theme installer.
  *
- * Handles locating theme release packages from GitHub.
+ * Handles locating and downloading theme release packages from GitHub.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -67,7 +67,7 @@ class Installer
 			);
 		}
 
-		$version = ltrim( $release['tag_name'], 'v' );
+		$version  = ltrim( $release['tag_name'], 'v' );
 		$filename = "{$theme}.{$version}.zip";
 
 		foreach ( $release['assets'] ?? [] as $asset ) {
@@ -87,5 +87,46 @@ class Installer
 		throw new RuntimeException(
 			"Theme release asset not found: {$filename}"
 		);
+	}
+
+	/**
+	 * Download the latest theme release.
+	 *
+	 * @since 1.0.0
+	 */
+	public function download(
+		string $theme,
+		string $repository,
+		string $destination
+	): string {
+		$release = $this->latest( $theme, $repository );
+
+		if ( ! is_dir( $destination ) ) {
+			if ( ! mkdir( $destination, 0755, true ) && ! is_dir( $destination ) ) {
+				throw new RuntimeException(
+					"Unable to create theme download directory: {$destination}"
+				);
+			}
+		}
+
+		$file = rtrim( $destination, '/\\' )
+			. DIRECTORY_SEPARATOR
+			. $release['filename'];
+
+		$this->client->request(
+			'GET',
+			$release['url'],
+			[
+				'sink' => $file,
+			]
+		);
+
+		if ( ! is_file( $file ) ) {
+			throw new RuntimeException(
+				"Unable to download theme release: {$release['filename']}"
+			);
+		}
+
+		return $file;
 	}
 }
