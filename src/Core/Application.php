@@ -79,7 +79,8 @@ class Application extends Container implements ApplicationContract, Bootable
 			return;
 		}
 
-		$theme = $this['config']->get( 'app.theme.name' );
+		$theme      = $this['config']->get( 'app.theme.name' );
+		$repository = $this['config']->get( 'app.theme.repository' );
 
 		if ( empty( $theme ) ) {
 			( new Message() )->make(
@@ -88,9 +89,19 @@ class Application extends Container implements ApplicationContract, Bootable
 		}
 
 		if ( ! is_dir( $this->themePath() ) ) {
-			( new Message() )->make(
-				"Theme not found: {$theme}"
-			)->dd();
+			if ( empty( $repository ) ) {
+				( new Message() )->make(
+					"No repository has been configured for theme: {$theme}"
+				)->dd();
+			}
+
+			$installer = new \Novaris\Theme\Installer();
+
+			$installer->install(
+				$theme,
+				$repository,
+				$this['path.themes']
+			);
 		}
 	}
 
