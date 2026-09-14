@@ -19,6 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
+use Novaris\Theme\Installer;
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -79,8 +80,10 @@ class Application extends Container implements ApplicationContract, Bootable
 			return;
 		}
 
-		$theme      = $this['config']->get( 'app.theme.name' );
-		$repository = $this['config']->get( 'app.theme.repository' );
+		$config = $this['config']->get( 'app.theme', [] );
+
+		$theme      = $config['name'] ?? '';
+		$repository = $config['repository'] ?? '';
 
 		if ( empty( $theme ) ) {
 			( new Message() )->make(
@@ -95,7 +98,7 @@ class Application extends Container implements ApplicationContract, Bootable
 				)->dd();
 			}
 
-			$installer = new \Novaris\Theme\Installer();
+			$installer = new Installer();
 
 			$installer->install(
 				$theme,
@@ -189,6 +192,8 @@ class Application extends Container implements ApplicationContract, Bootable
 			}
 		}
 
+		$theme = $this['config']->get( 'app.theme', [] );
+
 		// Add default paths.
 		$this->instance( 'path.app',      $this['path']                                         );
 		$this->instance( 'path.public',   Str::appendPath( $this['path'],         'public'    ) );
@@ -201,7 +206,15 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'path.media',    Str::appendPath( $this['path.user'],    'media'     ) );
 		$this->instance( 'path.vendor',   Str::appendPath( $this['path'],         'vendor'    ) );
 		$this->instance( 'path.themes',   Str::appendPath( $this['path'],         'themes'    ) );
-		$this->instance( 'path.theme', $this['config']->get( 'app.private', false ) ? $this['path'] : Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme.name' ) ) );
+		$this->instance(
+			'path.theme',
+			$this['config']->get( 'app.private', false )
+				? $this['path']
+				: Str::appendPath(
+					$this['path.themes'],
+					$theme['name'] ?? ''
+				)
+		);
 
 		// Add default URIs.
 		if ( ! $url = $this->config->get( 'app.uri' ) ) {
