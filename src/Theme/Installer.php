@@ -204,6 +204,14 @@ class Installer
 			);
 		}
 
+		$metadata = ( new Metadata() )->read( $themePath );
+
+		if ( ( $metadata['slug'] ?? '' ) !== $theme ) {
+			throw new RuntimeException(
+				"Theme metadata does not match installed theme: {$theme}"
+			);
+		}
+
 		return $themePath;
 	}
 }
