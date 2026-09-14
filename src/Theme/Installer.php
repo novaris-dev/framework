@@ -38,12 +38,21 @@ class Installer
 	protected Client $client;
 
 	/**
+	 * Theme metadata.
+	 *
+	 * @since 1.0.0
+	 */
+	protected Metadata $metadata;
+
+	/**
 	 * Create a new theme installer.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct()
+	public function __construct( Metadata $metadata )
 	{
+		$this->metadata = $metadata;
+
 		$this->client = new Client( [
 			'base_uri' => 'https://api.github.com',
 			'timeout'  => 10.0,
@@ -207,7 +216,7 @@ class Installer
 			);
 		}
 
-		$metadata = ( new Metadata() )->read( $themePath );
+		$metadata = $this->metadata->read( $themePath );
 
 		if ( ( $metadata['slug'] ?? '' ) !== $theme ) {
 			throw new RuntimeException(
@@ -225,7 +234,7 @@ class Installer
 	 */
 	public function updateAvailable( string $themePath ): bool
 	{
-		$metadata = ( new Metadata() )->read( $themePath );
+		$metadata = $this->metadata->read( $themePath );
 
 		$theme      = $metadata['slug'] ?? '';
 		$version    = $metadata['version'] ?? '';
@@ -262,7 +271,7 @@ class Installer
 			);
 		}
 
-		$metadata = ( new Metadata() )->read( $themePath );
+		$metadata = $this->metadata->read( $themePath );
 
 		$theme      = $metadata['slug'] ?? '';
 		$repository = $metadata['repository'] ?? '';
@@ -330,7 +339,7 @@ class Installer
 				);
 			}
 
-			$updatedMetadata = ( new Metadata() )->read( $updatedThemePath );
+			$updatedMetadata = $this->metadata->read( $updatedThemePath );
 
 			if ( ( $updatedMetadata['slug'] ?? '' ) !== $theme ) {
 				throw new RuntimeException(
