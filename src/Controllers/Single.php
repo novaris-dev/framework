@@ -77,7 +77,7 @@ class Single extends Controller
 
 			if ( $type && method_exists( $type, 'isDirectory' ) && $type->isDirectory() ) {
 				$repository = new Repository();
-				$directory  = $repository->get( $this->slugify( $single->title() ) );
+                $directory = $repository->get( Str::slug( $single->title() ) );
 
 				foreach ( $directory as $key => $value ) {
 					$single->{$key} = $value;
@@ -106,25 +106,3 @@ class Single extends Controller
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-
-	/**
-	 * Helper method to convert a title into a slug.
-	 *
-	 * @param  string  $title  The title to convert.
-	 * @return string
-	 */
-	protected function slugify( string $title ): string
-	{
-		// Convert to lowercase.
-		$slug = strtolower( $title );
-
-		// Remove characters that are not alphanumeric, spaces, or hyphens.
-		$slug = preg_replace( '/[^a-z0-9\s-]/', '', $slug );
-
-		// Replace spaces and multiple hyphens with a single hyphen.
-		$slug = preg_replace( '/[\s-]+/', '-', $slug );
-
-		// Trim hyphens from both ends.
-		return trim( $slug, '-' );
-	}
-}
