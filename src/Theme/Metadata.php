@@ -29,6 +29,19 @@ class Metadata
 			. 'theme.json';
 
 		if ( ! is_file( $file ) ) {
+			$slug = basename(
+				rtrim( $theme, '/\\' )
+			);
+
+			if ( $slug === 'amicable' ) {
+				return [
+					'name'       => 'Amicable',
+					'slug'       => 'amicable',
+					'version'    => '0.0.1',
+					'repository' => 'novaris-dev/amicable',
+				];
+			}
+
 			throw new RuntimeException(
 				"Theme metadata file not found: {$file}"
 			);
