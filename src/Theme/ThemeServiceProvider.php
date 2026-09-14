@@ -25,13 +25,15 @@ class ThemeServiceProvider extends ServiceProvider
 	public function register(): void
 	{
 		$this->app->singleton(
-			'theme.installer',
-			fn () => new Installer()
+			'theme.metadata',
+			fn () => new Metadata()
 		);
 
 		$this->app->singleton(
-			'theme.metadata',
-			fn () => new Metadata()
+			'theme.installer',
+			fn () => new Installer(
+				$this->app['theme.metadata']
+			)
 		);
 	}
 }
