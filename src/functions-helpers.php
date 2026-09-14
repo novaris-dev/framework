@@ -427,7 +427,7 @@ if ( ! function_exists( 'asset' ) ) {
 
 		return app_url(
 			'themes/' .
-			( $theme['name'] ?? '' ) .
+			$theme .
 			'/public/assets/' .
 			$file
 		);
