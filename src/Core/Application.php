@@ -190,12 +190,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'path.media',    Str::appendPath( $this['path.user'],    'media'     ) );
 		$this->instance( 'path.vendor',   Str::appendPath( $this['path'],         'vendor'    ) );
 		$this->instance( 'path.themes',   Str::appendPath( $this['path'],         'themes'    ) );
-		$this->instance(
-			'path.theme',
-			$this['config']->get( 'app.private', false )
-				? $this['path']
-				: Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme' ) )
-		);
+		$this->instance( 'path.theme', $this['config']->get( 'app.private', false ) ? $this['path'] : Str::appendPath( $this['path.themes'], $this['config']->get( 'app.theme.name' ) ) );
 
 		// Add default URIs.
 		if ( ! $url = $this->config->get( 'app.uri' ) ) {
