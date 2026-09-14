@@ -19,7 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
-use Novaris\Theme\Installer;
+use Novaris\Theme\ThemeServiceProvider;
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -91,9 +91,7 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		if ( ! is_dir( $this->themePath() ) ) {
 			try {
-				$installer = new Installer();
-
-				$installer->install(
+				$this['theme.installer']->install(
 					$theme,
 					$this['path.themes']
 				);
@@ -253,6 +251,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->provider( Providers\Markdown::class );
 		$this->provider( Providers\Routing::class  );
 		$this->provider( Providers\Template::class );
+		$this->provider( ThemeServiceProvider::class );
 
 		// Register app service providers.
 		$providers = $this['config']->get( 'app.providers' );
