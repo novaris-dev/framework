@@ -55,15 +55,22 @@ class Repository
 	 *
 	 * @since 1.0.0
 	 */
-	public function get( string $slug ): array
-	{
-		return [
-			'cp_themes_api'  => $this->classicPressTheme( $slug ),
-			'wp_themes_api'  => $this->wordPressTheme( $slug ),
-			'cp_plugins_api' => $this->classicPressPlugin( $slug ),
-			'wp_plugins_api' => $this->wordPressPlugin( $slug ),
-		];
-	}
+    public function get( string $slug ): array
+    {
+        $cp_theme = $this->classicPressTheme( $slug );
+
+        $data = [
+            'cp_themes_api'  => $cp_theme,
+            'cp_plugins_api' => $this->classicPressPlugin( $slug ),
+            'wp_plugins_api' => $this->wordPressPlugin( $slug ),
+        ];
+
+        if ( isset( $cp_theme['error'] ) ) {
+            $data['wp_themes_api'] = $this->wordPressTheme( $slug );
+        }
+
+        return $data;
+    }
 
 	/**
 	 * Gets ClassicPress theme information.
