@@ -21,6 +21,13 @@ use ZipArchive;
 class Installer
 {
 	/**
+	 * Default theme repository.
+	 *
+	 * @since 1.0.0
+	 */
+	protected const DEFAULT_REPOSITORY = 'novaris-dev/amicable';
+
+	/**
 	 * GitHub API client.
 	 *
 	 * @since 1.0.0
@@ -45,11 +52,9 @@ class Installer
 	}
 
 	/**
-	 * Get the latest release asset for a theme.
+	 * Get the latest theme release.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return array<string, string>
 	 */
 	public function latest( string $theme, string $repository ): array
 	{
@@ -139,12 +144,17 @@ class Installer
 	 */
 	public function install(
 		string $theme,
-		string $repository,
 		string $themes
 	): string {
 		if ( ! class_exists( ZipArchive::class ) ) {
 			throw new RuntimeException(
 				'The PHP ZIP extension is required to install themes.'
+			);
+		}
+
+		if ( $theme !== 'amicable' ) {
+			throw new RuntimeException(
+				"Unable to determine repository for theme: {$theme}"
 			);
 		}
 
@@ -158,7 +168,7 @@ class Installer
 
 		$archive = $this->download(
 			$theme,
-			$repository,
+			static::DEFAULT_REPOSITORY,
 			$themes
 		);
 
