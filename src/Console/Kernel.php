@@ -56,16 +56,23 @@ class Kernel
 	 *
 	 * @since 1.0.0
 	 */
-	protected function updateTheme(): int
-	{
-		$this->app['theme.installer']->update(
-			$this->app->themePath()
-		);
+    protected function updateTheme(): int
+    {
+        $installer = $this->app['theme.installer'];
+        $themePath = $this->app->themePath();
 
-		echo "Theme updated successfully.\n";
+        if ( ! $installer->updateAvailable( $themePath ) ) {
+            echo "Theme is already up to date.\n";
 
-		return 0;
-	}
+            return 0;
+        }
+
+        $installer->update( $themePath );
+
+        echo "Theme updated successfully.\n";
+
+        return 0;
+    }
 
 	/**
 	 * Display available console commands.
