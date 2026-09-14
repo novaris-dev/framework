@@ -81,10 +81,7 @@ class Application extends Container implements ApplicationContract, Bootable
 			return;
 		}
 
-		$config = $this['config']->get( 'app.theme', [] );
-
-		$theme      = $config['name'] ?? '';
-		$repository = $config['repository'] ?? '';
+		$theme = $this['config']->get( 'app.theme', '' );
 
 		if ( empty( $theme ) ) {
 			( new Message() )->make(
@@ -93,18 +90,11 @@ class Application extends Container implements ApplicationContract, Bootable
 		}
 
 		if ( ! is_dir( $this->themePath() ) ) {
-			if ( empty( $repository ) ) {
-				( new Message() )->make(
-					"No repository has been configured for theme: {$theme}"
-				)->dd();
-			}
-
 			try {
 				$installer = new Installer();
 
 				$installer->install(
 					$theme,
-					$repository,
 					$this['path.themes']
 				);
 			} catch ( Throwable $e ) {
@@ -199,7 +189,7 @@ class Application extends Container implements ApplicationContract, Bootable
 			}
 		}
 
-		$theme = $this['config']->get( 'app.theme', [] );
+		$theme = $this['config']->get( 'app.theme', '' );
 
 		// Add default paths.
 		$this->instance( 'path.app',      $this['path']                                         );
@@ -219,7 +209,7 @@ class Application extends Container implements ApplicationContract, Bootable
 				? $this['path']
 				: Str::appendPath(
 					$this['path.themes'],
-					$theme['name'] ?? ''
+					$theme
 				)
 		);
 
