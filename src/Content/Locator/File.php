@@ -78,7 +78,7 @@ class File implements ContentLocator
 	public function __construct( string $path = '' )
 	{
 		$this->path       = App::resolve( 'path.content' );
-		$this->theme_path = theme_path( 'content' );
+		$this->theme_path = theme_path( 'user/content' );
 
 		if ( $path ) {
 			$this->setPath( $path );
