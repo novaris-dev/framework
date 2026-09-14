@@ -2,7 +2,7 @@
 /**
  * Theme installer.
  *
- * Handles locating, downloading, and installing theme release packages
+ * Handles locating, downloading, installing, and checking theme release packages
  * from GitHub.
  *
  * @package   Novaris
@@ -213,5 +213,36 @@ class Installer
 		}
 
 		return $themePath;
+	}
+
+	/**
+	 * Determine whether a theme update is available.
+	 *
+	 * @since 1.0.0
+	 */
+	public function updateAvailable( string $themePath ): bool
+	{
+		$metadata = ( new Metadata() )->read( $themePath );
+
+		$theme      = $metadata['slug'] ?? '';
+		$version    = $metadata['version'] ?? '';
+		$repository = $metadata['repository'] ?? '';
+
+		if ( empty( $theme ) || empty( $version ) || empty( $repository ) ) {
+			throw new RuntimeException(
+				"Theme metadata is incomplete: {$themePath}"
+			);
+		}
+
+		$latest = $this->latest(
+			$theme,
+			$repository
+		);
+
+		return version_compare(
+			$latest['version'],
+			$version,
+			'>'
+		);
 	}
 }
