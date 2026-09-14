@@ -24,10 +24,15 @@ class App
 	public static function schema(): Schema
 	{
 		return Expect::structure( [
-			'url'         => Expect::string( '' ),
-			'title'       => Expect::string( 'Novaris' ),
-			'tagline'     => Expect::string( '' ),
-			'theme'        => Expect::string( '' ),
+			'url'      => Expect::string( '' ),
+			'title'    => Expect::string( 'Novaris' ),
+			'tagline'  => Expect::string( '' ),
+
+			'theme' => Expect::structure( [
+				'name'       => Expect::string( '' ),
+				'repository' => Expect::string( '' ),
+			] ),
+
 			'timezone'    => Expect::string( 'America/Los_Angeles' ),
 			'primary'     => Expect::array( [] ),
 			'social'      => Expect::array( [] ),
@@ -39,7 +44,7 @@ class App
 			'proxies'     => Expect::array( [] ),
 
 			// @deprecated 1.0.0 Soft deprecation in favor of `url`.
-			'uri'         => Expect::string( '' ),
+			'uri' => Expect::string( '' ),
 
 			'private' => Expect::bool( false ),
 		] );
