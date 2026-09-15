@@ -148,19 +148,32 @@ class Application extends Container implements ApplicationContract, Bootable
 		// Add the version for the framework.
 		$this->instance( 'version', static::VERSION );
 
-		// Require the `.env` or `.env.local` file before proceeding.
-		if (
-			! file_exists( Str::appendPath( $this['path'], '.env' ) ) &&
-			! file_exists( Str::appendPath( $this['path'], '.env.local' ) )
-		) {
+		// Check whether an environment file exists.
+		$has_env_file =
+			file_exists( Str::appendPath( $this['path'], '.env' ) ) ||
+			file_exists( Str::appendPath( $this['path'], '.env.local' ) );
+
+		// Environment variables may also be provided directly by the
+		// server or container environment.
+		$has_environment =
+			isset( $_ENV['APP_URL'] ) ||
+			getenv( 'APP_URL' ) !== false;
+
+		// Require either an environment file or server environment.
+		if ( ! $has_env_file && ! $has_environment ) {
 			( new Message() )->make(
 				'No .env or .env.local file found for the application. If setting up Novaris for the first time, copy and rename the .env.example file.'
 			)->dd();
 		}
 
-		// Load the dotenv file and parse its data, making it available
-		// through the `$_ENV` and `$_SERVER` super-globals.
-		Dotenv::createImmutable( $this->path, [ '.env.local', '.env' ] )->load();
+		// Load the dotenv file when available and parse its data, making
+		// it available through the `$_ENV` and `$_SERVER` super-globals.
+		if ( $has_env_file ) {
+			Dotenv::createImmutable(
+				$this->path,
+				[ '.env.local', '.env' ]
+			)->load();
+		}
 
 		// Creates a new configuration instance and adds the default
 		// framework schemas.
