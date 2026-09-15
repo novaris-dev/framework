@@ -32,7 +32,13 @@ if ( ! function_exists( 'env' ) ) {
 	 */
 	function env( string $var, ?string $default = null ): ?string
 	{
-		return $_ENV[ $var ] ?? $default;
+		if ( isset( $_ENV[ $var ] ) ) {
+			return $_ENV[ $var ];
+		}
+
+		$value = getenv( $var );
+
+		return $value !== false ? $value : $default;
 	}
 }
 
