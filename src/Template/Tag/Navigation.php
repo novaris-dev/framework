@@ -5,6 +5,8 @@ use Novaris\Contracts\{ Displayable, Renderable };
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\Request;
 
+use function Novaris\Theme\Menu\normalize_path;
+
 class Navigation implements Displayable, Renderable
 {
     protected array $items;
@@ -15,7 +17,7 @@ class Navigation implements Displayable, Renderable
     {
         // Use Symfony Request to get the current path
         $request = Request::createFromGlobals();
-        $this->currentPath = $request->getPathInfo();
+        $this->currentPath = normalize_path( $request->getPathInfo() );
 
         // Initialize items and display settings
         $this->items = $items;
@@ -57,7 +59,9 @@ class Navigation implements Displayable, Renderable
 
     private function formatItem( string $name, string $url ): string
     {
-        $isCurrent = $this->currentPath === $url;
+        $itemPath = normalize_path( uri( $url ) );
+        $isCurrent = $this->currentPath === $itemPath;
+
         $currentClass = $isCurrent ? strtolower( sprintf( $this->display['current_class'], $name ) ) : '';
 
         $itemClass = trim( $this->display['item_class'] . ( $currentClass ? " $currentClass" : '' ) );
