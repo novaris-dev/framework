@@ -54,7 +54,7 @@ class Engine implements TemplateEngine
 		}
 
 		// Assign the view name, which should be a string at this point.
-		$name = $this->normalize( $views );
+		$name = $views;
 
 		// @todo possible to assign this to $shared?
 		$data = array_merge(
@@ -84,7 +84,7 @@ class Engine implements TemplateEngine
 	 */
 	public function exists( string $name ): bool {
 
-		$filename = str_replace( '.', '/', $this->normalize( $name ) );
+		$filename = str_replace( '.', '/', $name );
 
 		return file_exists( theme_path( "public/views/{$filename}.php" ) )
 			|| file_exists( view_path( "{$filename}.php" ) );
@@ -139,7 +139,14 @@ class Engine implements TemplateEngine
 	 */
 	public function include( array|string $views, array|Collection $data = [] ): void {
 
-		$this->first( ( array ) $views, $data )->display();
+		$views = array_map(
+			fn( $view ) => str_contains( $view, '.' )
+				? $view
+				: "{$view}.default",
+			(array) $views
+		);
+
+		$this->first( $views, $data )->display();
 	}
 
 	/**
@@ -150,7 +157,14 @@ class Engine implements TemplateEngine
 	 */
 	public function includeIf( array|string $views, array|Collection $data = [] ): void {
 
-		if ( $view = $this->any( (array) $views, $data ) ) {
+		$views = array_map(
+			fn( $view ) => str_contains( $view, '.' )
+				? $view
+				: "{$view}.default",
+			(array) $views
+		);
+
+		if ( $view = $this->any( $views, $data ) ) {
 			$view->display();
 		}
 	}
@@ -231,19 +245,5 @@ class Engine implements TemplateEngine
 	public function __call( string $name, array $arguments ): mixed {
 
 		return $this->tag( $name, ...$arguments );
-	}
-
-	/**
-	 * Normalizes a view name.
-	 *
-	 * Views without a specific template name use the default template.
-	 *
-	 * @since 1.0.0
-	 */
-	protected function normalize( string $name ): string {
-
-		return str_contains( $name, '.' )
-			? $name
-			: "{$name}.default";
 	}
 }
