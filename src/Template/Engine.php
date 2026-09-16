@@ -139,12 +139,7 @@ class Engine implements TemplateEngine
 	 */
 	public function include( array|string $views, array|Collection $data = [] ): void {
 
-		$views = array_map(
-			fn( $view ) => str_contains( $view, '.' )
-				? $view
-				: "{$view}.default",
-			(array) $views
-		);
+		$views = $this->includeViews( $views );
 
 		$this->first( $views, $data )->display();
 	}
@@ -157,12 +152,7 @@ class Engine implements TemplateEngine
 	 */
 	public function includeIf( array|string $views, array|Collection $data = [] ): void {
 
-		$views = array_map(
-			fn( $view ) => str_contains( $view, '.' )
-				? $view
-				: "{$view}.default",
-			(array) $views
-		);
+		$views = $this->includeViews( $views );
 
 		if ( $view = $this->any( $views, $data ) ) {
 			$view->display();
@@ -245,5 +235,22 @@ class Engine implements TemplateEngine
 	public function __call( string $name, array $arguments ): mixed {
 
 		return $this->tag( $name, ...$arguments );
+	}
+
+	/**
+	 * Prepares view names for inclusion.
+	 *
+	 * Views without a specific template use the default template.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function includeViews( array|string $views ): array {
+
+		return array_map(
+			fn( $view ) => str_contains( $view, '.' )
+				? $view
+				: "{$view}.default",
+			(array) $views
+		);
 	}
 }
