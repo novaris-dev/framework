@@ -84,26 +84,12 @@ class Engine implements TemplateEngine
 	 */
 	public function exists( string $name ): bool {
 
-		$filename = str_replace( '.', '/', $name );
+		$filename = str_contains( $name, '.' )
+			? str_replace( '.', '/', $name )
+			: "{$name}/default";
 
-		$templates = str_contains( $name, '.' )
-			? [ "{$filename}.php" ]
-			: [
-				"{$filename}/default.php",
-				"{$filename}.php"
-			];
-
-		foreach ( $templates as $template ) {
-
-			if (
-				file_exists( theme_path( "public/views/{$template}" ) ) ||
-				file_exists( view_path( $template ) )
-			) {
-				return true;
-			}
-		}
-
-		return false;
+		return file_exists( theme_path( "public/views/{$filename}.php" ) )
+			|| file_exists( view_path( "{$filename}.php" ) );
 	}
 
 	/**
