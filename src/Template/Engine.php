@@ -97,8 +97,6 @@ class Engine implements TemplateEngine
 	 */
 	public function first( array $views, array|Collection $data = [] ): TemplateView {
 
-		dd( $views );
-
 		foreach ( $views as $view ) {
 
 			if ( $this->exists( $view ) ) {
