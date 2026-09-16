@@ -135,12 +135,16 @@ class Engine implements TemplateEngine
 	/**
 	 * Includes a view.
 	 *
+	 * Views without a specific template use the default template.
+	 *
 	 * @since 1.0.0
 	 */
 	public function include( array|string $views, array|Collection $data = [] ): void {
 
 		$views = array_map(
-			fn( $view ) => str_contains( $view, '.' ) ? $view : "{$view}.default",
+			fn( $view ) => str_contains( $view, '.' )
+				? $view
+				: "{$view}.default",
 			(array) $views
 		);
 
@@ -179,15 +183,16 @@ class Engine implements TemplateEngine
 	 * @since  1.0.0
 	 */
 	public function includeUnless( mixed $unless, array|string $views, array|Collection $data = [] ): void {
+
 		if ( ! $unless ) {
 			$this->include( $views, $data );
 		}
 	}
 
 	/**
-	 * Loops through an array of items and includes a view for each.  Use
+	 * Loops through an array of items and includes a view for each. Use
 	 * the `$var` variable to set a variable name for the item when passed
-	 * to the view.  Pass a fallback view name via `$empty` to show if
+	 * to the view. Pass a fallback view name via `$empty` to show if
 	 * the items array is empty.
 	 *
 	 * @since  1.0.0
