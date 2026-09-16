@@ -69,7 +69,7 @@ class Engine implements TemplateEngine
 
 		// Make a new template view.
 		$view = App::make( 'template.view', [
-			'name' => $name,
+			'name' => $views,
 			'data' => $data
 		] );
 
@@ -142,7 +142,7 @@ class Engine implements TemplateEngine
 	public function include( array|string $views, array|Collection $data = [] ): void {
 
 		$views = array_map(
-			fn( $view ) => str_contains( $view, '.' )
+			fn( $view ) => str_contains( $view, '.' ) || str_contains( $view, '-' )
 				? $view
 				: "{$view}.default",
 			(array) $views
@@ -183,16 +183,15 @@ class Engine implements TemplateEngine
 	 * @since  1.0.0
 	 */
 	public function includeUnless( mixed $unless, array|string $views, array|Collection $data = [] ): void {
-
 		if ( ! $unless ) {
 			$this->include( $views, $data );
 		}
 	}
 
 	/**
-	 * Loops through an array of items and includes a view for each. Use
+	 * Loops through an array of items and includes a view for each.  Use
 	 * the `$var` variable to set a variable name for the item when passed
-	 * to the view. Pass a fallback view name via `$empty` to show if
+	 * to the view.  Pass a fallback view name via `$empty` to show if
 	 * the items array is empty.
 	 *
 	 * @since  1.0.0
