@@ -61,14 +61,31 @@ class View implements TemplateView, Stringable
 		if ( is_null( $this->template ) ) {
 			$filename = str_replace( '.', '/', $this->name );
 
-			$theme_template = theme_path( "public/views/{$filename}.php" );
+			$templates = str_contains( $this->name, '.' )
+				? [ "{$filename}.php" ]
+				: [
+					"{$filename}/default.php",
+					"{$filename}.php"
+				];
 
-			$this->template = file_exists( $theme_template )
-				? $theme_template
-				: view_path( "{$filename}.php" );
+			foreach ( $templates as $template ) {
+				$theme_template = theme_path( "public/views/{$template}" );
+
+				if ( file_exists( $theme_template ) ) {
+					$this->template = $theme_template;
+					break;
+				}
+
+				$app_template = view_path( $template );
+
+				if ( file_exists( $app_template ) ) {
+					$this->template = $app_template;
+					break;
+				}
+			}
 		}
 
-		return $this->template;
+		return $this->template ?? '';
 	}
 
 	/**
