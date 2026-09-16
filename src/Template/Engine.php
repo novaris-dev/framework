@@ -54,7 +54,7 @@ class Engine implements TemplateEngine
 		}
 
 		// Assign the view name, which should be a string at this point.
-		$name = $views;
+		$name = $this->normalize( $views );
 
 		// @todo possible to assign this to $shared?
 		$data = array_merge(
@@ -69,7 +69,7 @@ class Engine implements TemplateEngine
 
 		// Make a new template view.
 		$view = App::make( 'template.view', [
-			'name' => $views,
+			'name' => $name,
 			'data' => $data
 		] );
 
@@ -84,9 +84,7 @@ class Engine implements TemplateEngine
 	 */
 	public function exists( string $name ): bool {
 
-		$filename = str_contains( $name, '.' )
-			? str_replace( '.', '/', $name )
-			: "{$name}/default";
+		$filename = str_replace( '.', '/', $this->normalize( $name ) );
 
 		return file_exists( theme_path( "public/views/{$filename}.php" ) )
 			|| file_exists( view_path( "{$filename}.php" ) );
@@ -233,5 +231,19 @@ class Engine implements TemplateEngine
 	public function __call( string $name, array $arguments ): mixed {
 
 		return $this->tag( $name, ...$arguments );
+	}
+
+	/**
+	 * Normalizes a view name.
+	 *
+	 * Views without a specific template name use the default template.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function normalize( string $name ): string {
+
+		return str_contains( $name, '.' )
+			? $name
+			: "{$name}.default";
 	}
 }
