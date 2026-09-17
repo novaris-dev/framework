@@ -1,4 +1,16 @@
 <?php
+/**
+ * Navigation template tag.
+ *
+ * Handles rendering navigation menus and determining the current menu item.
+ *
+ * @package   Novaris
+ * @author    Benjamin Lu <benlumia007@gmail.com>
+ * @copyright 2024. Benjamin Lu
+ * @link      https://github.com/novaris-dev/framework
+ * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ */
+
 namespace Novaris\Template\Tag;
 
 use Novaris\Contracts\{ Displayable, Renderable };
@@ -8,77 +20,119 @@ use function Novaris\Theme\Menu\normalize_path;
 
 class Navigation implements Displayable, Renderable
 {
-    protected array $items;
-    protected array $display;
-    protected string $currentPath;
+	/**
+	 * Navigation items.
+	 *
+	 * @since 1.0.0
+	 */
+	protected array $items;
 
-    public function __construct( array $items = [], array $options = [] )
-    {
-        // Use Symfony Request to get the current path.
-        $request = Request::createFromGlobals();
-        $this->currentPath = normalize_path( $request->getPathInfo() );
+	/**
+	 * Navigation display options.
+	 *
+	 * @since 1.0.0
+	 */
+	protected array $display;
 
-        // Initialize items and display settings.
-        $this->items = $items;
-        $this->display = array_merge( [
-            'nav_class'     => 'primary-menu',
-            'list_tag'      => 'ul',
-            'list_class'    => 'menu-items',
-            'item_tag'      => 'li',
-            'item_class'    => 'menu-item',
-            'anchor_class'  => 'menu-item-anchor',
-            'current_class' => 'current-menu-item'
-        ], $options );
-    }
+	/**
+	 * Current request path.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $currentPath;
 
-    public function setItems( array $items ): void
-    {
-        $this->items = $items;
-    }
+	/**
+	 * Sets up the object state.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct( array $items = [], array $options = [] )
+	{
+		// Use Symfony Request to get the current path.
+		$request = Request::createFromGlobals();
+		$this->currentPath = normalize_path( $request->getPathInfo() );
 
-    public function display(): void
-    {
-        echo $this->render();
-    }
+		// Initialize items and display settings.
+		$this->items = $items;
+		$this->display = array_merge( [
+			'nav_class'     => 'primary-menu',
+			'list_tag'      => 'ul',
+			'list_class'    => 'menu-items',
+			'item_tag'      => 'li',
+			'item_class'    => 'menu-item',
+			'anchor_class'  => 'menu-item-anchor',
+			'current_class' => 'current-menu-item'
+		], $options );
+	}
 
-    public function render(): string
-    {
-        $listItems = array_map(
-            [ $this, 'formatItem' ],
-            array_keys( $this->items ),
-            $this->items
-        );
+	/**
+	 * Sets the navigation items.
+	 *
+	 * @since 1.0.0
+	 */
+	public function setItems( array $items ): void
+	{
+		$this->items = $items;
+	}
 
-        return sprintf(
-            '<nav class="%s"><%s class="%s">%s</%s></nav>',
-            e( $this->display['nav_class'] ),
-            escape_tag( $this->display['list_tag'] ),
-            e( $this->display['list_class'] ),
-            implode( '', $listItems ),
-            escape_tag( $this->display['list_tag'] )
-        );
-    }
+	/**
+	 * Displays the navigation.
+	 *
+	 * @since 1.0.0
+	 */
+	public function display(): void
+	{
+		echo $this->render();
+	}
 
-    private function formatItem( string $name, string $url ): string
-    {
-        $itemPath  = normalize_path( uri( $url ) );
-        $isCurrent = $this->currentPath === $itemPath;
+	/**
+	 * Renders the navigation.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render(): string
+	{
+		$listItems = array_map(
+			[ $this, 'formatItem' ],
+			array_keys( $this->items ),
+			$this->items
+		);
 
-        $itemClass = trim(
-            $this->display['item_class']
-            . ( $isCurrent ? " {$this->display['current_class']}" : '' )
-        );
+		return sprintf(
+			'<nav class="%s"><%s class="%s">%s</%s></nav>',
+			e( $this->display['nav_class'] ),
+			escape_tag( $this->display['list_tag'] ),
+			e( $this->display['list_class'] ),
+			implode( '', $listItems ),
+			escape_tag( $this->display['list_tag'] )
+		);
+	}
 
-        $ariaCurrent = $isCurrent ? ' aria-current="page"' : '';
+	/**
+	 * Formats a navigation item.
+	 *
+	 * @since 1.0.0
+	 */
+	private function formatItem( string $name, string $url ): string
+	{
+		$itemPath  = normalize_path( uri( $url ) );
+		$isCurrent = $this->currentPath === $itemPath;
 
-        return sprintf(
-            '<%1$s class="%2$s"><a href="%3$s" class="%4$s"%5$s>%6$s</a></%1$s>',
-            escape_tag( $this->display['item_tag'] ),
-            e( $itemClass ),
-            e( $url ),
-            e( $this->display['anchor_class'] ),
-            $ariaCurrent,
-            e( $name )
-        );
-    }
+		$itemClass = trim(
+			$this->display['item_class']
+			. ( $isCurrent ? " {$this->display['current_class']}" : '' )
+		);
+
+		$ariaCurrent = $isCurrent ? ' aria-current="page"' : '';
+
+		return sprintf(
+			'<%1$s class="%2$s"><a href="%3$s" class="%4$s"%5$s>%6$s</a></%1$s>',
+			escape_tag( $this->display['item_tag'] ),
+			e( $itemClass ),
+			e( $url ),
+			e( $this->display['anchor_class'] ),
+			$ariaCurrent,
+			e( $name )
+		);
+	}
 }
