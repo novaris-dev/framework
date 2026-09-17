@@ -13,6 +13,7 @@
 
 namespace Novaris\Template\Tag;
 
+use Novaris\Core\Proxies\App;
 use Novaris\Query;
 
 class Archives extends Tag
@@ -31,6 +32,8 @@ class Archives extends Tag
 			'orderby'   => 'date',
 			'nocontent' => true,
 		] );
+
+		$type = App::get( 'content.types' )->get( 'post' );
 
 		$html  = '<div id="archives" class="widget widget_archives">';
 		$html .= '<h3 class="widget-title">Archives</h3>';
@@ -55,7 +58,7 @@ class Archives extends Tag
 					$current_month = $month;
 					$current_year  = $year;
 
-					$archive_url = rtrim( config( 'app.uri' ), '/' ) . '/' . $year . '/' . $month_number . '/';
+					$archive_url = $type->monthUrl( $year, $month_number );
 
 					$html .= sprintf(
 						'<li><a href="%s">%s %s</a></li>',
