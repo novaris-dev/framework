@@ -55,7 +55,7 @@ class Archives extends Tag
 					$current_month = $month;
 					$current_year  = $year;
 
-					$archive_url = '/blog/' . $year . '/' . $month_number . '/';
+					$archive_url = rtrim( config( 'app.uri' ), '/' ) . '/' . $year . '/' . $month_number . '/';
 
 					$html .= sprintf(
 						'<li><a href="%s">%s %s</a></li>',
