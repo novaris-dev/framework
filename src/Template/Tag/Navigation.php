@@ -2,7 +2,6 @@
 namespace Novaris\Template\Tag;
 
 use Novaris\Contracts\{ Displayable, Renderable };
-use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\Request;
 
 use function Novaris\Theme\Menu\normalize_path;
@@ -15,20 +14,20 @@ class Navigation implements Displayable, Renderable
 
     public function __construct( array $items = [], array $options = [] )
     {
-        // Use Symfony Request to get the current path
+        // Use Symfony Request to get the current path.
         $request = Request::createFromGlobals();
         $this->currentPath = normalize_path( $request->getPathInfo() );
 
-        // Initialize items and display settings
+        // Initialize items and display settings.
         $this->items = $items;
         $this->display = array_merge( [
-            'nav_class'      => 'primary-menu',
-            'list_tag'       => 'ul',
-            'list_class'     => 'menu-items',
-            'item_tag'       => 'li',
-            'item_class'     => 'menu-item',
-            'anchor_class'   => 'menu-item-anchor',
-            'current_class'  => 'current-menu-item-%s'
+            'nav_class'     => 'primary-menu',
+            'list_tag'      => 'ul',
+            'list_class'    => 'menu-items',
+            'item_tag'      => 'li',
+            'item_class'    => 'menu-item',
+            'anchor_class'  => 'menu-item-anchor',
+            'current_class' => 'current-menu-item'
         ], $options );
     }
 
@@ -39,13 +38,16 @@ class Navigation implements Displayable, Renderable
 
     public function display(): void
     {
-        // Only echo the output of render()
         echo $this->render();
     }
 
     public function render(): string
     {
-        $listItems = array_map( [ $this, 'formatItem' ], array_keys( $this->items ), $this->items );
+        $listItems = array_map(
+            [ $this, 'formatItem' ],
+            array_keys( $this->items ),
+            $this->items
+        );
 
         return sprintf(
             '<nav class="%s"><%s class="%s">%s</%s></nav>',
@@ -59,20 +61,23 @@ class Navigation implements Displayable, Renderable
 
     private function formatItem( string $name, string $url ): string
     {
-        $itemPath = normalize_path( uri( $url ) );
+        $itemPath  = normalize_path( uri( $url ) );
         $isCurrent = $this->currentPath === $itemPath;
 
-        $currentClass = $isCurrent ? strtolower( sprintf( $this->display['current_class'], $name ) ) : '';
+        $itemClass = trim(
+            $this->display['item_class']
+            . ( $isCurrent ? " {$this->display['current_class']}" : '' )
+        );
 
-        $itemClass = trim( $this->display['item_class'] . ( $currentClass ? " $currentClass" : '' ) );
-        $anchorClass = $this->display['anchor_class'];
+        $ariaCurrent = $isCurrent ? ' aria-current="page"' : '';
 
         return sprintf(
-            '<%1$s class="%2$s"><a href="%3$s" class="%4$s">%5$s</a></%1$s>',
-            $this->display['item_tag'],
+            '<%1$s class="%2$s"><a href="%3$s" class="%4$s"%5$s>%6$s</a></%1$s>',
+            escape_tag( $this->display['item_tag'] ),
             e( $itemClass ),
             e( $url ),
-            e( $anchorClass ),
+            e( $this->display['anchor_class'] ),
+            $ariaCurrent,
             e( $name )
         );
     }
