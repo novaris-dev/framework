@@ -2,7 +2,7 @@
 /**
  * Font functions.
  *
- * Provides helper functions for working with theme fonts.
+ * Provides helper functions for working with fonts.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -11,7 +11,7 @@
  * @link      https://github.com/novaris-dev/framework
  */
 
-namespace Novaris\Theme\Font;
+namespace Novaris\Font;
 
 /**
  * Displays the configured Google Fonts.
@@ -27,16 +27,41 @@ function fonts(): void
 			continue;
 		}
 
+		$normal = [];
+		$italic = [];
+
+		foreach ( $font->styles() as $style ) {
+			if ( str_ends_with( $style, 'i' ) ) {
+				$italic[] = rtrim( $style, 'i' );
+			} else {
+				$normal[] = $style;
+			}
+		}
+
 		$family = 'family=' . $font->google();
 
-		if ( $font->styles() ) {
-			$family .= ':wght@' . implode(
-				';',
-				array_filter(
-					$font->styles(),
-					fn( $style ) => ! str_ends_with( $style, 'i' )
-				)
-			);
+		if ( $normal && $italic ) {
+			$styles = [];
+
+			foreach ( $normal as $weight ) {
+				$styles[] = "0,{$weight}";
+			}
+
+			foreach ( $italic as $weight ) {
+				$styles[] = "1,{$weight}";
+			}
+
+			$family .= ':ital,wght@' . implode( ';', $styles );
+		} elseif ( $italic ) {
+			$styles = [];
+
+			foreach ( $italic as $weight ) {
+				$styles[] = "1,{$weight}";
+			}
+
+			$family .= ':ital,wght@' . implode( ';', $styles );
+		} elseif ( $normal ) {
+			$family .= ':wght@' . implode( ';', $normal );
 		}
 
 		$families[] = $family;
