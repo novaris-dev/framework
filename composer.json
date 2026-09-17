@@ -15,7 +15,7 @@
             "Novaris\\": "src/"
         },
 		"files" : [
-            "src/Theme/Font/functions-font.php",
+            "src/Font/functions-font.php",
             "src/Theme/Menu/functions-menu.php",
 			"src/Theme/Post/functions-post.php",
 			"src/Theme/Site/functions-site.php",
