@@ -261,6 +261,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->provider( Providers\App::class      );
 		$this->provider( Providers\Cache::class    );
 		$this->provider( Providers\Content::class  );
+		$this->provider( Providers\Font::class     );
 		$this->provider( Providers\Markdown::class );
 		$this->provider( Providers\Routing::class  );
 		$this->provider( Providers\Template::class );
