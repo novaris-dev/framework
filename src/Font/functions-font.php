@@ -20,13 +20,37 @@ namespace Novaris\Theme\Font;
  */
 function fonts(): void
 {
-	$fonts = app( 'fonts' );
+	$families = [];
 
-	foreach ( $fonts as $font ) {
+	foreach ( app( 'fonts' ) as $font ) {
 		if ( ! $font->isGoogle() ) {
 			continue;
 		}
 
-		// Rendering will be added next.
+		$family = 'family=' . $font->google();
+
+		if ( $font->styles() ) {
+			$family .= ':wght@' . implode(
+				';',
+				array_filter(
+					$font->styles(),
+					fn( $style ) => ! str_ends_with( $style, 'i' )
+				)
+			);
+		}
+
+		$families[] = $family;
 	}
+
+	if ( ! $families ) {
+		return;
+	}
+
+	$url = 'https://fonts.googleapis.com/css2?' .
+		implode( '&', $families ) .
+		'&display=swap';
+
+	echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . PHP_EOL;
+	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . PHP_EOL;
+	echo '<link rel="stylesheet" href="' . e( $url ) . '">' . PHP_EOL;
 }
