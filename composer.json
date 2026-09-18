@@ -27,7 +27,7 @@
         "php": ">=8.0",
         "symfony/http-foundation": "^6.0",
         "symfony/yaml": "^6.0",
-        "league/commonmark": "^2.5",
+        "league/commonmark": "^2.10.1",
         "symfony/var-dumper": "^6.0",
         "vlucas/phpdotenv": "^5.6",
         "league/config": "^1.2",
