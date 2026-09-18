@@ -1,11 +1,9 @@
 <?php
 /**
- * Static utility class for building a top-level template hierarchy.
+ * Static utility class for building view template hierarchies.
  *
- * IMPORTANT! This class and its method should not be considered finalized. This
- * is an experimental method for cleaning up some of the code in our controllers.
- * I'm not 100% happy with the code and want to explore various methods for
- * creating as small and consistent of a footprint as possible.
+ * Provides template hierarchies used by the view engine to resolve the
+ * appropriate views for the current request.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
