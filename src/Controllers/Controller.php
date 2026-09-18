@@ -17,10 +17,11 @@
 namespace Novaris\Controllers;
 
 // Abstracts.
-use Novaris\Contracts\Template\TemplateView;
+use Novaris\Contracts\View\View as ViewContract;
 
 // Concretes.
-use Novaris\Core\Proxies\Engine;
+use Novaris\Core\Proxies\View;
+use Novaris\Tools\Collection;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
 abstract class Controller
@@ -36,13 +37,16 @@ abstract class Controller
 	}
 
 	/**
-	 * Wrapper for the template engine view class.
+	 * Wrapper for the view engine.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	protected function view( string|array $names, Collection|array $data = [] ): TemplateView
-	{
-		return Engine::first( (array) $names, $data );
+	protected function view(
+		string $name,
+		array|string $hierarchy = [],
+		Collection|array $data = []
+	): ViewContract {
+		return View::make( $name, $hierarchy, $data );
 	}
 
 	/**
@@ -50,8 +54,11 @@ abstract class Controller
 	 *
 	 * @since 1.0.0
 	 */
-	protected function response( TemplateView $view, int $status = 200, array $headers = [] ): Response
-	{
+	protected function response(
+		ViewContract $view,
+		int $status = 200,
+		array $headers = []
+	): Response {
 		return new Response( $view->render(), $status, $headers );
 	}
 
