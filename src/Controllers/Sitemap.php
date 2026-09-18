@@ -52,11 +52,11 @@ class Sitemap extends Controller
 
 		if ( $single && $collection->hasEntries() ) {
 
-			// Get the feed view.
+			// Get the sitemap view.
 			return $this->response( $this->view(
+				'sitemap',
+				[],
 				[
-					'sitemap'
-				], [
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => false,
 					'single'     => $single,
