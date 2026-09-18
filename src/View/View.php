@@ -93,6 +93,16 @@ class View implements ViewContract
 	}
 
 	/**
+	 * Get the view data.
+	 *
+	 * @since 1.0.0
+	 */
+	public function data(): Collection
+	{
+		return $this->data;
+	}
+
+	/**
 	 * Get the view hierarchy.
 	 *
 	 * @since 1.0.0
