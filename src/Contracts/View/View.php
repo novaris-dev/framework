@@ -13,6 +13,8 @@
 
 namespace Novaris\Contracts\View;
 
+use Novaris\Tools\Collection;
+
 interface View
 {
 	/**
@@ -23,11 +25,18 @@ interface View
 	public function name(): string;
 
 	/**
-	 * Get the raw hierarchy slugs.
+	 * Get the view hierarchy slugs.
 	 *
 	 * @since 1.0.0
 	 */
 	public function slugs(): array;
+
+	/**
+	 * Get the view data.
+	 *
+	 * @since 1.0.0
+	 */
+	public function data(): Collection;
 
 	/**
 	 * Get the view hierarchy.
