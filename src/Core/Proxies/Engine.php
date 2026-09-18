@@ -1,6 +1,6 @@
 <?php
 /**
- * Template engine static proxy class.
+ * View engine static proxy class.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -22,6 +22,6 @@ class Engine extends Proxy
 	 */
 	protected static function accessor(): string
 	{
-		return 'template.engine';
+		return 'view.engine';
 	}
 }
