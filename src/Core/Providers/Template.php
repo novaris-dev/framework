@@ -18,6 +18,7 @@ use Novaris\Contracts\Template\{
 	TemplateView
 };
 
+use Novaris\Contracts\View\View as ViewContract;
 use Novaris\Core\ServiceProvider;
 use Novaris\Template\{Component, Engine, View};
 use Novaris\Template\Tag\{PoweredBy, Tag, Tags};
@@ -41,7 +42,7 @@ class Template extends ServiceProvider
 
 		// Add view engine.
 		$this->app->singleton( ViewEngine::class );
-		$this->app->bind( ViewView::class );
+		$this->app->bind( ViewContract::class, ViewView::class );
 
 		// Bind template tag.
 		$this->app->bind( TemplateTag::class, Tag::class );
@@ -66,7 +67,7 @@ class Template extends ServiceProvider
 		$this->app->alias( TemplateView::class,   'template.view'   );
 		$this->app->alias( TemplateEngine::class, 'template.engine' );
 		$this->app->alias( ViewEngine::class,     'view.engine'     );
-		$this->app->alias( ViewView::class,       'view'            );
+		$this->app->alias( ViewContract::class,   'view'            );
 		$this->app->alias( PoweredBy::class,      'poweredby'       );
 	}
 
