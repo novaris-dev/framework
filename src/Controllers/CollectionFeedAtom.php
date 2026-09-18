@@ -65,11 +65,13 @@ class CollectionFeedAtom extends Controller
 
 			// Get the feed view.
 			return $this->response( $this->view(
+				'feed',
 				[
-					"feed-{$type_name}",
-					"feed-{$model_name}",
-					'feed-atom'
-				], [
+					$type_name,
+					$model_name,
+					'atom'
+				],
+				[
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => false,
 					'single'     => $single,
