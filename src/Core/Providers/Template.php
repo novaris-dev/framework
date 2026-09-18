@@ -12,15 +12,13 @@
 namespace Novaris\Core\Providers;
 
 use Novaris\Contracts\Template\{
-	TemplateEngine,
 	TemplateTag,
-	TemplateTags,
-	TemplateView
+	TemplateTags
 };
 
 use Novaris\Contracts\View\View as ViewContract;
 use Novaris\Core\ServiceProvider;
-use Novaris\Template\{Component, Engine, View};
+use Novaris\Template\Component;
 use Novaris\Template\Tag\{PoweredBy, Tag, Tags};
 use Novaris\View\{
 	Engine as ViewEngine,
@@ -36,10 +34,6 @@ class Template extends ServiceProvider
 	 */
 	public function register(): void
 	{
-		// Add template engine.
-		$this->app->singleton( TemplateEngine::class, Engine::class );
-		$this->app->bind( TemplateView::class, View::class );
-
 		// Add view engine.
 		$this->app->singleton( ViewEngine::class );
 		$this->app->bind( ViewContract::class, ViewView::class );
@@ -62,13 +56,11 @@ class Template extends ServiceProvider
 		$this->app->singleton( PoweredBy::class );
 
 		// Add aliases.
-		$this->app->alias( TemplateTag::class,    'template.tag'    );
-		$this->app->alias( TemplateTags::class,   'template.tags'   );
-		$this->app->alias( TemplateView::class,   'template.view'   );
-		$this->app->alias( TemplateEngine::class, 'template.engine' );
-		$this->app->alias( ViewEngine::class,     'view.engine'     );
-		$this->app->alias( ViewContract::class,   'view'            );
-		$this->app->alias( PoweredBy::class,      'poweredby'       );
+		$this->app->alias( TemplateTag::class,  'template.tag'  );
+		$this->app->alias( TemplateTags::class, 'template.tags' );
+		$this->app->alias( ViewEngine::class,   'view.engine'   );
+		$this->app->alias( ViewContract::class, 'view'          );
+		$this->app->alias( PoweredBy::class,    'poweredby'     );
 	}
 
 	/**
