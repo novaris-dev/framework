@@ -2,7 +2,7 @@
 /**
  * View engine.
  *
- * Handles creating and rendering views.
+ * Handles creating, displaying, and rendering views.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -18,7 +18,7 @@ use Novaris\Tools\Collection;
 class Engine
 {
 	/**
-	 * Create a view.
+	 * Create a new view.
 	 *
 	 * @since 1.0.0
 	 */
@@ -36,7 +36,7 @@ class Engine
 	}
 
 	/**
-	 * Include a view.
+	 * Display a view.
 	 *
 	 * @since 1.0.0
 	 */
