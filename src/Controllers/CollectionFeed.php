@@ -65,12 +65,14 @@ class CollectionFeed extends Controller
 
 			// Get the feed view.
 			return $this->response( $this->view(
+				'feed',
 				[
-					"feed-{$type_name}",
-					"feed-{$model_name}",
-					'feed-rss',
-					'feed'
-				], [
+					$type_name,
+					$model_name,
+					'rss',
+					'default'
+				],
+				[
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => false,
 					'single'     => $single,
