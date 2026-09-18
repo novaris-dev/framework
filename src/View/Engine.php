@@ -14,6 +14,7 @@
 namespace Novaris\View;
 
 use Novaris\Contracts\Template\{TemplateTag, TemplateTags};
+use Novaris\Core\Proxies\Message;
 use Novaris\Tools\Collection;
 
 class Engine
@@ -80,6 +81,67 @@ class Engine
 	}
 
 	/**
+	 * Return the first available view.
+	 *
+	 * If no view can be found, an error message is displayed and
+	 * execution is stopped.
+	 *
+	 * @since 1.0.0
+	 */
+	public function first(
+		array $views,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View {
+		foreach ( $views as $name ) {
+			$view = $this->make(
+				$name,
+				$hierarchy,
+				$data
+			);
+
+			if ( $view->template() ) {
+				return $view;
+			}
+		}
+
+		Message::make( sprintf(
+			'<p>Notice: View templates not found:</p> <ul>%s</ul>',
+			implode( "\n", array_map(
+				fn( $name ) => "<li><code>{$name}.php</code></li>",
+				$views
+			) )
+		) )->dd();
+	}
+
+	/**
+	 * Return any available view.
+	 *
+	 * Returns false if no view can be found.
+	 *
+	 * @since 1.0.0
+	 */
+	public function any(
+		array $views,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View|false {
+		foreach ( $views as $name ) {
+			$view = $this->make(
+				$name,
+				$hierarchy,
+				$data
+			);
+
+			if ( $view->template() ) {
+				return $view;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Display a view.
 	 *
 	 * @since 1.0.0
@@ -89,8 +151,8 @@ class Engine
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	): void {
-		$this->make(
-			$name,
+		$this->first(
+			[ $name ],
 			$hierarchy,
 			$data
 		)->display();
@@ -106,13 +168,13 @@ class Engine
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	): void {
-		$view = $this->make(
-			$name,
+		$view = $this->any(
+			[ $name ],
 			$hierarchy,
 			$data
 		);
 
-		if ( $view->template() ) {
+		if ( $view ) {
 			$view->display();
 		}
 	}
