@@ -27,6 +27,11 @@ class Engine
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	): View {
+		if ( str_contains( $name, '.' ) ) {
+			$name      = str_replace( '.', '/', $name );
+			$hierarchy = [];
+		}
+
 		return new View(
 			$this,
 			$name,
