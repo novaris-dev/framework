@@ -172,55 +172,71 @@ class Installer
 			}
 		}
 
-		$repository = static::DEFAULT_REPOSITORY . "/{$theme}";
-
-		$archive = $this->download(
-			$theme,
-			$repository,
-			$themes
-		);
-
-		$zip = new ZipArchive();
-
-		if ( $zip->open( $archive ) !== true ) {
-			throw new RuntimeException(
-				"Unable to open theme archive: {$archive}"
-			);
-		}
-
-		$extracted = $zip->extractTo( $themes );
-
-		$zip->close();
-
-		if ( ! $extracted ) {
-			throw new RuntimeException(
-				"Unable to extract theme archive: {$archive}"
-			);
-		}
-
-		if ( is_file( $archive ) ) {
-			unlink( $archive );
-		}
-
 		$themePath = rtrim( $themes, '/\\' )
 			. DIRECTORY_SEPARATOR
 			. $theme;
 
-		if ( ! is_dir( $themePath ) ) {
+		if ( is_dir( $themePath ) ) {
+			return $themePath;
+		}
+
+		$repository = static::DEFAULT_REPOSITORY . "/{$theme}";
+
+		$temporary = rtrim( $themes, '/\\' )
+			. DIRECTORY_SEPARATOR
+			. ".{$theme}-install-" . uniqid();
+
+		if ( ! mkdir( $temporary, 0755, true ) && ! is_dir( $temporary ) ) {
 			throw new RuntimeException(
-				"Installed theme directory not found: {$theme}"
+				"Unable to create temporary theme directory: {$temporary}"
 			);
 		}
 
-		$metadata = $this->metadata->read( $themePath );
+		$archive = '';
 
-		if ( ( $metadata['slug'] ?? '' ) !== $theme ) {
-			throw new RuntimeException(
-				"Theme metadata does not match installed theme: {$theme}"
+		try {
+			$archive = $this->download(
+				$theme,
+				$repository,
+				$temporary
 			);
-		}
 
-		return $themePath;
+			$zip = new ZipArchive();
+
+			if ( $zip->open( $archive ) !== true ) {
+				throw new RuntimeException(
+					"Unable to open theme archive: {$archive}"
+				);
+			}
+
+			$extracted = $zip->extractTo( $temporary );
+
+			$zip->close();
+
+			if ( ! $extracted ) {
+				throw new RuntimeException(
+					"Unable to extract theme archive: {$archive}"
+				);
+			}
+
+			$source = $this->locateTheme( $temporary, $theme );
+
+			if ( ! rename( $source, $themePath ) ) {
+				throw new RuntimeException(
+					"Unable to install theme: {$theme}"
+				);
+			}
+
+			return $themePath;
+		} finally {
+			if ( $archive && is_file( $archive ) ) {
+				unlink( $archive );
+			}
+
+			if ( is_dir( $temporary ) ) {
+				$this->removeDirectory( $temporary );
+			}
+		}
 	}
 
 	/**
@@ -325,23 +341,10 @@ class Installer
 				);
 			}
 
-			$updatedThemePath = $temporary
-				. DIRECTORY_SEPARATOR
-				. $theme;
-
-			if ( ! is_dir( $updatedThemePath ) ) {
-				throw new RuntimeException(
-					"Updated theme directory not found: {$theme}"
-				);
-			}
-
-			$updatedMetadata = $this->metadata->read( $updatedThemePath );
-
-			if ( ( $updatedMetadata['slug'] ?? '' ) !== $theme ) {
-				throw new RuntimeException(
-					"Theme metadata does not match installed theme: {$theme}"
-				);
-			}
+			$updatedThemePath = $this->locateTheme(
+				$temporary,
+				$theme
+			);
 
 			if ( ! rename( $themePath, $backup ) ) {
 				throw new RuntimeException(
@@ -369,6 +372,41 @@ class Installer
 				$this->removeDirectory( $temporary );
 			}
 		}
+	}
+
+	/**
+	 * Locate and validate a theme in an extracted release.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function locateTheme(
+		string $directory,
+		string $theme
+	): string {
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$directory,
+				FilesystemIterator::SKIP_DOTS
+			)
+		);
+
+		foreach ( $iterator as $item ) {
+			if ( ! $item->isFile() || $item->getFilename() !== 'theme.json' ) {
+				continue;
+			}
+
+			$themePath = $item->getPath();
+
+			$metadata = $this->metadata->read( $themePath );
+
+			if ( ( $metadata['slug'] ?? '' ) === $theme ) {
+				return $themePath;
+			}
+		}
+
+		throw new RuntimeException(
+			"Unable to locate theme in release: {$theme}"
+		);
 	}
 
 	/**
