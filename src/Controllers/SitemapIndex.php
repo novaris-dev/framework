@@ -31,8 +31,8 @@ class SitemapIndex extends Controller
 
 		// Query the sitemap's index file.
 		$single = Query::make( [
-			'path'    => 'sitemap',
-			'slug'    => 'index'
+			'path' => 'sitemap',
+			'slug' => 'index'
 		] )->single();
 
 		// Create a virtual entry if no user-provided entry.
@@ -48,6 +48,7 @@ class SitemapIndex extends Controller
 		foreach ( $types as $type ) {
 			$sitemaps->add( $type->name(), new class( $type ) {
 				public function __construct( protected $type ) {}
+
 				public function url(): string
 				{
 					return url( 'sitemap/' . $this->type->name() );
@@ -57,11 +58,11 @@ class SitemapIndex extends Controller
 
 		if ( $single ) {
 
-			// Get the feed view.
+			// Get the sitemap index view.
 			return $this->response( $this->view(
+				'sitemap-index',
+				[],
 				[
-					'sitemap-index'
-				], [
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => false,
 					'single'     => $single,
