@@ -190,9 +190,10 @@ class View implements ViewContract
 			EXTR_SKIP
 		);
 
-		$data   = $this->data;
-		$view   = $this;
-		$engine = $this->engine;
+		$data      = $this->data;
+		$view      = $this;
+		$engine    = $this->engine;
+		$hierarchy = $this->slugs();
 
 		$this->engine->pushData( $this->data );
 
