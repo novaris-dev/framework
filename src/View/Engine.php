@@ -53,6 +53,26 @@ class Engine
 	}
 
 	/**
+	 * Loop through an iterable and include a view for each item.
+	 *
+	 * @since 1.0.0
+	 */
+	public function each(
+		string $name,
+		iterable $items = [],
+		string $var = '',
+		array|string $hierarchy = []
+	): void {
+		foreach ( $items as $item ) {
+			$this->include(
+				$name,
+				$hierarchy,
+				$var ? [ $var => $item ] : []
+			);
+		}
+	}
+
+	/**
 	 * Render a view.
 	 *
 	 * @since 1.0.0
