@@ -11,7 +11,7 @@
 
 namespace Novaris\Core\Proxies;
 
-use Novaris\Core\Proxy;
+use Novaris\Core\Proxies;
 
 class Engine extends Proxy
 {
