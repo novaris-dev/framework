@@ -58,6 +58,7 @@ class Page extends Single
 			$doctitle = new DocumentTitle( $single->title() );
 
 			return $this->response( $this->view(
+				'index',
 				Hierarchy::page( $single ),
 				[
 					'doctitle'   => $doctitle,
