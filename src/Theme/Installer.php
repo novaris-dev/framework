@@ -24,11 +24,11 @@ use ZipArchive;
 class Installer
 {
 	/**
-	 * Default theme repository.
+	 * Default theme repository organization.
 	 *
 	 * @since 1.0.0
 	 */
-	protected const DEFAULT_REPOSITORY = 'novaris-dev/amicable';
+	protected const DEFAULT_REPOSITORY = 'novaris-dev';
 
 	/**
 	 * GitHub API client.
@@ -164,12 +164,6 @@ class Installer
 			);
 		}
 
-		if ( $theme !== 'amicable' ) {
-			throw new RuntimeException(
-				"Unable to determine repository for theme: {$theme}"
-			);
-		}
-
 		if ( ! is_dir( $themes ) ) {
 			if ( ! mkdir( $themes, 0755, true ) && ! is_dir( $themes ) ) {
 				throw new RuntimeException(
@@ -178,9 +172,11 @@ class Installer
 			}
 		}
 
+		$repository = static::DEFAULT_REPOSITORY . "/{$theme}";
+
 		$archive = $this->download(
 			$theme,
-			static::DEFAULT_REPOSITORY,
+			$repository,
 			$themes
 		);
 
