@@ -18,23 +18,6 @@ use Novaris\Tools\Collection;
 class Engine
 {
 	/**
-	 * Views path.
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $path;
-
-	/**
-	 * Create a new view engine.
-	 *
-	 * @since 1.0.0
-	 */
-	public function __construct( string $path )
-	{
-		$this->path = rtrim( $path, '/\\' );
-	}
-
-	/**
 	 * Create a view.
 	 *
 	 * @since 1.0.0
@@ -45,7 +28,6 @@ class Engine
 		array|Collection $data = []
 	): View {
 		return new View(
-			$this->path,
 			$name,
 			$hierarchy,
 			$data
