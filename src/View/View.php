@@ -109,6 +109,10 @@ class View implements ViewContract
 	 */
 	public function hierarchy(): array
 	{
+		if ( str_contains( $this->name, '/' ) ) {
+			return [ "{$this->name}.php" ];
+		}
+
 		$templates = [];
 
 		foreach ( $this->hierarchy as $template ) {
