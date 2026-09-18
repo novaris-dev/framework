@@ -13,10 +13,27 @@
 
 namespace Novaris\View;
 
+use Novaris\Contracts\Template\{TemplateTag, TemplateTags};
 use Novaris\Tools\Collection;
 
 class Engine
 {
+	/**
+	 * Current view data stack.
+	 *
+	 * @since 1.0.0
+	 */
+	protected array $dataStack = [];
+
+	/**
+	 * Create a new view engine.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct(
+		protected TemplateTags $tags
+	) {}
+
 	/**
 	 * Create a new view.
 	 *
@@ -192,5 +209,72 @@ class Engine
 			$hierarchy,
 			$data
 		)->render();
+	}
+
+	/**
+	 * Push view data onto the current data stack.
+	 *
+	 * @since 1.0.0
+	 */
+	public function pushData( Collection $data ): void
+	{
+		$this->dataStack[] = $data;
+	}
+
+	/**
+	 * Remove the current view data from the data stack.
+	 *
+	 * @since 1.0.0
+	 */
+	public function popData(): void
+	{
+		array_pop( $this->dataStack );
+	}
+
+	/**
+	 * Get the current view data.
+	 *
+	 * @since 1.0.0
+	 */
+	public function data(): Collection
+	{
+		if ( ! $this->dataStack ) {
+			return new Collection();
+		}
+
+		return $this->dataStack[
+			array_key_last( $this->dataStack )
+		];
+	}
+
+	/**
+	 * Return a registered template tag object.
+	 *
+	 * @since 1.0.0
+	 */
+	public function tag(
+		string $name,
+		mixed ...$args
+	): ?TemplateTag {
+		return $this->tags->callback(
+			$name,
+			$this->data(),
+			$args
+		);
+	}
+
+	/**
+	 * Allow registered template tags to be used as methods.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __call(
+		string $name,
+		array $arguments
+	): mixed {
+		return $this->tag(
+			$name,
+			...$arguments
+		);
 	}
 }
