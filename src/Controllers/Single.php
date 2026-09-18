@@ -93,6 +93,7 @@ class Single extends Controller
 			$doctitle = new DocumentTitle( $single->title() );
 
 			return $this->response( $this->view(
+				'index',
 				Hierarchy::single( $single ),
 				[
 					'doctitle'   => $doctitle,
