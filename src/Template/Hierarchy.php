@@ -31,9 +31,9 @@ class Hierarchy
 		$post_type  = $entry->type()->name();
 
 		return array_merge( $entry->viewPaths(), [
-			"content.single.{$entry_name}",
-			"content.single-{$post_type}",
-			"content.single"
+			"single.{$entry_name}",
+			"single-{$post_type}",
+			'single'
 		] );
 	}
 
@@ -47,8 +47,8 @@ class Hierarchy
 		$entry_name = $entry->name();
 
 		return array_merge( $entry->viewPaths(), [
-			"content.page-{$entry_name}",
-			'content.page',
+			"page-{$entry_name}",
+			'page',
 		] );
 	}
 
@@ -61,7 +61,7 @@ class Hierarchy
 	public static function error404(): array
 	{
 		return [
-			'content.404',
+			'404',
 		];
 	}
 
@@ -88,9 +88,9 @@ class Hierarchy
 		$model_name = static::modelName( $entry->type() );
 
 		return [
-			"content.collection-{$type_name}",
-			"content.collection-{$model_name}",
-			'content.collection',
+			"collection-{$type_name}",
+			"collection-{$model_name}",
+			'collection',
 		];
 	}
 
@@ -117,9 +117,9 @@ class Hierarchy
 		$type_name  = $entry->type()->name();
 
 		return [
-			"content.{$type_name}-{$entry_name}",
-			"content.{$type_name}",
-			'content.archive'
+			"{$type_name}-{$entry_name}",
+			$type_name,
+			'archive'
 		];
 	}
 
@@ -131,7 +131,7 @@ class Hierarchy
 	public static function archive( ContentType $type ): array {
 
 		return [
-			'content.archive'
+			'archive'
 		];
 	}
 
