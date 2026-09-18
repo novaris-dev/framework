@@ -18,13 +18,6 @@ use Novaris\Tools\Collection;
 class View
 {
 	/**
-	 * View path.
-	 *
-	 * @since 1.0.0
-	 */
-	protected string $path;
-
-	/**
 	 * View name.
 	 *
 	 * @since 1.0.0
@@ -58,12 +51,10 @@ class View
 	 * @since 1.0.0
 	 */
 	public function __construct(
-		string $path,
 		string $name,
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	) {
-		$this->path      = rtrim( $path, '/\\' );
 		$this->name      = $name;
 		$this->hierarchy = (array) $hierarchy;
 		$this->data      = $data instanceof Collection
@@ -91,19 +82,10 @@ class View
 		$templates = [];
 
 		foreach ( $this->hierarchy as $template ) {
-			$templates[] = $this->path
-				. DIRECTORY_SEPARATOR
-				. $this->name
-				. DIRECTORY_SEPARATOR
-				. $template
-				. '.php';
+			$templates[] = "{$this->name}/{$template}.php";
 		}
 
-		$default = $this->path
-			. DIRECTORY_SEPARATOR
-			. $this->name
-			. DIRECTORY_SEPARATOR
-			. 'default.php';
+		$default = "{$this->name}/default.php";
 
 		if ( ! in_array( $default, $templates, true ) ) {
 			$templates[] = $default;
@@ -115,13 +97,25 @@ class View
 	/**
 	 * Locate the first available view template.
 	 *
+	 * Theme views take precedence over framework views.
+	 *
 	 * @since 1.0.0
 	 */
 	public function locate(): ?string
 	{
 		foreach ( $this->hierarchy() as $template ) {
-			if ( is_file( $template ) ) {
-				return $template;
+			$themeTemplate = theme_path(
+				"public/views/{$template}"
+			);
+
+			if ( is_file( $themeTemplate ) ) {
+				return $themeTemplate;
+			}
+
+			$frameworkTemplate = view_path( $template );
+
+			if ( is_file( $frameworkTemplate ) ) {
+				return $frameworkTemplate;
 			}
 		}
 
