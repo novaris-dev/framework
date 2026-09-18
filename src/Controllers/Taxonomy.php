@@ -96,7 +96,7 @@ class Taxonomy extends Controller {
 
 			$doctitle = new DocumentTitle( $single->title(), [
 				'page' => $page
-			]);
+			] );
 
 			$pagination = new Pagination( [
 				'basepath' => $path,
@@ -105,7 +105,9 @@ class Taxonomy extends Controller {
 			] );
 
 			return $this->response( $this->view(
-				Hierarchy::taxonomy( $single ), [
+				'index',
+				Hierarchy::taxonomy( $single ),
+				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'single'     => $single,
