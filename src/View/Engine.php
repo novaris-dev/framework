@@ -1,0 +1,88 @@
+<?php
+/**
+ * View engine.
+ *
+ * Handles creating and rendering views.
+ *
+ * @package   Novaris
+ * @author    Benjamin Lu <benlumia007@gmail.com>
+ * @copyright 2024 Benjamin Lu
+ * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      https://github.com/novaris-dev/framework
+ */
+
+namespace Novaris\View;
+
+use Novaris\Tools\Collection;
+
+class Engine
+{
+	/**
+	 * Views path.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $path;
+
+	/**
+	 * Create a new view engine.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct( string $path )
+	{
+		$this->path = rtrim( $path, '/\\' );
+	}
+
+	/**
+	 * Create a view.
+	 *
+	 * @since 1.0.0
+	 */
+	public function make(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View {
+		return new View(
+			$this->path,
+			$name,
+			$hierarchy,
+			$data
+		);
+	}
+
+	/**
+	 * Include a view.
+	 *
+	 * @since 1.0.0
+	 */
+	public function include(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		$this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->display();
+	}
+
+	/**
+	 * Render a view.
+	 *
+	 * @since 1.0.0
+	 */
+	public function render(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): string {
+		return $this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->render();
+	}
+}
