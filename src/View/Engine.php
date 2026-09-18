@@ -1,85 +1,71 @@
 <?php
 /**
- * Base controller class.
+ * View engine.
  *
- * Controllers are the bridge between the the HTTP request and what users see in
- * the browser.  This is the base class that all other controllers should use.
- * The `__invoke()` method is the only method required and should return a
- * `Response` back.
+ * Handles creating and rendering views.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
- * @copyright 2024. Benjamin Lu
- * @link      https://github.com/novaris-dev/framework
+ * @copyright 2024 Benjamin Lu
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      https://github.com/novaris-dev/framework
  */
 
-namespace Novaris\Controllers;
+namespace Novaris\View;
 
-// Abstracts.
-use Novaris\Contracts\View\View as ViewContract;
-
-// Concretes.
-use Novaris\Core\Proxies\View;
 use Novaris\Tools\Collection;
-use Symfony\Component\HttpFoundation\{Request, Response};
 
-abstract class Controller
+class Engine
 {
-	/**
-	 * Callback method when route matches request.
-	 *
-	 * @since 1.0.0
-	 */
-	public function __invoke( array $params, Request $request ): Response
-	{
-		return $this->response( $this->view( 'index' ) );
-	}
-
 	/**
 	 * Create a view.
 	 *
 	 * @since 1.0.0
 	 */
-	protected function view(
+	public function make(
 		string $name,
 		array|string $hierarchy = [],
-		Collection|array $data = []
-	): ViewContract {
-		return View::make( $name, $hierarchy, $data );
+		array|Collection $data = []
+	): View {
+		return new View(
+			$this,
+			$name,
+			$hierarchy,
+			$data
+		);
 	}
 
 	/**
-	 * Wrapper for sending a new response to the browser.
+	 * Include a view.
 	 *
 	 * @since 1.0.0
 	 */
-	protected function response(
-		ViewContract $view,
-		int $status = 200,
-		array $headers = []
-	): Response {
-		return new Response( $view->render(), $status, $headers );
+	public function include(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		$this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->display();
 	}
 
 	/**
-	 * Forwards request to another controller.
+	 * Render a view.
 	 *
 	 * @since 1.0.0
 	 */
-	protected function forward( string $callback, array $params, Request $request ): Response
-	{
-		$controller = new $callback;
-		return $controller( $params, $request );
-	}
-
-	/**
-	 * Forwards request to the `Error404` controller.
-	 *
-	 * @since 1.0.0
-	 */
-	protected function forward404( array $params, Request $request ): Response
-	{
-		return $this->forward( Error404::class, $params, $request );
+	public function render(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): string {
+		return $this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->render();
 	}
 }
