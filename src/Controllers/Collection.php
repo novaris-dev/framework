@@ -85,6 +85,7 @@ class Collection extends Controller
 			] );
 
 			return $this->response( $this->view(
+				'index',
 				Hierarchy::collection( $single ),
 				[
 					'doctitle'   => $doctitle,
