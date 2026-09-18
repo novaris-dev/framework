@@ -18,6 +18,23 @@ use Novaris\Tools\Collection;
 class Engine
 {
 	/**
+	 * Shared view data.
+	 *
+	 * @since 1.0.0
+	 */
+	protected Collection $shared;
+
+	/**
+	 * Create a new view engine.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct()
+	{
+		$this->shared = new Collection();
+	}
+
+	/**
 	 * Create a new view.
 	 *
 	 * @since 1.0.0
@@ -27,6 +44,13 @@ class Engine
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	): View {
+		$data = array_merge(
+			$this->shared->all(),
+			$data instanceof Collection ? $data->all() : $data
+		);
+
+		$this->shared = new Collection( $data );
+
 		return new View(
 			$this,
 			$name,
