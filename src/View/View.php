@@ -194,7 +194,13 @@ class View implements ViewContract
 		$view   = $this;
 		$engine = $this->engine;
 
-		include $template;
+		$this->engine->pushData( $this->data );
+
+		try {
+			include $template;
+		} finally {
+			$this->engine->popData();
+		}
 	}
 
 	/**
