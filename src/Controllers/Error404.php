@@ -40,6 +40,7 @@ class Error404 extends Controller {
 		}
 
 		return $this->response( $this->view(
+			'index',
 			Hierarchy::error404(),
 			[
 				'doctitle'   => new DocumentTitle( $single->title() ),
