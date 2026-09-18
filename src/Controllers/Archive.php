@@ -118,6 +118,7 @@ class Archive extends Controller
 			] );
 
 			return $this->response( $this->view(
+				'index',
 				Hierarchy::archive( $type ),
 				[
 					'doctitle'   => $doctitle,
