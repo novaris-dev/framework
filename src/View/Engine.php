@@ -49,6 +49,13 @@ class Engine
 			$hierarchy = [];
 		}
 
+		$data = array_merge(
+			$this->data()->all(),
+			$data instanceof Collection
+				? $data->all()
+				: $data
+		);
+
 		return new View(
 			$this,
 			$name,
