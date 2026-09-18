@@ -68,6 +68,7 @@ class Home extends Controller {
 				] );
 
 				return $this->response( $this->view(
+					'index',
 					Hierarchy::collectionHome( $single ),
 					compact( 'doctitle', 'pagination', 'single', 'collection' )
 				));
@@ -80,12 +81,15 @@ class Home extends Controller {
 			$collection = $single->collectionArgs() ? Query::make( $single->collectionArgs() ) : null;
 
 			return $this->response( $this->view(
-				Hierarchy::singleHome($single), [
+				'index',
+				Hierarchy::singleHome( $single ),
+				[
 					'doctitle' => new DocumentTitle(),
 					'pagination' => null,
 					'single' => $single,
 					'collection' => $collection
-				] ) );
+				]
+			) );
 		}
 
 		// If no index file is found, display a notice and return an empty response
