@@ -41,6 +41,21 @@ class Engine
 	}
 
 	/**
+	 * Determine whether a view exists.
+	 *
+	 * @since 1.0.0
+	 */
+	public function exists(
+		string $name,
+		array|string $hierarchy = []
+	): bool {
+		return null !== $this->make(
+			$name,
+			$hierarchy
+		)->template();
+	}
+
+	/**
 	 * Display a view.
 	 *
 	 * @since 1.0.0
@@ -58,7 +73,70 @@ class Engine
 	}
 
 	/**
+	 * Display a view only if it exists.
+	 *
+	 * @since 1.0.0
+	 */
+	public function includeIf(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		$view = $this->make(
+			$name,
+			$hierarchy,
+			$data
+		);
+
+		if ( $view->template() ) {
+			$view->display();
+		}
+	}
+
+	/**
+	 * Display a view when the given condition is true.
+	 *
+	 * @since 1.0.0
+	 */
+	public function includeWhen(
+		mixed $when,
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		if ( $when ) {
+			$this->include(
+				$name,
+				$hierarchy,
+				$data
+			);
+		}
+	}
+
+	/**
+	 * Display a view unless the given condition is true.
+	 *
+	 * @since 1.0.0
+	 */
+	public function includeUnless(
+		mixed $unless,
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		if ( ! $unless ) {
+			$this->include(
+				$name,
+				$hierarchy,
+				$data
+			);
+		}
+	}
+
+	/**
 	 * Loop through an iterable and include a view for each item.
+	 *
+	 * An optional empty view may be displayed when there are no items.
 	 *
 	 * @since 1.0.0
 	 */
@@ -66,13 +144,35 @@ class Engine
 		string $name,
 		iterable $items = [],
 		string $var = '',
-		array|string $hierarchy = []
+		array|string $hierarchy = [],
+		string $empty = '',
+		array|Collection $data = []
 	): void {
+		$hasItems = false;
+
 		foreach ( $items as $item ) {
+			$hasItems = true;
+
+			$itemData = $data instanceof Collection
+				? $data->all()
+				: $data;
+
+			if ( $var ) {
+				$itemData[ $var ] = $item;
+			}
+
 			$this->include(
 				$name,
 				$hierarchy,
-				$var ? [ $var => $item ] : []
+				$itemData
+			);
+		}
+
+		if ( ! $hasItems && $empty ) {
+			$this->include(
+				$empty,
+				[],
+				$data
 			);
 		}
 	}
