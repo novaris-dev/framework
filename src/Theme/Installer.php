@@ -16,6 +16,7 @@ namespace Novaris\Theme;
 
 use FilesystemIterator;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -70,10 +71,20 @@ class Installer
 	 */
 	public function latest( string $theme, string $repository ): array
 	{
-		$response = $this->client->request(
-			'GET',
-			"/repos/{$repository}/releases/latest"
-		);
+		try {
+			$response = $this->client->request(
+				'GET',
+				"/repos/{$repository}/releases/latest"
+			);
+		} catch ( ClientException $e ) {
+			if ( 404 === $e->getResponse()->getStatusCode() ) {
+				throw new RuntimeException(
+					"Unable to find a release for theme: {$theme}"
+				);
+			}
+
+			throw $e;
+		}
 
 		$release = json_decode(
 			$response->getBody()->getContents(),
@@ -82,7 +93,7 @@ class Installer
 
 		if ( empty( $release['tag_name'] ) ) {
 			throw new RuntimeException(
-				"Unable to determine the latest release for theme: {$theme}"
+				"Unable to find a release for theme: {$theme}"
 			);
 		}
 
