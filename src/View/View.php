@@ -111,6 +111,8 @@ class View implements ViewContract
 			$templates[] = $default;
 		}
 
+		$templates[] = "{$this->name}.php";
+
 		return $templates;
 	}
 
