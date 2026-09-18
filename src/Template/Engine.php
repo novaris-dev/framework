@@ -1,107 +1,107 @@
 <?php
 /**
- * Template engine.
+ * View engine.
+ *
+ * Handles creating, displaying, and rendering views.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
- * @copyright 2024. Benjamin Lu
- * @link      https://github.com/novaris-dev/framework
+ * @copyright 2024 Benjamin Lu
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      https://github.com/novaris-dev/framework
  */
 
-namespace Novaris\Template;
+namespace Novaris\View;
 
-// Abstracts.
-use Novaris\Contracts\Template\{TemplateEngine, TemplateTag, TemplateTags, TemplateView};
-
-// Concretes.
-use Novaris\Core\Proxies\{App, Message};
+use Novaris\Contracts\Template\{TemplateTag, TemplateTags};
+use Novaris\Core\Proxies\Message;
 use Novaris\Tools\Collection;
 
-class Engine implements TemplateEngine
+class Engine
 {
 	/**
-	 * Houses shared data to pass down to subviews.``
+	 * Current view data stack.
 	 *
 	 * @since 1.0.0
 	 */
-	protected Collection $shared;
+	protected array $dataStack = [];
 
 	/**
-	 * Sets up the object properties.
+	 * Create a new view engine.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( protected TemplateTags $tags ) {
-
-		$this->shared = new Collection();
-	}
+	public function __construct(
+		protected TemplateTags $tags
+	) {}
 
 	/**
-	 * Returns a template view. This should only be used for top-level views.
-	 * Otherwise, an error message is dumped and the process is stalled.
-	 * If including views within views, use `subview()` or one of its
-	 * several descendent methods included in this class.
+	 * Create a new view.
 	 *
 	 * @since 1.0.0
 	 */
-	public function view( array|string $views, array|Collection $data = [] ): TemplateView {
-
-		// If an array is passed in, call `first()`.
-		if ( is_array( $views ) ) {
-
-			return $this->first( $views, $data );
+	public function make(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View {
+		if ( str_contains( $name, '.' ) ) {
+			$name      = str_replace( '.', '/', $name );
+			$hierarchy = [];
 		}
 
-		// Assign the view name, which should be a string at this point.
-		$name = $views;
-
-		// @todo possible to assign this to $shared?
 		$data = array_merge(
-			$this->shared->all(),
-			$data instanceof Collection ? $data->all() : $data
+			$this->data()->all(),
+			$data instanceof Collection
+				? $data->all()
+				: $data
 		);
 
-		// Always pass the engine back to the view.
-		$data['engine'] = $this;
-
-		$this->shared = new Collection( $data );
-
-		// Make a new template view.
-		$view = App::make( 'template.view', [
-			'name' => $views,
-			'data' => $data
-		] );
-
-		// Return template view.
-		return $view;
+		return new View(
+			$this,
+			$name,
+			$hierarchy,
+			$data
+		);
 	}
 
 	/**
-	 * Checks if a view template exists.
+	 * Determine whether a view exists.
 	 *
 	 * @since 1.0.0
 	 */
-	public function exists( string $name ): bool {
-
-		$filename = str_replace( '.', '/', $name );
-
-		return file_exists( theme_path( "public/views/{$filename}.php" ) )
-			|| file_exists( view_path( "{$filename}.php" ) );
+	public function exists(
+		string $name,
+		array|string $hierarchy = []
+	): bool {
+		return null !== $this->make(
+			$name,
+			$hierarchy
+		)->template();
 	}
 
 	/**
-	 * Returns the first found view.
+	 * Return the first available view.
+	 *
+	 * If no view can be found, an error message is displayed and
+	 * execution is stopped.
 	 *
 	 * @since 1.0.0
 	 */
-	public function first( array $views, array|Collection $data = [] ): TemplateView {
+	public function first(
+		array $views,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View {
+		foreach ( $views as $name ) {
+			$view = $this->make(
+				$name,
+				$hierarchy,
+				$data
+			);
 
-		foreach ( $views as $view ) {
-
-			if ( $this->exists( $view ) ) {
-
-				return $this->view( $view, $data );
+			if ( $view->template() ) {
+				return $view;
 			}
 		}
 
@@ -115,17 +115,26 @@ class Engine implements TemplateEngine
 	}
 
 	/**
-	 * Returns any found view.
+	 * Return any available view.
+	 *
+	 * Returns false if no view can be found.
 	 *
 	 * @since 1.0.0
 	 */
-	public function any( array $views, array|Collection $data = [] ): TemplateView|false {
+	public function any(
+		array $views,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): View|false {
+		foreach ( $views as $name ) {
+			$view = $this->make(
+				$name,
+				$hierarchy,
+				$data
+			);
 
-		foreach ( (array) $views as $name ) {
-
-			if ( $this->exists( $name ) ) {
-
-				return $this->view( $name, $data );
+			if ( $view->template() ) {
+				return $view;
 			}
 		}
 
@@ -133,113 +142,208 @@ class Engine implements TemplateEngine
 	}
 
 	/**
-	 * Includes a view.
-	 *
-	 * Views without a specific template use the default template.
+	 * Display a view.
 	 *
 	 * @since 1.0.0
 	 */
-	public function include( array|string $views, array|Collection $data = [] ): void {
-
-		$views = array_map(
-			fn( $view ) => str_contains( $view, '.' ) || str_contains( $view, '-' )
-				? $view
-				: "{$view}.default",
-			(array) $views
-		);
-
-		$this->first( $views, $data )->display();
+	public function include(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		$this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->display();
 	}
 
 	/**
-	 * Includes a view only if it exists. No errors or warnings if no view
-	 * template is found.
+	 * Display a view only if it exists.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function includeIf( array|string $views, array|Collection $data = [] ): void {
+	public function includeIf(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
+		$view = $this->make(
+			$name,
+			$hierarchy,
+			$data
+		);
 
-		if ( $view = $this->any( (array) $views, $data ) ) {
+		if ( $view->template() ) {
 			$view->display();
 		}
 	}
 
 	/**
-	 * Includes a view when `$when` is `true`.
+	 * Display a view when the given condition is true.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function includeWhen( mixed $when, array|string $views, array|Collection $data = [] ): void {
-
+	public function includeWhen(
+		mixed $when,
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
 		if ( $when ) {
-
-			$this->include( $views, $data );
+			$this->include(
+				$name,
+				$hierarchy,
+				$data
+			);
 		}
 	}
 
 	/**
-	 * Includes a view unless `$unless` is `true`.
+	 * Display a view unless the given condition is true.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function includeUnless( mixed $unless, array|string $views, array|Collection $data = [] ): void {
-
+	public function includeUnless(
+		mixed $unless,
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): void {
 		if ( ! $unless ) {
-			$this->include( $views, $data );
+			$this->include(
+				$name,
+				$hierarchy,
+				$data
+			);
 		}
 	}
 
 	/**
-	 * Loops through an array of items and includes a view for each.  Use
-	 * the `$var` variable to set a variable name for the item when passed
-	 * to the view.  Pass a fallback view name via `$empty` to show if
-	 * the items array is empty.
+	 * Loop through an iterable and include a view for each item.
 	 *
-	 * @since  1.0.0
+	 * An optional empty view may be displayed when there are no items.
+	 *
+	 * @since 1.0.0
 	 */
-	public function each( array|string $views, iterable $items = [], string $var = '', array|string $empty = [] ): void {
-
-		if ( ! $items && $empty ) {
-
-			$this->include( $empty );
-			return;
-		}
+	public function each(
+		string $name,
+		iterable $items = [],
+		string $var = '',
+		array|string $hierarchy = [],
+		string $empty = '',
+		array|Collection $data = []
+	): void {
+		$hasItems = false;
 
 		foreach ( $items as $item ) {
+			$hasItems = true;
 
-			$this->include( $views, $var ? [ $var => $item ] : [] );
+			$itemData = $data instanceof Collection
+				? $data->all()
+				: $data;
+
+			if ( $var ) {
+				$itemData[ $var ] = $item;
+			}
+
+			$this->include(
+				$name,
+				$hierarchy,
+				$itemData
+			);
+		}
+
+		if ( ! $hasItems && $empty ) {
+			$this->include(
+				$empty,
+				[],
+				$data
+			);
 		}
 	}
 
 	/**
-	 * Returns a template view. Use for getting views inside of other views.
-	 * This makes sure shared data is passed down to the subview.
+	 * Render a view.
 	 *
-	 * @since  1.0.0
-	 * @deprecated 1.0.0
+	 * @since 1.0.0
 	 */
-	public function subview( array|string $views, array|Collection $data = [] ): TemplateView {
-
-		return $this->view( $views, $data );
+	public function render(
+		string $name,
+		array|string $hierarchy = [],
+		array|Collection $data = []
+	): string {
+		return $this->make(
+			$name,
+			$hierarchy,
+			$data
+		)->render();
 	}
 
 	/**
-	 * Returns a template tag object or null when it doesn't exist.
+	 * Push view data onto the current data stack.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function tag( string $name, mixed ...$args ): ?TemplateTag {
-
-		return $this->tags->callback( $name, $this->shared, $args );
+	public function pushData( Collection $data ): void
+	{
+		$this->dataStack[] = $data;
 	}
 
 	/**
-	 * Allows registered template tags to be used as methods.
+	 * Remove the current view data from the data stack.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function __call( string $name, array $arguments ): mixed {
+	public function popData(): void
+	{
+		array_pop( $this->dataStack );
+	}
 
-		return $this->tag( $name, ...$arguments );
+	/**
+	 * Get the current view data.
+	 *
+	 * @since 1.0.0
+	 */
+	public function data(): Collection
+	{
+		if ( ! $this->dataStack ) {
+			return new Collection();
+		}
+
+		return $this->dataStack[
+			array_key_last( $this->dataStack )
+		];
+	}
+
+	/**
+	 * Return a registered template tag object.
+	 *
+	 * @since 1.0.0
+	 */
+	public function tag(
+		string $name,
+		mixed ...$args
+	): ?TemplateTag {
+		return $this->tags->callback(
+			$name,
+			$this->data(),
+			$args
+		);
+	}
+
+	/**
+	 * Allow registered template tags to be used as methods.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __call(
+		string $name,
+		array $arguments
+	): mixed {
+		return $this->tag(
+			$name,
+			...$arguments
+		);
 	}
 }
