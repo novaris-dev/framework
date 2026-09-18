@@ -19,6 +19,13 @@ use Novaris\Tools\Collection;
 class View implements ViewContract
 {
 	/**
+	 * View engine.
+	 *
+	 * @since 1.0.0
+	 */
+	protected Engine $engine;
+
+	/**
 	 * View name.
 	 *
 	 * @since 1.0.0
@@ -52,10 +59,12 @@ class View implements ViewContract
 	 * @since 1.0.0
 	 */
 	public function __construct(
+		Engine $engine,
 		string $name,
 		array|string $hierarchy = [],
 		array|Collection $data = []
 	) {
+		$this->engine    = $engine;
 		$this->name      = $name;
 		$this->hierarchy = (array) $hierarchy;
 		$this->data      = $data instanceof Collection
@@ -165,8 +174,9 @@ class View implements ViewContract
 			EXTR_SKIP
 		);
 
-		$data = $this->data;
-		$view = $this;
+		$data   = $this->data;
+		$view   = $this;
+		$engine = $this->engine;
 
 		include $template;
 	}
