@@ -13,9 +13,10 @@
 
 namespace Novaris\View;
 
+use Novaris\Contracts\View\View as ViewContract;
 use Novaris\Tools\Collection;
 
-class View
+class View implements ViewContract
 {
 	/**
 	 * View name.
@@ -70,6 +71,16 @@ class View
 	public function name(): string
 	{
 		return $this->name;
+	}
+
+	/**
+	 * Get the view hierarchy slugs.
+	 *
+	 * @since 1.0.0
+	 */
+	public function slugs(): array
+	{
+		return $this->hierarchy;
 	}
 
 	/**
