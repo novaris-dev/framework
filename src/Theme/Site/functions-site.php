@@ -147,3 +147,40 @@ function render_home_link( array $args = [] ): string {
     // Return the final HTML, including 'before' and 'after' elements
     return $args['before'] . $html . $args['after'];
 }
+
+/**
+ * Returns the custom header image URL.
+ *
+ * @since 1.0.0
+ *
+ * @return string Custom header image URL or an empty string if unsupported
+ *                or no image has been configured.
+ */
+function custom_header(): string
+{
+	if ( ! theme_supports( 'custom-header' ) ) {
+		return '';
+	}
+
+	$header = config( 'app.custom_header' );
+
+	if ( ! $header ) {
+		return '';
+	}
+
+	return media_url(
+		ltrim( $header, '/' )
+	);
+}
+
+/**
+ * Determines whether a custom header image is available.
+ *
+ * @since 1.0.0
+ *
+ * @return bool True if a custom header image is available, false otherwise.
+ */
+function has_custom_header(): bool
+{
+	return '' !== custom_header();
+}
