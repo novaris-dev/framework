@@ -563,3 +563,15 @@ function custom_header(): string
 		ltrim( $header, '/' )
 	);
 }
+
+/**
+ * Determines whether a custom header image is available.
+ *
+ * @since 1.0.0
+ *
+ * @return bool True if a custom header image is available, false otherwise.
+ */
+function has_custom_header(): bool
+{
+	return '' !== custom_header();
+}
