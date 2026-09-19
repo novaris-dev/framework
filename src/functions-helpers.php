@@ -538,3 +538,18 @@ if ( ! function_exists( 'theme_supports' ) ) {
 		return app( 'theme.metadata' )->supports( $feature );
 	}
 }
+
+if ( ! function_exists( 'theme_support' ) ) {
+	/**
+	 * Returns the active theme's options for a supported feature.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $feature Theme feature.
+	 * @return array           Feature options.
+	 */
+	function theme_support( string $feature ): array
+	{
+		return app( 'theme.metadata' )->support( $feature );
+	}
+}
