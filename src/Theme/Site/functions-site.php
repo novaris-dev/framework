@@ -1,5 +1,5 @@
 <?php
-namespace Novaris\Theme\Site;
+namespace Novaris\Site;
 
 /**
  * Outputs the site title HTML for Novaris.
