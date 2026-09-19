@@ -553,5 +553,13 @@ function custom_header(): string
 		return '';
 	}
 
-	return config( 'app.custom_header' ) ?: '';
+	$header = config( 'app.custom_header' );
+
+	if ( ! $header ) {
+		return '';
+	}
+
+	return media_url(
+		ltrim( $header, '/' )
+	);
 }
