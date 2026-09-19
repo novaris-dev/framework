@@ -158,11 +158,11 @@ function render_home_link( array $args = [] ): string {
  */
 function custom_header(): string
 {
-	if ( ! theme_supports( 'custom-header' ) ) {
-		return '';
-	}
+    if ( ! \theme_supports( 'custom-header' ) ) {
+        return '';
+    }
 
-	$support = theme_support( 'custom-header' );
+    $support = \theme_support( 'custom-header' );
 
-	return $support['default'] ?? '';
+    return $support['default'] ?? '';
 }
