@@ -48,23 +48,44 @@ class Metadata
 		return $data;
 	}
 
-/**
- * Get the active theme's options for a supported feature.
- *
- * @since 1.0.0
- *
- * @param  string $feature Theme feature.
- * @return array           Feature options.
- */
-public function support( string $feature ): array
-{
-	$data = $this->read( theme_path() );
+	/**
+	 * Determine whether the active theme supports a feature.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $feature Theme feature.
+	 * @return bool            True if the feature is supported.
+	 */
+	public function supports( string $feature ): bool
+	{
+		$data = $this->read( theme_path() );
 
-	if ( ! isset( $data['supports'][ $feature ] ) ) {
-		return [];
+		if ( ! isset( $data['supports'][ $feature ] ) ) {
+			return false;
+		}
+
+		return true === $data['supports'][ $feature ]
+			|| is_array( $data['supports'][ $feature ] );
 	}
 
-	return is_array( $data['supports'][ $feature ] )
-		? $data['supports'][ $feature ]
-		: [];
+	/**
+	 * Get the active theme's options for a supported feature.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $feature Theme feature.
+	 * @return array           Feature options.
+	 */
+	public function support( string $feature ): array
+	{
+		$data = $this->read( theme_path() );
+
+		if ( ! isset( $data['supports'][ $feature ] ) ) {
+			return [];
+		}
+
+		return is_array( $data['supports'][ $feature ] )
+			? $data['supports'][ $feature ]
+			: [];
+	}
 }
