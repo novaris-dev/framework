@@ -158,11 +158,13 @@ function render_home_link( array $args = [] ): string {
  */
 function custom_header(): string
 {
-    if ( ! \theme_supports( 'custom-header' ) ) {
-        return '';
-    }
+	$metadata = app( 'theme.metadata' );
 
-    $support = \theme_support( 'custom-header' );
+	if ( ! $metadata->supports( 'custom-header' ) ) {
+		return '';
+	}
 
-    return $support['default'] ?? '';
+	$support = $metadata->support( 'custom-header' );
+
+	return $support['default'] ?? '';
 }
