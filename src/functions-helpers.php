@@ -538,3 +538,20 @@ if ( ! function_exists( 'theme_supports' ) ) {
 		return app( 'theme.metadata' )->supports( $feature );
 	}
 }
+
+/**
+ * Returns the custom header image URL.
+ *
+ * @since 1.0.0
+ *
+ * @return string Custom header image URL or an empty string if unsupported
+ *                or no image has been configured.
+ */
+function custom_header(): string
+{
+	if ( ! theme_supports( 'custom-header' ) ) {
+		return '';
+	}
+
+	return config( 'app.custom_header' ) ?: '';
+}
