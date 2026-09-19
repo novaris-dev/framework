@@ -47,4 +47,17 @@ class Metadata
 
 		return $data;
 	}
+
+	/**
+	 * Determine whether a theme supports a feature.
+	 *
+	 * @since 1.0.0
+	 */
+	public function supports( string $theme, string $feature ): bool
+	{
+		$data = $this->read( $theme );
+
+		return isset( $data['supports'][ $feature ] )
+			&& true === $data['supports'][ $feature ];
+	}
 }
