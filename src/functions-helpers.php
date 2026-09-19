@@ -524,21 +524,6 @@ if ( ! function_exists( 'runt' ) ) {
 	}
 }
 
-if ( ! function_exists( 'theme_supports' ) ) {
-	/**
-	 * Determines whether the active theme supports a specific feature.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string $feature Theme feature to check.
-	 * @return bool            True if the feature is supported, false otherwise.
-	 */
-	function theme_supports( string $feature ): bool
-	{
-		return app( 'theme.metadata' )->supports( $feature );
-	}
-}
-
 if ( ! function_exists( 'theme_support' ) ) {
 	/**
 	 * Returns the active theme's options for a supported feature.
