@@ -147,3 +147,22 @@ function render_home_link( array $args = [] ): string {
     // Return the final HTML, including 'before' and 'after' elements
     return $args['before'] . $html . $args['after'];
 }
+
+/**
+ * Returns the custom header image URL.
+ *
+ * @since 1.0.0
+ *
+ * @return string Custom header image URL or an empty string if the theme
+ *                does not support custom headers.
+ */
+function custom_header(): string
+{
+	if ( ! theme_supports( 'custom-header' ) ) {
+		return '';
+	}
+
+	$support = theme_support( 'custom-header' );
+
+	return $support['default'] ?? '';
+}
