@@ -41,7 +41,6 @@ class Sitemap extends Controller
 			'meta'    => [ 'title' => 'Sitemap' ]
 		] );
 
-		// @todo collect content from all post types.
 		$collection = Query::make( [
 			'type'      => $types->get( $type )->name(),
 			'number'    => 0,
