@@ -208,7 +208,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	 *
 	 * @since 1.0.0
 	 */
-        public function __construct( protected ContentLocator $locator ) {}
+	public function __construct( protected ContentLocator $locator ) {}
 
 	/**
 	 * Sets up the query options and makes the query.
@@ -217,11 +217,11 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	 */
 	public function make( array $options = [] ): self
 	{
-        	foreach ( array_keys( get_object_vars( $this ) ) as $key ) {
-        		if ( isset( $options[ $key ] ) ) {
-        			$this->$key = $options[ $key ];
-        		}
-        	}
+		foreach ( array_keys( get_object_vars( $this ) ) as $key ) {
+			if ( isset( $options[ $key ] ) ) {
+				$this->$key = $options[ $key ];
+			}
+		}
 
 		// Back-compat for `$names`.
 		if ( isset( $options['slug'] ) && ! isset( $options['names'] ) ) {
@@ -273,7 +273,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 
 		// make() should always return self.
 		return $this;
-        }
+	}
 
 	/**
 	 * Filters, sorts, and reduces located entries according the query vars.
@@ -290,10 +290,11 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 
 		// Filter entries based on query vars.
 		$located = $this->filterByVisibility( $located );
-		$located = $this->filterByNames(   $located );
-		$located = $this->filterByDate(    $located );
-		$located = $this->filterByAuthor(  $located );
-		$located = $this->filterByMeta(    $located );
+		$located = $this->filterByStatus(     $located );
+		$located = $this->filterByNames(      $located );
+		$located = $this->filterByDate(       $located );
+		$located = $this->filterByAuthor(     $located );
+		$located = $this->filterByMeta(       $located );
 
 		// Sort entries based on query vars.
 		$located = $this->sortByOrder( $located );
@@ -346,7 +347,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	 *
 	 * @since 1.0.0
 	 */
-        public function all(): array
+	public function all(): array
 	{
 		return $this->entries;
 	}
@@ -487,12 +488,39 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 			// don't add it to the located array.
 			if (
 				! in_array( $slug, $this->names ) &&
-			 	'hidden' === $matter['visibility']
+				'hidden' === $matter['visibility']
 			) {
 				continue;
 			}
 
-	                $located[ $file ] = $matter;
+			$located[ $file ] = $matter;
+		}
+
+		return $located;
+	}
+
+	/**
+	 * Filter entries by publishing status.
+	 *
+	 * Entries without an explicit status are treated as published.
+	 *
+	 * @since 1.0.0
+	 */
+	private function filterByStatus( array $entries ): array
+	{
+		$located = [];
+
+		foreach ( $entries as $file => $matter ) {
+
+			if ( ! isset( $matter['status'] ) ) {
+				$matter['status'] = 'published';
+			}
+
+			if ( 'published' !== $matter['status'] ) {
+				continue;
+			}
+
+			$located[ $file ] = $matter;
 		}
 
 		return $located;
@@ -503,15 +531,15 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	 *
 	 * @since 1.0.0
 	 */
-        private function filterByNames( array $entries ): array
+	private function filterByNames( array $entries ): array
 	{
-                if ( ! $this->names && ! $this->names_exclude ) {
-                        return $entries;
-                }
+		if ( ! $this->names && ! $this->names_exclude ) {
+			return $entries;
+		}
 
-                $located = [];
+		$located = [];
 
-                foreach ( $entries as $file => $matter ) {
+		foreach ( $entries as $file => $matter ) {
 
 			// Get the filename without the extension.
 			$name = pathinfo( $file, PATHINFO_FILENAME );
@@ -519,33 +547,33 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 			// Strip anything before potential ordering dot, e.g.,
 			// `01.{$name}`, `02.{$name}`, etc.
 			if ( Str::contains( $name, '.' ) ) {
-				$name =  Str::afterLast( $name, '.' );
+				$name = Str::afterLast( $name, '.' );
 			}
 
 			// Check if the name is specifically included/excluded.
 			// Included names take precedence over excluded.
-                	if ( $this->names && in_array( $name, $this->names ) ) {
-                		$located[ $file ] = $matter;
-                		continue;
-                	} elseif ( $this->names_exclude && ! in_array( $name, $this->names_exclude ) ) {
+			if ( $this->names && in_array( $name, $this->names ) ) {
+				$located[ $file ] = $matter;
+				continue;
+			} elseif ( $this->names_exclude && ! in_array( $name, $this->names_exclude ) ) {
 				$located[ $file ] = $matter;
 				continue;
 			}
 		}
 
 		return $located;
-        }
+	}
 
 	/**
 	 * Filter entries by date.
 	 *
 	 * @since 1.0.0
 	 */
-        private function filterByDate( array $entries ): array
+	private function filterByDate( array $entries ): array
 	{
-                if ( ! $this->year && ! $this->month && ! $this->day ) {
-                        return $entries;
-                }
+		if ( ! $this->year && ! $this->month && ! $this->day ) {
+			return $entries;
+		}
 
 		$located = [];
 
@@ -575,7 +603,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 		}
 
 		return $located;
-        }
+	}
 
 	/**
 	 * Filter entries by author. Technically, authors are stored as metadata,
@@ -683,7 +711,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	 *
 	 * @since 1.0.0
 	 */
-        private function sortByOrder( array $entries ): array
+	private function sortByOrder( array $entries ): array
 	{
 		$meta_keys = [
 			'author',
@@ -730,17 +758,18 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 
 			// Shuffle the entries in-place
 			$keys = array_keys( $entries );
-			shuffle($keys);
+			shuffle( $keys );
 
 			$shuffled = [];
-			foreach ($keys as $key) {
-				$shuffled[$key] = $entries[$key];
+
+			foreach ( $keys as $key ) {
+				$shuffled[ $key ] = $entries[ $key ];
 			}
 
 			return $shuffled;
 		}
 
-	// Order by filename.
+		// Order by filename.
 		if ( 'asc' === $this->order ) {
 			ksort( $entries );
 		} elseif ( 'desc' === $this->order ) {
