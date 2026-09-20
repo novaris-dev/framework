@@ -325,6 +325,16 @@ abstract class Entry implements ContentEntry
 	}
 
 	/**
+	 * Returns the entry featured image.
+	 *
+	 * @since 1.0.0
+	 */
+	public function featuredImage(): Media|null
+	{
+		return $this->media( 'featured_image' );
+	}
+
+	/**
 	 * Returns an array of view paths assigned as metadata.
 	 *
 	 * @since  1.0.0
@@ -442,7 +452,7 @@ abstract class Entry implements ContentEntry
 	 * Returns an estimated reading time in hours (if an hour or longer) and
 	 * minutes.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function readingTime( int $words_per_min = 200 ): string
 	{
