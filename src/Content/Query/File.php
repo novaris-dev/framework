@@ -161,6 +161,13 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	protected array $names_exclude = [];
 
 	/**
+	 * Query entries by publishing status.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $status = 'published';
+
+	/**
 	 * Query entries by year.
 	 *
 	 * @since 1.0.0
@@ -264,6 +271,9 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 
 		// Lowercase order.
 		$this->order = strtolower( $this->order );
+
+		// Lowercase status.
+		$this->status = strtolower( $this->status );
 
 		// Sets the path to the locator.
 		$this->locator->setPath( $this->path );
@@ -511,12 +521,9 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 		$located = [];
 
 		foreach ( $entries as $file => $matter ) {
+			$status = strtolower( $matter['status'] ?? 'published' );
 
-			if ( ! isset( $matter['status'] ) ) {
-				$matter['status'] = 'published';
-			}
-
-			if ( 'published' !== $matter['status'] ) {
+			if ( $this->status !== $status ) {
 				continue;
 			}
 
