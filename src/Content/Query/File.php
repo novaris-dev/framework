@@ -126,6 +126,13 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	protected string $orderby = 'filename';
 
 	/**
+	 * Whether sticky entries should be placed first.
+	 *
+	 * @since 1.0.0
+	 */
+	protected bool $sticky = false;
+
+	/**
 	 * Query entries by authors.
 	 *
 	 * @since 1.0.0
