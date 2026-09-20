@@ -53,10 +53,14 @@ class Hierarchy
 	/**
 	 * Returns the error 404 single template hierarchy.
 	 *
-	 * @todo  Create an `error` content type.
 	 * @since 1.0.0
 	 */
 	public static function error404(): array
+	{
+	return [
+		'404',
+	];
+}
 	{
 		return [
 			'404',
