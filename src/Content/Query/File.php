@@ -466,7 +466,6 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	/**
 	 * Filter entries by visibility.
 	 *
-	 * @todo  Allow queries specifically for visibility.
 	 * @since 1.0.0
 	 */
 	private function filterByVisibility( array $entries ): array
