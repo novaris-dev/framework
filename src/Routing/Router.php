@@ -58,7 +58,7 @@ class Router implements RoutingRouter
 	}
 
 	/**
-	 * Returns a cached HTTP Response if global caching is enabled.  If not,
+	 * Returns a cached HTTP Response if global caching is enabled. If not,
 	 * returns a new HTTP Response.
 	 *
 	 * @since 1.0.0
@@ -92,7 +92,7 @@ class Router implements RoutingRouter
 		}
 
 		$cache_key = str_replace( [ '/', '\\' ], '.', $path );
-		$content = Cache::get( "global.{$cache_key}" );
+		$content   = Cache::get( "global.{$cache_key}" );
 		$response  = false;
 
 		// If no cached content, get a new response and cache it.
@@ -139,14 +139,14 @@ class Router implements RoutingRouter
 	 */
 	private function getResponse(): Response
 	{
-	        $path = $this->path();
+		$path = $this->path();
 
-	        // Trim slashes unless homepage.
-	        if ( '/' !== $path ) {
-	                $path = Str::trimSlashes( $path );
-	        }
+		// Trim slashes unless homepage.
+		if ( '/' !== $path ) {
+			$path = Str::trimSlashes( $path );
+		}
 
-	        // Check for route that is an exact match for the request. This
+		// Check for route that is an exact match for the request. This
 		// will match route URIs that do not have variables, so we can
 		// just return the matched route controller here.
 		if ( $this->routes->has( $path ) ) {
@@ -177,7 +177,7 @@ class Router implements RoutingRouter
 			return $response;
 		}
 
-	        // If nothing is found, send 404.
+		// If nothing is found, send 404.
 		return ( new Error404() )->__invoke( [
 			'path' => $path
 		], $this->request() );
@@ -191,14 +191,14 @@ class Router implements RoutingRouter
 	 */
 	private function locateRoute( iterable $routes, string $path ): Response|false
 	{
-	        // Loops through all routes and try to match them based on the
-	        // params contained in the route URI.
-	        foreach ( $routes as $route ) {
+		// Loops through all routes and try to match them based on the
+		// params contained in the route URI.
+		foreach ( $routes as $route ) {
 
-	                // Skip routes without params.
-	                if ( ! Str::contains( $route->uri(), '{' ) ) {
-	                        continue;
-	                }
+			// Skip routes without params.
+			if ( ! Str::contains( $route->uri(), '{' ) ) {
+				continue;
+			}
 
 			// Checks for matches against the route regex pattern,
 			// e.g., `/path/{var_a}/example/{var_b}`.
@@ -210,7 +210,7 @@ class Router implements RoutingRouter
 			if ( @preg_match( $route->pattern(), $path, $matches ) ) {
 
 				// Removes the full match from the array, which
-				// matches the entire URI path.  The leftover
+				// matches the entire URI path. The leftover
 				// matches are the parameter values.
 				array_shift( $matches );
 
@@ -229,7 +229,7 @@ class Router implements RoutingRouter
 				// Invoke the route callback.
 				return $route->callback( $params, $this->request() );
 			}
-	        }
+		}
 
 		return false;
 	}
