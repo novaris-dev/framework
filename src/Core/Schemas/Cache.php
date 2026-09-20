@@ -30,10 +30,7 @@ class Cache
 			'global'               => Expect::bool( false ),
 			'global_exclude'       => Expect::array( [] ),
 			'stores'               => Expect::arrayOf( 'array',  'string' ),
-			'drivers'              => Expect::arrayOf( 'string', 'string' ),
-
-			// @todo - Remove. No longer in use.
-			'markdown'             => Expect::bool( false )
+			'drivers'              => Expect::arrayOf( 'string', 'string' )
 		] );
 	}
 }
