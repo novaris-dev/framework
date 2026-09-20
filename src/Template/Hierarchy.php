@@ -57,11 +57,6 @@ class Hierarchy
 	 */
 	public static function error404(): array
 	{
-	return [
-		'404',
-	];
-}
-	{
 		return [
 			'404',
 		];
@@ -130,8 +125,8 @@ class Hierarchy
 	 *
 	 * @since 1.0.0
 	 */
-	public static function archive( ContentType $type ): array {
-
+	public static function archive( ContentType $type ): array
+	{
 		return [
 			'archive'
 		];
