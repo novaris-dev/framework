@@ -263,7 +263,6 @@ class Str
 	/**
 	 * Returns the singular or plural version of a string based on the count.
 	 *
-	 * @todo  Implement translation system that handles this based on locale.
 	 * @since 1.0.0
 	 */
 	public static function nText( string $singular, string $plural, int $count ): string
