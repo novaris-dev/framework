@@ -265,7 +265,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns a formatted entry date by meta key name.
 	 *
-	 * @since 1.0.0
+	 * @since  1.0.0
 	 */
 	public function date( string $name = 'published', string $format = '' ): string
 	{
@@ -331,7 +331,7 @@ abstract class Entry implements ContentEntry
 	 */
 	public function featuredImage(): Media|null
 	{
-		return $this->media( 'featured_image' );
+		return $this->media( 'featured-image' );
 	}
 
 	/**
