@@ -126,13 +126,6 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	protected string $orderby = 'filename';
 
 	/**
-	 * Whether sticky entries should be placed first.
-	 *
-	 * @since 1.0.0
-	 */
-	protected bool $sticky = false;
-
-	/**
 	 * Query entries by authors.
 	 *
 	 * @since 1.0.0
@@ -306,9 +299,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 		$located = $this->sortByOrder( $located );
 
 		// Move sticky entries to the beginning of the query.
-		if ( $this->sticky ) {
-			$located = $this->sortBySticky( $located );
-		}
+		$located = $this->sortBySticky( $located );
 
 		// Reduce array of located files to filenames.
 		$filepaths = array_keys( $located );
