@@ -50,7 +50,6 @@ class Writer implements FeedWriter
 	 * Feed language.
 	 *
 	 * @since 1.0.0
-	 * @todo  Map this to config.
 	 */
 	protected string $language = 'en-US';
 
