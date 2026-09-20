@@ -229,7 +229,6 @@ class Media
 	/**
 	 * Returns an array of allowed mime types.
 	 *
-	 * @todo  Flesh out full list of image, audio, and video mime types.
 	 * @since 1.0.0
 	 */
 	protected function allowedMimeTypes(): array
