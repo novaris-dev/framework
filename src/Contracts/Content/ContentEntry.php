@@ -110,18 +110,18 @@ interface ContentEntry {
 	public function subtitle(): string;
 
 	/**
-	* Returns the entry published datetime.
-	*
-	* @since 1.0.0
-	*/
-       public function published( string $format = '' ): string;
+	 * Returns the entry published datetime.
+	 *
+	 * @since 1.0.0
+	 */
+	public function published( string $format = '' ): string;
 
-       /**
-	* Returns the entry updated datetime.
-	*
-	* @since 1.0.0
-	*/
-       public function updated( string $format = '' ): string;
+	/**
+	 * Returns the entry updated datetime.
+	 *
+	 * @since 1.0.0
+	 */
+	public function updated( string $format = '' ): string;
 
 	/**
 	 * Returns the entry date.
@@ -146,11 +146,18 @@ interface ContentEntry {
 	public function authors(): array;
 
 	/**
-	* Returns a media object based on a media file path stored as metadata.
-	*
-	* @since  1.0.0
-	*/
-       public function media( string $name = 'image' ): Media|null;
+	 * Returns a media object based on a media file path stored as metadata.
+	 *
+	 * @since  1.0.0
+	 */
+	public function media( string $name = 'image' ): Media|null;
+
+	/**
+	 * Returns the entry featured image.
+	 *
+	 * @since 1.0.0
+	 */
+	public function featuredImage(): Media|null;
 
 	/**
 	 * Returns an array of view paths assigned as metadata.
