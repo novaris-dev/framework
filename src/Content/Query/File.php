@@ -305,6 +305,11 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 		// Sort entries based on query vars.
 		$located = $this->sortByOrder( $located );
 
+		// Move sticky entries to the beginning of the query.
+		if ( $this->sticky ) {
+			$located = $this->sortBySticky( $located );
+		}
+
 		// Reduce array of located files to filenames.
 		$filepaths = array_keys( $located );
 
@@ -657,6 +662,30 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 		}
 
 		return $located;
+	}
+
+	/**
+	 * Move sticky entries to the beginning of the query.
+	 *
+	 * Existing entry order is preserved within the sticky and
+	 * non-sticky groups.
+	 *
+	 * @since 1.0.0
+	 */
+	private function sortBySticky( array $entries ): array
+	{
+		$sticky = [];
+		$normal = [];
+
+		foreach ( $entries as $file => $matter ) {
+			if ( true === ( $matter['sticky'] ?? false ) ) {
+				$sticky[ $file ] = $matter;
+			} else {
+				$normal[ $file ] = $matter;
+			}
+		}
+
+		return $sticky + $normal;
 	}
 
 	/**
