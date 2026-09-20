@@ -75,22 +75,6 @@ class Writer implements FeedWriter
 	protected ?string $updated = null;
 
 	/**
-	 * Feed image.
-	 *
-	 * @todo  Not yet implemented.
-	 * @since 1.0.0
-	 */
-	protected ?string $image = null;
-
-	/**
-	 * Feed favicon.
-	 *
-	 * @todo  Not yet implemented.
-	 * @since 1.0.0
-	 */
-	protected ?string $favicon = null;
-
-	/**
 	 * Feed Time To Live (TTL).
 	 *
 	 * @since 1.0.0
