@@ -331,7 +331,17 @@ abstract class Entry implements ContentEntry
 	 */
 	public function featuredImage(): Media|null
 	{
-		return $this->media( 'featured-image' );
+		$image = $this->metaSingle( 'featured-image' );
+
+		if ( ! $image ) {
+			return null;
+		}
+
+		$media = new Media(
+			media_path( ltrim( $image, '/' ) )
+		);
+
+		return $media->isValid() ? $media : null;
 	}
 
 	/**
