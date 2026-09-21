@@ -57,27 +57,38 @@ class Media
 
 	/**
 	 * Sets up the object properties. The `$filepath` is expected to be
-	 * relative to the site root.  However, we will attempt to find it
+	 * relative to the site root. However, we will attempt to find it
 	 * regardless of whether it's a full directory path or URL.
 	 *
 	 * @since 1.0.0
 	 */
 	public function __construct( string $filepath )
 	{
-		// Strip the app directory and URL path if they prepend the file.
-		$filepath = Str::afterFirst( $filepath, path() );
-		$filepath = Str::afterFirst( $filepath, url() );
+		// Convert a full application URL or filesystem path to a path
+		// relative to the application root.
+		if ( str_starts_with( $filepath, url() ) ) {
+			$filepath = substr( $filepath, strlen( url() ) );
+		} elseif ( str_starts_with( $filepath, path() ) ) {
+			$filepath = substr( $filepath, strlen( path() ) );
+		}
 
-		if ( file_exists( path( $filepath ) ) ) {
-			$this->path      = path( $filepath );
+		$filepath = '/' . ltrim( $filepath, '/' );
+
+		$path = path( $filepath );
+
+		if ( file_exists( $path ) ) {
+			$this->path      = $path;
 			$this->url       = url( $filepath );
 			$this->size      = filesize( $this->path );
 			$this->mime_type = mime_content_type( $this->path );
 
 			if ( $this->hasType( 'image' ) ) {
-				$image           = getimagesize( $this->path );
-				$this->width     = $image[0];
-				$this->height    = $image[1];
+				$image = getimagesize( $this->path );
+
+				if ( $image ) {
+					$this->width  = $image[0];
+					$this->height = $image[1];
+				}
 			}
 		}
 	}
