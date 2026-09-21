@@ -338,26 +338,7 @@ abstract class Entry implements ContentEntry
 	 */
 	public function featuredImage(): Media|null
 	{
-		$image = $this->metaSingle( 'featured-image' );
-
-		if ( ! $image ) {
-			return null;
-		}
-
-		$url   = media_url( ltrim( $image, '/' ) );
-		$media = new Media( $url );
-
-		dd( [
-			'image'      => $image,
-			'url'        => $url,
-			'media'      => $media,
-			'media-path' => $media->path(),
-			'media-url'  => $media->url(),
-			'mime-type'  => $media->mimeType(),
-			'valid'      => $media->isValid(),
-		] );
-
-		return $media->isValid() ? $media : null;
+		return $this->media( 'featured-image' );
 	}
 
 	/**
