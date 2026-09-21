@@ -303,7 +303,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns the entry authors.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function authors(): array
 	{
@@ -318,10 +318,17 @@ abstract class Entry implements ContentEntry
 	 */
 	public function media( string $name = 'image' ): Media|null
 	{
-		$meta  = $this->metaSingle( $name );
-		$media = $meta ? new Media( $meta ) : false;
+		$meta = $this->metaSingle( $name );
 
-		return $media && $media->isValid() ? $media : null;
+		if ( ! $meta ) {
+			return null;
+		}
+
+		$media = new Media(
+			media_url( ltrim( $meta, '/' ) )
+		);
+
+		return $media->isValid() ? $media : null;
 	}
 
 	/**
@@ -331,17 +338,7 @@ abstract class Entry implements ContentEntry
 	 */
 	public function featuredImage(): Media|null
 	{
-		$image = $this->metaSingle( 'featured-image' );
-
-		if ( ! $image ) {
-			return null;
-		}
-
-		$media = new Media(
-			media_path( ltrim( $image, '/' ) )
-		);
-
-		return $media->isValid() ? $media : null;
+		return $this->media( 'featured-image' );
 	}
 
 	/**
