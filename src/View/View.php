@@ -133,12 +133,15 @@ class View implements ViewContract
 	/**
 	 * Locate the first available view template.
 	 *
-	 * Theme views take precedence over framework views.
+	 * Active theme views take precedence over parent theme views, which take
+	 * precedence over framework views.
 	 *
 	 * @since 1.0.0
 	 */
 	public function locate(): ?string
 	{
+		$parentTheme = parent_theme_path();
+
 		foreach ( $this->hierarchy() as $template ) {
 			$themeTemplate = theme_path(
 				"public/views/{$template}"
@@ -146,6 +149,16 @@ class View implements ViewContract
 
 			if ( is_file( $themeTemplate ) ) {
 				return $themeTemplate;
+			}
+
+			if ( $parentTheme ) {
+				$parentTemplate = parent_theme_path(
+					"public/views/{$template}"
+				);
+
+				if ( is_file( $parentTemplate ) ) {
+					return $parentTemplate;
+				}
 			}
 
 			$frameworkTemplate = view_path( $template );
