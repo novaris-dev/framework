@@ -57,13 +57,13 @@ class Navigation implements Displayable, Renderable
 		$this->items = $items;
 
 		$this->display = array_merge( [
-			'nav_class'     => 'navigation',
+			'nav_class'     => 'primary-menu',
 			'list_tag'      => 'ul',
-			'list_class'    => 'navigation__list',
+			'list_class'    => 'primary-menu__items',
 			'item_tag'      => 'li',
-			'item_class'    => 'navigation__item',
-			'anchor_class'  => 'navigation__link',
-			'current_class' => 'navigation__item--current'
+			'item_class'    => 'primary-menu__item',
+			'anchor_class'  => 'primary-menu__item-anchor',
+			'current_class' => 'primary-menu__item--current'
 		], $options );
 	}
 
