@@ -38,6 +38,18 @@ class Breadcrumbs extends Tag
 			return '';
 		}
 
+		$type = $this->data->has( 'type' )
+			? $this->data->get( 'type' )
+			: null;
+
+		$parent = $this->data->has( 'parent' )
+			? $this->data->get( 'parent' )
+			: null;
+
+		$parent_type = $this->data->has( 'parent_type' )
+			? $this->data->get( 'parent_type' )
+			: null;
+
 		$html  = '<nav class="breadcrumbs" aria-label="Breadcrumbs">';
 		$html .= '<ol class="breadcrumbs-list">';
 
@@ -46,6 +58,24 @@ class Breadcrumbs extends Tag
 			'<li class="breadcrumbs-item"><a href="%s">Home</a></li>',
 			url()
 		);
+
+		// Single and archive parent.
+		if ( $parent && $type && ( is_single() || is_archive() ) ) {
+			$html .= sprintf(
+				'<li class="breadcrumbs-item"><a href="%s">%s</a></li>',
+				$type->url(),
+				$parent->title()
+			);
+		}
+
+		// Taxonomy parent.
+		if ( $parent && $parent_type && is_taxonomy() ) {
+			$html .= sprintf(
+				'<li class="breadcrumbs-item"><a href="%s">%s</a></li>',
+				$parent_type->url(),
+				$parent->title()
+			);
+		}
 
 		// Current entry.
 		$html .= sprintf(
