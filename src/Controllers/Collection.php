@@ -1,6 +1,6 @@
 <?php
 /**
- * Content type archive controller.
+ * Collection controller.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -22,7 +22,7 @@ class Collection extends Controller
 	/**
 	 * Callback method when route matches request.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
@@ -46,9 +46,6 @@ class Collection extends Controller
 			return $this->forward404( $params, $request );
 		}
 
-		// Get the collection type.
-		$collect = $types->get( $type->collect() );
-
 		// Query the content type's index file.
 		$single = Query::make( [
 			'path' => $type->path(),
@@ -71,8 +68,8 @@ class Collection extends Controller
 
 		if ( $single && $collection->hasEntries() ) {
 
-			$type_name  = sanitize_slug( $type->type() );
-			$model_name = $type->isTaxonomy() ? 'taxonomy' : 'content';
+			// Set the current request context.
+			$this->context( 'collection' );
 
 			$doctitle = new DocumentTitle( $single->title(), [
 				'page' => $page
