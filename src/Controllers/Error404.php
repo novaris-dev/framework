@@ -11,14 +11,14 @@
 
 namespace Novaris\Controllers;
 
-use Novaris\Core\Proxies\{App, Query};
+use Novaris\Core\Proxies\Query;
 use Novaris\Content\Entry\Virtual;
 use Novaris\Template\Hierarchy;
 use Novaris\Template\Tag\DocumentTitle;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Error404 extends Controller {
-
+class Error404 extends Controller
+{
 	/**
 	 * Callback method when route matches request.
 	 *
@@ -26,6 +26,9 @@ class Error404 extends Controller {
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
+		// Set the current request context.
+		$this->context( '404' );
+
 		$single = Query::make( [
 			'path' => '_error',
 			'slug' => '404'
