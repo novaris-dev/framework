@@ -168,6 +168,46 @@ if ( ! function_exists( 'is_404' ) ) {
 	}
 }
 
+if ( ! function_exists( 'body_class' ) ) {
+	/**
+	 * Returns CSS classes for the body element based on the current request.
+	 *
+	 * @since 1.0.0
+	 */
+	function body_class( array $classes = [] ): string
+	{
+		if ( is_home() ) {
+			$classes[] = 'home';
+		}
+
+		if ( is_single() ) {
+			$classes[] = 'single';
+		}
+
+		if ( is_page() ) {
+			$classes[] = 'page';
+		}
+
+		if ( is_collection() ) {
+			$classes[] = 'collection';
+		}
+
+		if ( is_taxonomy() ) {
+			$classes[] = 'taxonomy';
+		}
+
+		if ( is_archive() ) {
+			$classes[] = 'archive';
+		}
+
+		if ( is_404() ) {
+			$classes[] = 'error-404';
+		}
+
+		return implode( ' ', array_unique( $classes ) );
+	}
+}
+
 if ( ! function_exists( 'path' ) ) {
 	/**
 	 * Returns app path with optional appended path/file.
