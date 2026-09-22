@@ -22,12 +22,32 @@ class Breadcrumbs extends Tag
 	 */
 	public function toHtml(): string
 	{
+		// Don't display breadcrumbs on the homepage.
+		if ( is_home() ) {
+			return '';
+		}
+
+		$single = $this->data->get( 'single' );
+
+		if ( ! $single ) {
+			return '';
+		}
+
 		$html  = '<nav class="breadcrumbs" aria-label="Breadcrumbs">';
 		$html .= '<ol class="breadcrumbs-list">';
+
+		// Home.
 		$html .= sprintf(
 			'<li class="breadcrumbs-item"><a href="%s">Home</a></li>',
 			url()
 		);
+
+		// Current entry.
+		$html .= sprintf(
+			'<li class="breadcrumbs-item" aria-current="page">%s</li>',
+			$single->title()
+		);
+
 		$html .= '</ol>';
 		$html .= '</nav>';
 
