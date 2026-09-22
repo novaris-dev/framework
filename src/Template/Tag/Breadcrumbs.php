@@ -22,9 +22,9 @@ class Breadcrumbs extends Tag
 	 */
 	public function toHtml(): string
 	{
-		// Don't display breadcrumbs on the homepage.
+		// Display only Home on the homepage.
 		if ( is_home() ) {
-			return '';
+			return '<nav class="breadcrumbs" aria-label="Breadcrumbs"><ol class="breadcrumbs-list"><li class="breadcrumbs-item" aria-current="page">Home</li></ol></nav>';
 		}
 
 		// Bail if there is no single entry available.
