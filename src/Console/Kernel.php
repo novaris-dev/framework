@@ -14,6 +14,7 @@
 namespace Novaris\Console;
 
 use Novaris\Core\Application;
+use Throwable;
 
 class Kernel
 {
@@ -25,13 +26,21 @@ class Kernel
 	protected Application $app;
 
 	/**
+	 * Console output.
+	 *
+	 * @since 1.0.0
+	 */
+	protected Output $output;
+
+	/**
 	 * Create a new console kernel.
 	 *
 	 * @since 1.0.0
 	 */
 	public function __construct( Application $app )
 	{
-		$this->app = $app;
+		$this->app    = $app;
+		$this->output = new Output();
 	}
 
 	/**
@@ -41,14 +50,22 @@ class Kernel
 	 */
 	public function run( array $arguments ): int
 	{
-		$this->app->boot();
+		try {
+			$this->app->boot();
 
-		$command = $arguments[1] ?? '';
+			$command = $arguments[1] ?? '';
 
-		return match ( $command ) {
-			'theme:update' => $this->updateTheme(),
-			default        => $this->help(),
-		};
+			return match ( $command ) {
+				'theme:update' => $this->updateTheme(),
+				'version'      => $this->version(),
+				'help'         => $this->help(),
+				default        => $this->help(),
+			};
+		} catch ( Throwable $e ) {
+			$this->output->error( $e->getMessage() );
+
+			return 1;
+		}
 	}
 
 	/**
@@ -64,19 +81,50 @@ class Kernel
 		$installer = $this->app['theme.installer'];
 		$metadata  = $this->app['theme.metadata'];
 
-		$themePath = $this->app->parentThemePath()
-			?: $this->app->themePath();
+		$activePath = $this->app->themePath();
+		$parentPath = $this->app->parentThemePath();
+		$themePath  = $parentPath ?: $activePath;
 
+		$active = $metadata->read( $activePath );
 		$current = $metadata->read( $themePath );
 
-		$theme   = $current['name'] ?? $current['slug'] ?? 'Theme';
+		$activeTheme = $active['name']
+			?? $active['slug']
+			?? 'Theme';
+
+		$theme = $current['name']
+			?? $current['slug']
+			?? 'Theme';
+
 		$version = $current['version'] ?? '';
 
+		if ( $parentPath ) {
+			$this->output->info(
+				"Active theme: {$activeTheme}"
+			);
+
+			$this->output->info(
+				"Parent theme: {$theme}"
+			);
+
+			$this->output->line();
+		}
+
+		$this->output->info(
+			"Checking theme '{$theme}'..."
+		);
+
 		if ( ! $installer->updateAvailable( $themePath ) ) {
-			echo "Theme: {$theme} is already up to date.\n";
+			$this->output->success(
+				"{$theme} is already up to date ({$version})."
+			);
 
 			return 0;
 		}
+
+		$this->output->info(
+			"Updating theme '{$theme}'..."
+		);
 
 		$installer->update( $themePath );
 
@@ -84,7 +132,23 @@ class Kernel
 
 		$newVersion = $updated['version'] ?? '';
 
-		echo "Theme: {$theme} updated successfully from {$version} to {$newVersion}.\n";
+		$this->output->success(
+			"Updated {$theme} from {$version} to {$newVersion}."
+		);
+
+		return 0;
+	}
+
+	/**
+	 * Display the Novaris version.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function version(): int
+	{
+		$this->output->line(
+			'Novaris ' . Application::VERSION
+		);
 
 		return 0;
 	}
@@ -96,9 +160,15 @@ class Kernel
 	 */
 	protected function help(): int
 	{
-		echo "Novaris\n\n";
-		echo "Available commands:\n";
-		echo "  theme:update    Update the active theme or its parent theme\n";
+		$this->output->line( 'Novaris CLI' );
+		$this->output->line();
+		$this->output->line( 'Usage:' );
+		$this->output->line( '  php novaris <command>' );
+		$this->output->line();
+		$this->output->line( 'Available commands:' );
+		$this->output->line( '  theme:update    Update the active theme or its parent theme' );
+		$this->output->line( '  version         Display the Novaris version' );
+		$this->output->line( '  help            Display available commands' );
 
 		return 0;
 	}
