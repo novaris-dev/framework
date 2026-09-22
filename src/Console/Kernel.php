@@ -51,38 +51,43 @@ class Kernel
 		};
 	}
 
-    /**
-     * Update the active theme.
-     *
-     * @since 1.0.0
-     */
-    protected function updateTheme(): int
-    {
-        $installer = $this->app['theme.installer'];
-        $metadata  = $this->app['theme.metadata'];
-        $themePath = $this->app->themePath();
+	/**
+	 * Update the active theme or its parent theme.
+	 *
+	 * When the active theme is a child theme, the parent theme is updated
+	 * instead. Child themes are not updated automatically.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function updateTheme(): int
+	{
+		$installer = $this->app['theme.installer'];
+		$metadata  = $this->app['theme.metadata'];
 
-        $current = $metadata->read( $themePath );
+		$themePath = $this->app->parentThemePath()
+			?: $this->app->themePath();
 
-        $theme   = $current['name'] ?? $current['slug'] ?? 'Theme';
-        $version = $current['version'] ?? '';
+		$current = $metadata->read( $themePath );
 
-        if ( ! $installer->updateAvailable( $themePath ) ) {
-            echo "Theme: {$theme} is already up to date.\n";
+		$theme   = $current['name'] ?? $current['slug'] ?? 'Theme';
+		$version = $current['version'] ?? '';
 
-            return 0;
-        }
+		if ( ! $installer->updateAvailable( $themePath ) ) {
+			echo "Theme: {$theme} is already up to date.\n";
 
-        $installer->update( $themePath );
+			return 0;
+		}
 
-        $updated = $metadata->read( $themePath );
+		$installer->update( $themePath );
 
-        $newVersion = $updated['version'] ?? '';
+		$updated = $metadata->read( $themePath );
 
-        echo "Theme: {$theme} updated successfully from {$version} to {$newVersion}.\n";
+		$newVersion = $updated['version'] ?? '';
 
-        return 0;
-    }
+		echo "Theme: {$theme} updated successfully from {$version} to {$newVersion}.\n";
+
+		return 0;
+	}
 
 	/**
 	 * Display available console commands.
@@ -93,7 +98,7 @@ class Kernel
 	{
 		echo "Novaris\n\n";
 		echo "Available commands:\n";
-		echo "  theme:update    Update the active theme\n";
+		echo "  theme:update    Update the active theme or its parent theme\n";
 
 		return 0;
 	}
