@@ -62,6 +62,7 @@ class Single extends Controller
 			}
 		}
 
+		// Query the single entry.
 		$single = Query::make( [
 			'path'       => $type ? $type->path() : $path,
 			'slug'       => $name,
@@ -87,6 +88,16 @@ class Single extends Controller
 				}
 			}
 
+			// Query the content type's index entry for use as the parent.
+			$parent = null;
+
+			if ( $type ) {
+				$parent = Query::make( [
+					'path' => $type->path(),
+					'slug' => 'index'
+				] )->single();
+			}
+
 			$collection = false;
 
 			if ( $args = $single->collectionArgs() ) {
@@ -103,7 +114,8 @@ class Single extends Controller
 					'pagination' => false,
 					'single'     => $single,
 					'collection' => $collection,
-					'type'       => $type
+					'type'       => $type,
+					'parent'     => $parent
 				]
 			) );
 		}

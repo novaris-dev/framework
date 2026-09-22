@@ -102,6 +102,12 @@ class Archive extends Controller
 			'meta'    => [ 'title' => $title ?? 'Archives' ]
 		] );
 
+		// Query the content type's index entry for use as the parent.
+		$parent = Query::make( [
+			'path' => $type->path(),
+			'slug' => 'index'
+		] )->single();
+
 		// Query the content type collection.
 		$collection = Query::make( $query_args );
 
@@ -128,7 +134,8 @@ class Archive extends Controller
 					'pagination' => $pagination,
 					'single'     => $single,
 					'collection' => $collection,
-					'type'       => $type
+					'type'       => $type,
+					'parent'     => $parent
 				]
 			) );
 		}

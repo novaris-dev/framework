@@ -62,6 +62,19 @@ class Taxonomy extends Controller
 			'slug' => $name
 		] )->single();
 
+		// Get the content type collected by this taxonomy.
+		$parent_type = null;
+		$parent      = null;
+
+		if ( $type->termCollect() && $types->has( $type->termCollect() ) ) {
+			$parent_type = $types->get( $type->termCollect() );
+
+			$parent = Query::make( [
+				'path' => $parent_type->path(),
+				'slug' => 'index'
+			] )->single();
+		}
+
 		// Merge the default collection query args for the taxonomy
 		// with user-defined collection args.
 		$query_args = array_merge(
@@ -102,7 +115,9 @@ class Taxonomy extends Controller
 					'pagination' => $pagination,
 					'single'     => $single,
 					'collection' => $collection,
-					'type'       => $type
+					'type'       => $type,
+					'parent'     => $parent,
+					'parent_type' => $parent_type
 				]
 			) );
 		}
