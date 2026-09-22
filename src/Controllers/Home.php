@@ -17,87 +17,99 @@ use Novaris\Template\Tag\{DocumentTitle, Pagination};
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Home extends Controller {
-
+class Home extends Controller
+{
 	/**
 	 * Callback method when route matches request.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __invoke( array $params, Request $request ): Response {
-
-		$types = App::resolve( 'content.types' );
-		$alias = Config::get( 'app.home_alias' );
+	public function __invoke( array $params, Request $request ): Response
+	{
+		$types   = App::resolve( 'content.types' );
+		$alias   = Config::get( 'app.home_alias' );
 		$collect = null;
 
-		// Check if homepage alias exists and if type exists
+		// Check if homepage alias exists and if type exists.
 		if ( $alias && $types->has( $alias ) ) {
-
-			$type = $types->get( $alias );
+			$type    = $types->get( $alias );
 			$collect = $types->get( $type->collect() );
 		}
 
-		// Query if type and collection exist
+		// Query if type and collection exist.
 		if ( isset( $type, $collect ) ) {
 			$page = intval( $params['page'] ?? 1 );
 
-			// Query single content type
+			// Query single content type.
 			$single = Query::make( [
 				'path' => $type->path(),
 				'slug' => 'index'
 			] )->single();
 
-			// Merge default collection query args with user-defined args
+			// Merge default collection query args with user-defined args.
 			$query_args = array_merge(
 				$type->collectionArgs(),
 				$single ? $single->collectionArgs() : []
 			);
 
 			$query_args['number'] = $query_args['number'] ?? 10;
-			$query_args['offset'] = $query_args['number'] * ($page - 1);
+			$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 
-			$collection = Query::make($query_args);
+			$collection = Query::make( $query_args );
 
-			// Render if single and collection exist
+			// Render if single and collection exist.
 			if ( $single && $collection->all() ) {
-				$doctitle = new DocumentTitle( '', ['page' => $page ] );
+
+				// Set the current request context.
+				$this->context( 'home' );
+
+				$doctitle = new DocumentTitle( '', [ 'page' => $page ] );
+
 				$pagination = new Pagination( [
 					'basepath' => '',
-					'current' => $page,
-					'total' => $collection->pages()
+					'current'  => $page,
+					'total'    => $collection->pages()
 				] );
 
 				return $this->response( $this->view(
 					'index',
 					Hierarchy::collectionHome( $single ),
 					compact( 'doctitle', 'pagination', 'single', 'collection' )
-				));
+				) );
 			}
 		}
 
-		// Query homepage index file
-		$single = Query::make( ['slug' => 'index'] )->single();
+		// Query homepage index file.
+		$single = Query::make( [ 'slug' => 'index' ] )->single();
+
 		if ( $single && $single->isPublic() ) {
-			$collection = $single->collectionArgs() ? Query::make( $single->collectionArgs() ) : null;
+
+			// Set the current request context.
+			$this->context( 'home' );
+
+			$collection = $single->collectionArgs()
+				? Query::make( $single->collectionArgs() )
+				: null;
 
 			return $this->response( $this->view(
 				'index',
 				Hierarchy::singleHome( $single ),
 				[
-					'doctitle' => new DocumentTitle(),
+					'doctitle'   => new DocumentTitle(),
 					'pagination' => null,
-					'single' => $single,
+					'single'     => $single,
 					'collection' => $collection
 				]
 			) );
 		}
 
-		// If no index file is found, display a notice and return an empty response
+		// If no index file is found, display a notice and return an empty response.
 		$notice = sprintf(
 			'No <code>%s</code> file found.',
-			Str::appendPath( App::get('path.content'), 'index.md' )
+			Str::appendPath( App::get( 'path.content' ), 'index.md' )
 		);
-		Message::make( $notice)->dump();
+
+		Message::make( $notice )->dump();
 
 		return new Response( '' );
 	}
