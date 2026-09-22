@@ -127,7 +127,8 @@ class Archive extends Controller
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'single'     => $single,
-					'collection' => $collection
+					'collection' => $collection,
+					'type'       => $type
 				]
 			) );
 		}

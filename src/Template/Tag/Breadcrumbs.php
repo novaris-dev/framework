@@ -27,6 +27,11 @@ class Breadcrumbs extends Tag
 			return '';
 		}
 
+		// Bail if there is no single entry available.
+		if ( ! $this->data->has( 'single' ) ) {
+			return '';
+		}
+
 		$single = $this->data->get( 'single' );
 
 		if ( ! $single ) {

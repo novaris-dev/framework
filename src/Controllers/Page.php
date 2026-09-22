@@ -26,6 +26,9 @@ class Page extends Single
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
+		$types = App::resolve( 'content.types' );
+		$type  = $types->get( 'page' );
+
 		$path = $params['path'] ?? '';
 		$name = Str::afterLast( $path, '/' );
 
@@ -68,7 +71,8 @@ class Page extends Single
 					'doctitle'   => $doctitle,
 					'pagination' => false,
 					'single'     => $single,
-					'collection' => $collection
+					'collection' => $collection,
+					'type'       => $type
 				]
 			) );
 		}
@@ -76,4 +80,4 @@ class Page extends Single
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-} 
+}

@@ -29,6 +29,7 @@ class Home extends Controller
 		$types   = App::resolve( 'content.types' );
 		$alias   = Config::get( 'app.home_alias' );
 		$collect = null;
+		$type    = null;
 
 		// Check if homepage alias exists and if type exists.
 		if ( $alias && $types->has( $alias ) ) {
@@ -37,7 +38,7 @@ class Home extends Controller
 		}
 
 		// Query if type and collection exist.
-		if ( isset( $type, $collect ) ) {
+		if ( $type && $collect ) {
 			$page = intval( $params['page'] ?? 1 );
 
 			// Query single content type.
@@ -74,7 +75,13 @@ class Home extends Controller
 				return $this->response( $this->view(
 					'index',
 					Hierarchy::collectionHome( $single ),
-					compact( 'doctitle', 'pagination', 'single', 'collection' )
+					[
+						'doctitle'   => $doctitle,
+						'pagination' => $pagination,
+						'single'     => $single,
+						'collection' => $collection,
+						'type'       => $type
+					]
 				) );
 			}
 		}
@@ -98,7 +105,8 @@ class Home extends Controller
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => null,
 					'single'     => $single,
-					'collection' => $collection
+					'collection' => $collection,
+					'type'       => null
 				]
 			) );
 		}

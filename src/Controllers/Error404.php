@@ -49,7 +49,8 @@ class Error404 extends Controller
 				'doctitle'   => new DocumentTitle( $single->title() ),
 				'pagination' => false,
 				'single'     => $single,
-				'collection' => false
+				'collection' => false,
+				'type'       => null
 			]
 		), Response::HTTP_NOT_FOUND );
 	}

@@ -102,7 +102,8 @@ class Single extends Controller
 					'doctitle'   => $doctitle,
 					'pagination' => false,
 					'single'     => $single,
-					'collection' => $collection
+					'collection' => $collection,
+					'type'       => $type
 				]
 			) );
 		}
@@ -110,4 +111,4 @@ class Single extends Controller
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-} 
+}
