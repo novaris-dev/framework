@@ -49,6 +49,22 @@ class Metadata
 	}
 
 	/**
+	 * Get the active theme's parent theme.
+	 *
+	 * Returns an empty string when the active theme does not have a parent.
+	 *
+	 * @since 1.0.0
+	 */
+	public function parent(): string
+	{
+		$data = $this->read( theme_path() );
+
+		return isset( $data['parent'] )
+			? (string) $data['parent']
+			: '';
+	}
+
+	/**
 	 * Determine whether the active theme supports a feature.
 	 *
 	 * @since 1.0.0
