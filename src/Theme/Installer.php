@@ -282,29 +282,22 @@ class Installer
 	}
 
 	/**
-	 * Update the active theme and its parent theme.
+	 * Update the active theme or its parent theme.
+	 *
+	 * Child themes are not updated automatically. When the active theme has
+	 * a parent, the parent theme is updated instead.
 	 *
 	 * @since 1.0.0
 	 */
-	public function updateActive(): array
+	public function updateActive(): string
 	{
-		$updated = [];
-
-		$themePath = theme_path();
-
-		$this->update( $themePath );
-
-		$updated[] = $themePath;
-
 		$parentPath = parent_theme_path();
 
 		if ( $parentPath ) {
-			$this->update( $parentPath );
-
-			$updated[] = $parentPath;
+			return $this->update( $parentPath );
 		}
 
-		return $updated;
+		return $this->update( theme_path() );
 	}
 
 	/**
