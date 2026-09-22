@@ -399,6 +399,18 @@ if ( ! function_exists( 'theme_path' ) ) {
 	}
 }
 
+if ( ! function_exists( 'parent_theme_path' ) ) {
+	/**
+	 * Returns parent theme path with optional appended path/file.
+	 *
+	 * @since 1.0.0
+	 */
+	function parent_theme_path( string $append = '' ): string
+	{
+		return app()->parentThemePath( $append );
+	}
+}
+
 if ( ! function_exists( 'url' ) ) {
 	/**
 	 * Returns app URL with optional appended path. If no appended path,
