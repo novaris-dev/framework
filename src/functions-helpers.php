@@ -84,6 +84,90 @@ if ( ! function_exists( 'route' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_home' ) ) {
+	/**
+	 * Determines whether the current request is the home page.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_home(): bool
+	{
+		return app( 'routing.context' )->isHome();
+	}
+}
+
+if ( ! function_exists( 'is_single' ) ) {
+	/**
+	 * Determines whether the current request is a single entry.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_single(): bool
+	{
+		return app( 'routing.context' )->isSingle();
+	}
+}
+
+if ( ! function_exists( 'is_page' ) ) {
+	/**
+	 * Determines whether the current request is a page.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_page(): bool
+	{
+		return app( 'routing.context' )->isPage();
+	}
+}
+
+if ( ! function_exists( 'is_collection' ) ) {
+	/**
+	 * Determines whether the current request is a collection.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_collection(): bool
+	{
+		return app( 'routing.context' )->isCollection();
+	}
+}
+
+if ( ! function_exists( 'is_taxonomy' ) ) {
+	/**
+	 * Determines whether the current request is a taxonomy.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_taxonomy(): bool
+	{
+		return app( 'routing.context' )->isTaxonomy();
+	}
+}
+
+if ( ! function_exists( 'is_archive' ) ) {
+	/**
+	 * Determines whether the current request is an archive.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_archive(): bool
+	{
+		return app( 'routing.context' )->isArchive();
+	}
+}
+
+if ( ! function_exists( 'is_404' ) ) {
+	/**
+	 * Determines whether the current request is a 404 page.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_404(): bool
+	{
+		return app( 'routing.context' )->is404();
+	}
+}
+
 if ( ! function_exists( 'path' ) ) {
 	/**
 	 * Returns app path with optional appended path/file.
