@@ -75,6 +75,9 @@ class Single extends Controller
 
 		if ( $single && $single->isPublic() ) {
 
+			// Set the current request context.
+			$this->context( 'single' );
+
 			if ( $type && method_exists( $type, 'isDirectory' ) && $type->isDirectory() ) {
 				$repository = new Repository();
 				$directory  = $repository->get( Str::slug( $single->title() ) );
@@ -107,4 +110,4 @@ class Single extends Controller
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-}
+} 
