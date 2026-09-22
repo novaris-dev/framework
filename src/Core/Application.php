@@ -89,17 +89,26 @@ class Application extends Container implements ApplicationContract, Bootable
 			)->dd();
 		}
 
-		if ( ! is_dir( $this->themePath() ) ) {
-			try {
+		try {
+			if ( ! is_dir( $this->themePath() ) ) {
 				$this['theme.installer']->install(
 					$theme,
 					$this['path.themes']
 				);
-			} catch ( Throwable $e ) {
-				( new Message() )->make(
-					$e->getMessage()
-				)->dd();
 			}
+
+			$parent = $this['theme.metadata']->parent();
+
+			if ( $parent && ! is_dir( $this->themesPath( $parent ) ) ) {
+				$this['theme.installer']->install(
+					$parent,
+					$this['path.themes']
+				);
+			}
+		} catch ( Throwable $e ) {
+			( new Message() )->make(
+				$e->getMessage()
+			)->dd();
 		}
 	}
 
