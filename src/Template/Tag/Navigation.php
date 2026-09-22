@@ -6,14 +6,14 @@
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
- * @copyright 2024. Benjamin Lu
+ * @copyright 2024 Benjamin Lu
  * @link      https://github.com/novaris-dev/framework
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 namespace Novaris\Template\Tag;
 
-use Novaris\Contracts\{ Displayable, Renderable };
+use Novaris\Contracts\{Displayable, Renderable};
 use Symfony\Component\HttpFoundation\Request;
 
 use function Novaris\Theme\Menu\normalize_path;
@@ -50,18 +50,20 @@ class Navigation implements Displayable, Renderable
 	{
 		// Use Symfony Request to get the current path.
 		$request = Request::createFromGlobals();
+
 		$this->currentPath = normalize_path( $request->getPathInfo() );
 
 		// Initialize items and display settings.
 		$this->items = $items;
+
 		$this->display = array_merge( [
-			'nav_class'     => 'primary-menu',
+			'nav_class'     => 'navigation',
 			'list_tag'      => 'ul',
-			'list_class'    => 'menu-items',
+			'list_class'    => 'navigation__list',
 			'item_tag'      => 'li',
-			'item_class'    => 'menu-item',
-			'anchor_class'  => 'menu-item-anchor',
-			'current_class' => 'current-menu-item'
+			'item_class'    => 'navigation__item',
+			'anchor_class'  => 'navigation__link',
+			'current_class' => 'navigation__item--current'
 		], $options );
 	}
 
@@ -123,7 +125,9 @@ class Navigation implements Displayable, Renderable
 			. ( $isCurrent ? " {$this->display['current_class']}" : '' )
 		);
 
-		$ariaCurrent = $isCurrent ? ' aria-current="page"' : '';
+		$ariaCurrent = $isCurrent
+			? ' aria-current="page"'
+			: '';
 
 		return sprintf(
 			'<%1$s class="%2$s"><a href="%3$s" class="%4$s"%5$s>%6$s</a></%1$s>',
