@@ -225,7 +225,7 @@ if ( ! function_exists( 'post_class' ) ) {
 			$classes[] = 'page';
 		}
 
-		$classes[] = 'post';
+		$classes[] = 'entry';
 
 		return implode( ' ', array_unique( $classes ) );
 	}
