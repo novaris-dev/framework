@@ -19,7 +19,7 @@ use Novaris\Contracts\Routing\{
 };
 
 use Novaris\Core\ServiceProvider;
-use Novaris\Routing\{Component, Router, Url};
+use Novaris\Routing\{Component, Context, Router, Url};
 use Novaris\Routing\Route\{Route, Routes};
 
 class Routing extends ServiceProvider
@@ -29,7 +29,7 @@ class Routing extends ServiceProvider
 	 *
 	 * @since 1.0.0
 	 */
-        public function register(): void
+	public function register(): void
 	{
 		// Bind route.
 		$this->app->bind( RoutingRoute::class, Route::class );
@@ -37,13 +37,16 @@ class Routing extends ServiceProvider
 		// Bind routes.
 		$this->app->singleton( RoutingRoutes::class, Routes::class );
 
+		// Bind routing context.
+		$this->app->singleton( Context::class );
+
 		// Binds the router.
-                $this->app->singleton( RoutingRouter::class, function( $app ) {
+		$this->app->singleton( RoutingRouter::class, function( $app ) {
 			return new Router( $app->make( RoutingRoutes::class ) );
 		} );
 
 		// Binds the routing URL instance.
-                $this->app->singleton( RoutingUrl::class, function( $app ) {
+		$this->app->singleton( RoutingUrl::class, function( $app ) {
 			return new Url( $app->make( RoutingRoutes::class ) );
 		} );
 
@@ -56,19 +59,20 @@ class Routing extends ServiceProvider
 		} );
 
 		// Add aliases.
-		$this->app->alias( RoutingRoute::class,  'routing.route'  );
-		$this->app->alias( RoutingRoutes::class, 'routing.routes' );
-		$this->app->alias( RoutingRouter::class, 'routing.router' );
-		$this->app->alias( RoutingUrl::class,    'routing.url'    );
-        }
+		$this->app->alias( RoutingRoute::class,  'routing.route'   );
+		$this->app->alias( RoutingRoutes::class, 'routing.routes'  );
+		$this->app->alias( RoutingRouter::class, 'routing.router'  );
+		$this->app->alias( RoutingUrl::class,    'routing.url'     );
+		$this->app->alias( Context::class,       'routing.context' );
+	}
 
 	/**
 	 * Bootstrap bindings.
 	 *
 	 * @since 1.0.0
 	 */
-        public function boot(): void
+	public function boot(): void
 	{
-                $this->app->make( Component::class )->boot();
-        }
+		$this->app->make( Component::class )->boot();
+	}
 }
