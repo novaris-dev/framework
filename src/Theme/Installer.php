@@ -282,6 +282,32 @@ class Installer
 	}
 
 	/**
+	 * Update the active theme and its parent theme.
+	 *
+	 * @since 1.0.0
+	 */
+	public function updateActive(): array
+	{
+		$updated = [];
+
+		$themePath = theme_path();
+
+		$this->update( $themePath );
+
+		$updated[] = $themePath;
+
+		$parentPath = parent_theme_path();
+
+		if ( $parentPath ) {
+			$this->update( $parentPath );
+
+			$updated[] = $parentPath;
+		}
+
+		return $updated;
+	}
+
+	/**
 	 * Update an installed theme to the latest release.
 	 *
 	 * @since 1.0.0
