@@ -3,7 +3,7 @@
  * Base controller class.
  *
  * Controllers are the bridge between the the HTTP request and what users see in
- * the browser.  This is the base class that all other controllers should use.
+ * the browser. This is the base class that all other controllers should use.
  * The `__invoke()` method is the only method required and should return a
  * `Response` back.
  *
@@ -20,6 +20,7 @@ namespace Novaris\Controllers;
 use Novaris\Contracts\View\View as ViewContract;
 
 // Concretes.
+use Novaris\Core\Proxies\App;
 use Novaris\Core\Proxies\View;
 use Novaris\Tools\Collection;
 use Symfony\Component\HttpFoundation\{Request, Response};
@@ -34,6 +35,16 @@ abstract class Controller
 	public function __invoke( array $params, Request $request ): Response
 	{
 		return $this->response( $this->view( 'index' ) );
+	}
+
+	/**
+	 * Sets the current request context.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function context( string $type ): void
+	{
+		App::resolve( 'routing.context' )->set( $type );
 	}
 
 	/**
@@ -70,6 +81,7 @@ abstract class Controller
 	protected function forward( string $callback, array $params, Request $request ): Response
 	{
 		$controller = new $callback;
+
 		return $controller( $params, $request );
 	}
 
