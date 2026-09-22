@@ -17,82 +17,72 @@ use Novaris\Template\Tag\{DocumentTitle, Pagination};
 use Novaris\Tools\Str;
 use Symfony\Component\HttpFoundation\{Request, Response};
 
-class Taxonomy extends Controller {
-
+class Taxonomy extends Controller
+{
 	/**
 	 * Callback method when route matches request.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
-	public function __invoke( array $params, Request $request ): Response {
-
+	public function __invoke( array $params, Request $request ): Response
+	{
 		$types = App::get( 'content.types' );
 
-		foreach ( $types as $type ) {
-			if ( isset( $params[ $type->name() ] ) ) {
-				$meta_key = $type->name();
-				$meta_value = $params[ $type->name() ];
-			}
-		}
-
-		// URL parameters
-		$name = $params['name'];
-		$path = $params['path'] ?? '';
+		// Get needed URI params from the router.
+		$name  = $params['name'];
+		$path  = $params['path'] ?? '';
+		$page  = intval( $params['page'] ?? 1 );
 		$parts = explode( '/', $path );
+		$type  = false;
 
-		foreach ( array_reverse( $parts ) as $part ) {
-			$path = Str::beforeLast( $path, "/{$part}" );
-			
-			if ( $type = $types->getTypeFromPath( $path ) ) {
-				break;
-			} elseif ( $type = $types->getTypeFromUri( $path ) ){
-				break;
-			}
-		}
-
-		// Extract the prefix from the URL (e.g., 'category')
-		$type_path = Str::beforeLast( $path, "/{$name}" );
-
-		$page = intval($params['page'] ?? 1);
-
-		// Extract the prefix from the URL (e.g., 'category')
-		$type_path = Str::beforeLast( $path, "/{$name}" );
-
+		// If this is a paged view, strip the page from the path.
 		if ( Str::contains( $path, "/page/{$page}" ) ) {
 			$path = Str::beforeFirst( $path, "/page/{$page}" );
 		}
 
-		if ( ! $type ) {
-			return $this->forward404( $params, $request );  // Handle 404 if type is not found
+		// Find the taxonomy type from the path or URI.
+		foreach ( array_reverse( $parts ) as $part ) {
+			$path = Str::beforeLast( $path, "/{$part}" );
+
+			if ( $type = $types->getTypeFromPath( $path ) ) {
+				break;
+			} elseif ( $type = $types->getTypeFromUri( $path ) ) {
+				break;
+			}
 		}
 
-		// Fetch the content type it collects (e.g., 'post')
-		$collect = $types->get( $type->termCollect() );
+		// Bail if there is no taxonomy type.
+		if ( ! $type ) {
+			return $this->forward404( $params, $request );
+		}
 
-		// Query the taxonomy term
+		// Query the taxonomy term.
 		$single = Query::make( [
 			'path' => $type->path(),
 			'slug' => $name
 		] )->single();
 
-		// Merge the default collection query args for the type with user query args
+		// Merge the default collection query args for the taxonomy
+		// with user-defined collection args.
 		$query_args = array_merge(
 			$type->termCollectionArgs(),
 			$single ? $single->collectionArgs() : []
 		);
 
-		// Set required variables for the query
+		// Set required variables for the query.
 		$query_args['number'] = $query_args['number'] ?? 10;
-		$query_args['offset'] = $query_args['number'] * ($page - 1);
+		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 
-		// Query the term's content collection
+		// Query the taxonomy term's content collection.
 		$collection = Query::make( array_merge( $query_args, [
 			'meta_key'   => $type->type(),
 			'meta_value' => $name
 		] ) );
 
 		if ( $single && $single->isPublic() && $collection->all() ) {
-			$type_name = sanitize_slug( $type->type() );
+
+			// Set the current request context.
+			$this->context( 'taxonomy' );
 
 			$doctitle = new DocumentTitle( $single->title(), [
 				'page' => $page
@@ -116,8 +106,7 @@ class Taxonomy extends Controller {
 			) );
 		}
 
-		// If all else fails, return a 404
+		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-
 }
