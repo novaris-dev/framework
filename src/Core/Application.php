@@ -446,6 +446,26 @@ class Application extends Container implements ApplicationContract, Bootable
 	}
 
 	/**
+	 * Returns parent theme path with optional appended path/file.
+	 *
+	 * Returns an empty string if the active theme does not have a parent.
+	 *
+	 * @since 1.0.0
+	 */
+	public function parentThemePath( string $append = '' ): string
+	{
+		$parent = $this['theme.metadata']->parent();
+
+		if ( ! $parent ) {
+			return '';
+		}
+
+		return $this->themesPath(
+			Str::appendPath( $parent, $append )
+		);
+	}
+
+	/**
 	 * Access a keyed URL and append a path to it.
 	 *
 	 * @since  1.0.0
