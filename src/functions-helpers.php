@@ -208,6 +208,29 @@ if ( ! function_exists( 'body_class' ) ) {
 	}
 }
 
+
+if ( ! function_exists( 'post_class' ) ) {
+	/**
+	 * Returns CSS classes for a content entry.
+	 *
+	 * @since 1.0.0
+	 */
+	function post_class( array $classes = [] ): string
+	{
+		if ( is_single() ) {
+			$classes[] = 'single';
+		}
+
+		if ( is_page() ) {
+			$classes[] = 'page';
+		}
+
+		$classes[] = 'entry';
+
+		return implode( ' ', array_unique( $classes ) );
+	}
+}
+
 if ( ! function_exists( 'path' ) ) {
 	/**
 	 * Returns app path with optional appended path/file.
