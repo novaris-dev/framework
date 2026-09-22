@@ -23,7 +23,7 @@ class Archive extends Controller
 	/**
 	 * Callback method when route matches request.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
@@ -91,7 +91,8 @@ class Archive extends Controller
 		} elseif ( $month && $year ) {
 			$title = date( 'F Y', strtotime( "{$year}-{$month}-01" ) );
 		} elseif ( $year ) {
-			// Here we ensure that we're working with a full date string, setting month and day as 01-01
+			// Here we ensure that we're working with a full date string,
+			// setting month and day as 01-01.
 			$title = date( 'Y', strtotime( "{$year}-01-01" ) );
 		}
 
@@ -105,7 +106,9 @@ class Archive extends Controller
 		$collection = Query::make( $query_args );
 
 		if ( $collection->all() ) {
-			$type_name = $type->name();
+
+			// Set the current request context.
+			$this->context( 'archive' );
 
 			$doctitle = new DocumentTitle( $single->title(), [
 				'page' => $page
