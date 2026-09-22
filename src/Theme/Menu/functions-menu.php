@@ -6,17 +6,13 @@ function normalize_path( $value ): string
 {
 	$value = (string) $value;
 
-	// If it's a full URL, extract just the path. If it's already a path, this still works.
 	$path = parse_url( $value, PHP_URL_PATH );
 
 	if ( $path === null || $path === false ) {
 		$path = $value;
 	}
 
-	// Ensure leading slash.
 	$path = '/' . ltrim( $path, '/' );
-
-	// Remove trailing slash except for root "/".
 	$path = rtrim( $path, '/' );
 
 	return $path === '' ? '/' : $path;
@@ -50,7 +46,9 @@ function display_nav_menu( $args = [] )
 	}
 
 	// Get the current URL path.
-	$currentPath = normalize_path( $_SERVER['REQUEST_URI'] );
+	$currentPath = normalize_path(
+		parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH )
+	);
 
 	// Build the menu.
 	ob_start();
@@ -74,17 +72,23 @@ function display_nav_menu( $args = [] )
 		. '">';
 
 	foreach ( $items as $name => $url ) {
-		$full_url = e( uri( $url ) );
-		$itemPath = normalize_path( uri( $url ) );
+		$fullUrl  = uri( $url );
+		$itemPath = normalize_path( $fullUrl );
 
-		$class = ( $currentPath === $itemPath )
-			? 'menu-items__item menu-items__item--current'
-			: 'menu-items__item';
+		$class = 'menu-items__item';
+
+		if ( $currentPath === $itemPath ) {
+			$class .= ' menu-items__item--current';
+		}
 
 		echo '<li class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '">';
-		echo '<a class="menu-items__item-anchor" href="' . $full_url . '">'
+
+		echo '<a class="menu-items__item-anchor" href="'
+			. e( $fullUrl )
+			. '">'
 			. htmlspecialchars( $name, ENT_QUOTES, 'UTF-8' )
 			. '</a>';
+
 		echo '</li>';
 	}
 
