@@ -562,14 +562,18 @@ if ( ! function_exists( 'asset' ) ) {
 		static $manifest = null;
 
 		$private = config( 'app.private' );
-		$parent  = app( 'theme.metadata' )->parent();
 
-		$manifest_file = $private
-			? public_path( 'assets/manifest.json' )
-			: ( $parent
-				? parent_theme_path( 'public/assets/manifest.json' )
-				: theme_path( 'public/assets/manifest.json' )
+		if ( $private ) {
+			$manifest_file = public_path( 'assets/manifest.json' );
+		} else {
+			$theme       = config( 'app.theme' );
+			$parent      = app( 'theme.metadata' )->parent();
+			$asset_theme = $parent ?: $theme;
+
+			$manifest_file = themes_path(
+				"{$asset_theme}/public/assets/manifest.json"
 			);
+		}
 
 		if ( $manifest === null ) {
 			if ( ! is_file( $manifest_file ) ) {
@@ -592,11 +596,9 @@ if ( ! function_exists( 'asset' ) ) {
 			return public_url( 'assets/' . $file );
 		}
 
-		$theme = $parent ?: config( 'app.theme' );
-
 		return app_url(
 			'themes/' .
-			$theme .
+			$asset_theme .
 			'/public/assets/' .
 			$file
 		);
