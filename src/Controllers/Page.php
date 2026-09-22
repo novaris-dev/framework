@@ -1,6 +1,6 @@
 <?php
 /**
- * Single controller.
+ * Page controller.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -49,6 +49,10 @@ class Page extends Single
 		}
 
 		if ( $single && $single->isPublic() ) {
+
+			// Set the current request context.
+			$this->context( 'page' );
+
 			$collection = false;
 
 			if ( $args = $single->collectionArgs() ) {
@@ -72,4 +76,4 @@ class Page extends Single
 		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
-}
+} 
