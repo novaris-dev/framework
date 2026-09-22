@@ -2,86 +2,103 @@
 
 namespace Novaris\Theme\Menu;
 
-function normalize_path($value): string {
-    $value = (string) $value;
+function normalize_path( $value ): string
+{
+	$value = (string) $value;
 
-    // If it's a full URL, extract just the path. If it's already a path, this still works.
-    $path = parse_url($value, PHP_URL_PATH);
-    if ($path === null || $path === false) {
-        $path = $value;
-    }
+	// If it's a full URL, extract just the path. If it's already a path, this still works.
+	$path = parse_url( $value, PHP_URL_PATH );
 
-    // Ensure leading slash
-    $path = '/' . ltrim($path, '/');
+	if ( $path === null || $path === false ) {
+		$path = $value;
+	}
 
-    // Remove trailing slash except for root "/"
-    $path = rtrim($path, '/');
-    return $path === '' ? '/' : $path;
+	// Ensure leading slash.
+	$path = '/' . ltrim( $path, '/' );
+
+	// Remove trailing slash except for root "/".
+	$path = rtrim( $path, '/' );
+
+	return $path === '' ? '/' : $path;
 }
 
-function display_nav_menu( $args = [] ) {
+function display_nav_menu( $args = [] )
+{
+	// Default arguments.
+	$defaults = [
+		'menu'            => '',
+		'container'       => 'nav',
+		'container_id'    => '',
+		'container_class' => '',
+		'menu_id'         => '',
+		'menu_class'      => '',
+		'echo'            => true,
+		'fallback_cb'     => false,
+		'theme_location'  => ''
+	];
 
-    // Default arguments
-    $defaults = [
-        'menu'            => '',
-        'container'       => 'nav',
-        'container_id'    => '',
-        'container_class' => '',
-        'menu_id'         => '',
-        'menu_class'      => '',
-        'echo'            => true,
-        'fallback_cb'     => false, // Set to a function name for fallback
-        'theme_location'  => ''
-    ];
+	// Merge user-defined args with defaults.
+	$args = array_merge( $defaults, $args );
 
-    // Merge user-defined args with defaults
-    $args = array_merge( $defaults, $args );
+	// Retrieve menu items.
+	$items = config( "app.{$args['theme_location']}" );
 
-    // Retrieve menu items
-    $items = config( "app.{$args['theme_location']}" ); // Assuming this returns an array
+	// If no items exist and a fallback is set, call it.
+	if ( ! $items && is_callable( $args['fallback_cb'] ) ) {
+		call_user_func( $args['fallback_cb'] );
+		return;
+	}
 
-    // If no items exist and a fallback is set, call it
-    if ( ! $items && is_callable( $args['fallback_cb'] ) ) {
-        call_user_func( $args['fallback_cb'] );
-        return;
-    }
+	// Get the current URL path.
+	$currentPath = normalize_path( $_SERVER['REQUEST_URI'] );
 
-    // Get the current URL path
-    $currentPath = normalize_path($_SERVER['REQUEST_URI']);
+	// Build the menu.
+	ob_start();
 
-    // Build the menu
-    ob_start();
-    if ( $args['container'] ) {
-        echo "<{$args['container']} id=\"" . htmlspecialchars($args['container_id'], ENT_QUOTES, 'UTF-8') . "\" class=\"" . htmlspecialchars($args['container_class'], ENT_QUOTES, 'UTF-8') . "\">";
-    }
+	if ( $args['container'] ) {
+		echo "<{$args['container']} id=\""
+			. htmlspecialchars( $args['container_id'], ENT_QUOTES, 'UTF-8' )
+			. "\" class=\""
+			. htmlspecialchars( $args['container_class'], ENT_QUOTES, 'UTF-8' )
+			. "\">";
+	}
 
-    echo '<button class="menu-toggle" aria-controls="' . htmlspecialchars($args['menu_id'], ENT_QUOTES, 'UTF-8') . '" aria-expanded="false">Menu</button>';
-    echo '<ul id="' . htmlspecialchars( $args['menu_id'], ENT_QUOTES, 'UTF-8' ) . '" class="' . htmlspecialchars($args['menu_class'], ENT_QUOTES, 'UTF-8') . '">';
+	echo '<button class="menu-toggle" aria-controls="'
+		. htmlspecialchars( $args['menu_id'], ENT_QUOTES, 'UTF-8' )
+		. '" aria-expanded="false">Menu</button>';
 
-    foreach ( $items as $name => $url ) {
-        $full_url = e( uri( $url ) );
-        $itemPath = normalize_path( uri( $url ) );
+	echo '<ul id="'
+		. htmlspecialchars( $args['menu_id'], ENT_QUOTES, 'UTF-8' )
+		. '" class="'
+		. htmlspecialchars( $args['menu_class'], ENT_QUOTES, 'UTF-8' )
+		. '">';
 
-        $class = ( $currentPath === $itemPath )
-            ? 'menu-item current-menu-item'
-            : 'menu-item';
+	foreach ( $items as $name => $url ) {
+		$full_url = e( uri( $url ) );
+		$itemPath = normalize_path( uri( $url ) );
 
-        echo '<li class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '">';
-        echo '<a href="' . $full_url . '">' . htmlspecialchars( $name, ENT_QUOTES, 'UTF-8' ) . '</a>';
-        echo '</li>';
-    }
+		$class = ( $currentPath === $itemPath )
+			? 'menu-items__item menu-items__item--current'
+			: 'menu-items__item';
 
-    echo '</ul>';
+		echo '<li class="' . htmlspecialchars( $class, ENT_QUOTES, 'UTF-8' ) . '">';
+		echo '<a class="menu-items__item-anchor" href="' . $full_url . '">'
+			. htmlspecialchars( $name, ENT_QUOTES, 'UTF-8' )
+			. '</a>';
+		echo '</li>';
+	}
 
-    if ($args['container']) {
-        echo "</{$args['container']}>";
-    }
+	echo '</ul>';
 
-    $output = ob_get_clean();
+	if ( $args['container'] ) {
+		echo "</{$args['container']}>";
+	}
 
-    if ($args['echo']) {
-        echo $output;
-    } else {
-        return $output;
-    }
+	$output = ob_get_clean();
+
+	if ( $args['echo'] ) {
+		echo $output;
+	} else {
+		return $output;
+	}
 }
