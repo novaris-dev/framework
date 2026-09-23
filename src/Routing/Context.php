@@ -119,6 +119,16 @@ class Context
 	}
 
 	/**
+	 * Checks whether the current request is an author archive.
+	 *
+	 * @since 1.0.0
+	 */
+	public function isAuthor(): bool
+	{
+		return $this->is( 'author' );
+	}
+
+	/**
 	 * Checks whether the current request is a 404 page.
 	 *
 	 * @since 1.0.0
