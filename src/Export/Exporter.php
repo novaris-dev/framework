@@ -73,6 +73,9 @@ class Exporter
 		// Export the homepage.
 		$this->exportPath( '/' );
 
+		// Export the 404 page.
+		$this->export404();
+
 		// Export pages.
 		$this->exportPages();
 
@@ -123,6 +126,34 @@ class Exporter
 		);
 
 		return $this->exported;
+	}
+
+	/**
+	 * Exports the 404 error page.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function export404(): void
+	{
+		$request = Request::create(
+			'/__novaris_404__',
+			'GET'
+		);
+
+		$response = $this->router->dispatch( $request );
+
+		if ( 404 !== $response->getStatusCode() ) {
+			return;
+		}
+
+		$content = $this->rewriteUrls(
+			(string) $response->getContent()
+		);
+
+		file_put_contents(
+			$this->path . '/404.html',
+			$content
+		);
 	}
 
 	/**
