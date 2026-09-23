@@ -107,10 +107,19 @@ class Exporter
 			}
 		}
 
+		// Get asset source and destination paths.
+		$source = App::resolve( 'app' )->publicPath( 'assets' );
+		$destination = $this->path . '/public/assets';
+
+		// Temporary debugging.
+		var_dump( $source );
+		var_dump( is_dir( $source ) );
+		var_dump( $destination );
+
 		// Copy compiled public assets.
 		$this->copyDirectory(
-			App::resolve( 'app' )->publicPath( 'assets' ),
-			$this->path . '/public/assets'
+			$source,
+			$destination
 		);
 
 		return $this->exported;
