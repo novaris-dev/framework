@@ -107,6 +107,12 @@ class Exporter
 			}
 		}
 
+		// Copy compiled public assets.
+		$this->copyDirectory(
+			App::resolve( 'path.public' ) . '/assets',
+			$this->path . '/assets'
+		);
+
 		return $this->exported;
 	}
 
@@ -407,6 +413,49 @@ class Exporter
 			$directory . '/index.html',
 			$content
 		);
+	}
+
+	/**
+	 * Copies a directory recursively.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function copyDirectory( string $source, string $destination ): void
+	{
+		if ( ! is_dir( $source ) ) {
+			return;
+		}
+
+		if ( ! is_dir( $destination ) ) {
+			mkdir( $destination, 0755, true );
+		}
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$source,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		foreach ( $iterator as $item ) {
+
+			$target = $destination . '/' . $iterator->getSubPathName();
+
+			if ( $item->isDir() ) {
+
+				if ( ! is_dir( $target ) ) {
+					mkdir( $target, 0755, true );
+				}
+
+				continue;
+			}
+
+			copy(
+				$item->getPathname(),
+				$target
+			);
+		}
 	}
 
 	/**
