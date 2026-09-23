@@ -30,6 +30,13 @@ class Exporter
 	protected string $path;
 
 	/**
+	 * Public directory.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $publicPath;
+
+	/**
 	 * Exported paths.
 	 *
 	 * @since 1.0.0
@@ -45,9 +52,11 @@ class Exporter
 		protected RoutingRouter $router,
 		protected ContentTypes $types,
 		protected ContentQuery $query,
-		string $path
+		string $path,
+		string $publicPath
 	) {
-		$this->path = rtrim( $path, '/\\' );
+		$this->path       = rtrim( $path, '/\\' );
+		$this->publicPath = rtrim( $publicPath, '/\\' );
 	}
 
 	/**
@@ -108,10 +117,10 @@ class Exporter
 		}
 
 		// Copy compiled public assets.
-	$this->copyDirectory(
-		App::resolve( 'path.public' ) . '/assets',
-		$this->path . '/public/assets'
-	);
+		$this->copyDirectory(
+			$this->publicPath . '/assets',
+			$this->path . '/public/assets'
+		);
 
 		return $this->exported;
 	}
