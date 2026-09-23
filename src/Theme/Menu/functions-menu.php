@@ -2,6 +2,8 @@
 
 namespace Novaris\Theme\Menu;
 
+use Novaris\Core\Proxies\App;
+
 function normalize_path( $value ): string
 {
 	$value = (string) $value;
@@ -47,7 +49,7 @@ function display_nav_menu( $args = [] )
 
 	// Get the current URL path.
 	$currentPath = normalize_path(
-		parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH )
+		App::resolve( 'routing.router' )->path()
 	);
 
 	// Build the menu.
