@@ -13,7 +13,10 @@
 
 namespace Novaris\Console;
 
+use Novaris\Contracts\Content\{ContentQuery, ContentTypes};
+use Novaris\Contracts\Routing\RoutingRouter;
 use Novaris\Core\Application;
+use Novaris\Export\Exporter;
 use Throwable;
 
 class Kernel
@@ -56,6 +59,7 @@ class Kernel
 			$command = $arguments[1] ?? '';
 
 			return match ( $command ) {
+				'export'       => $this->export(),
 				'theme:update' => $this->updateTheme(),
 				'version'      => $this->version(),
 				'help'         => $this->help(),
@@ -66,6 +70,43 @@ class Kernel
 
 			return 1;
 		}
+	}
+
+	/**
+	 * Export the site as static HTML.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function export(): int
+	{
+		$this->output->info(
+			'Exporting site...'
+		);
+
+		$exporter = new Exporter(
+			$this->app->make( RoutingRouter::class ),
+			$this->app->make( ContentTypes::class ),
+			$this->app->make( ContentQuery::class ),
+			$this->app->basePath( 'dist' )
+		);
+
+		$exported = $exporter->export();
+
+		foreach ( $exported as $path ) {
+			$this->output->line(
+				"  {$path}"
+			);
+		}
+
+		$this->output->success(
+			sprintf(
+				'Exported %d static HTML file%s.',
+				count( $exported ),
+				1 === count( $exported ) ? '' : 's'
+			)
+		);
+
+		return 0;
 	}
 
 	/**
@@ -166,6 +207,7 @@ class Kernel
 		$this->output->line( '  php novaris <command>' );
 		$this->output->line();
 		$this->output->line( 'Available commands:' );
+		$this->output->line( '  export          Export the site as static HTML' );
 		$this->output->line( '  theme:update    Update the active theme or its parent theme' );
 		$this->output->line( '  version         Display the Novaris version' );
 		$this->output->line( '  help            Display available commands' );
