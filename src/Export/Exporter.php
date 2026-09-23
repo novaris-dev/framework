@@ -107,19 +107,10 @@ class Exporter
 			}
 		}
 
-		// Get asset source and destination paths.
-		$source = App::resolve( 'app' )->publicPath( 'assets' );
-		$destination = $this->path . '/public/assets';
-
-		// Temporary debugging.
-		var_dump( $source );
-		var_dump( is_dir( $source ) );
-		var_dump( $destination );
-
-		// Copy compiled public assets.
+		// Copy compiled theme assets.
 		$this->copyDirectory(
-			$source,
-			$destination
+			App::resolve( 'app' )->themePath( 'public/assets' ),
+			$this->path . '/public/assets'
 		);
 
 		return $this->exported;
