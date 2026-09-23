@@ -121,6 +121,20 @@ class Hierarchy
 	}
 
 	/**
+	 * Returns the author archive template hierarchy.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function author( string $author ): array
+	{
+		return [
+			"author-{$author}",
+			'author',
+			'archive'
+		];
+	}
+
+	/**
 	 * Returns the date collection template hierarchy.
 	 *
 	 * @since 1.0.0
