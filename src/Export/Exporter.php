@@ -201,7 +201,11 @@ class Exporter
 		if ( $type->isTaxonomy() ) {
 			$path = $this->buildPath(
 				$type->routingPrefix(),
-				str_replace( '{name}', $name, $type->routingPaths()['single'] )
+				str_replace(
+					'{name}',
+					$name,
+					$type->routingPaths()['single']
+				)
 			);
 
 			$this->exportPath( $path );
@@ -210,9 +214,20 @@ class Exporter
 			return;
 		}
 
+		// Remove a date prefix from dated content filenames.
+		$name = preg_replace(
+			'/^\d{4}-\d{2}-\d{2}\./',
+			'',
+			$name
+		);
+
 		$path = $this->buildPath(
 			$type->routingPrefix(),
-			str_replace( '{name}', $name, $type->routingPaths()['single'] )
+			str_replace(
+				'{name}',
+				$name,
+				$type->routingPaths()['single']
+			)
 		);
 
 		$this->exportPath( $path );
@@ -252,7 +267,10 @@ class Exporter
 			);
 
 			$this->exportPath(
-				$this->buildPath( $type->routingPrefix(), $path )
+				$this->buildPath(
+					$type->routingPrefix(),
+					$path
+				)
 			);
 		}
 	}
@@ -293,7 +311,10 @@ class Exporter
 			);
 
 			$this->exportPath(
-				$this->buildPath( $type->routingPrefix(), $path )
+				$this->buildPath(
+					$type->routingPrefix(),
+					$path
+				)
 			);
 		}
 	}
@@ -386,12 +407,34 @@ class Exporter
 			return;
 		}
 
-		$this->write(
-			$path,
+		$content = $this->rewriteAssetUrls(
 			(string) $response->getContent()
 		);
 
+		$this->write(
+			$path,
+			$content
+		);
+
 		$this->exported[] = $path;
+	}
+
+	/**
+	 * Rewrites dynamic theme asset URLs for the static export.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function rewriteAssetUrls( string $content ): string
+	{
+		$theme = basename(
+			App::resolve( 'app' )->themePath()
+		);
+
+		return str_replace(
+			"/themes/{$theme}/public/assets/",
+			'/public/assets/',
+			$content
+		);
 	}
 
 	/**
