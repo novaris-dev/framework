@@ -108,10 +108,10 @@ class Exporter
 		}
 
 		// Copy compiled public assets.
-		$this->copyDirectory(
-			App::resolve( 'path.public' ) . '/assets',
-			$this->path . '/assets'
-		);
+	$this->copyDirectory(
+		App::resolve( 'path.public' ) . '/assets',
+		$this->path . '/public/assets'
+	);
 
 		return $this->exported;
 	}
