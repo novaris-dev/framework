@@ -153,7 +153,7 @@ class Exporter
 
 			$relative = str_replace( '\\', '/', $relative );
 
-			// Skip private and content-type directories.
+			// Skip private content directories.
 			$segments = explode( '/', $relative );
 
 			foreach ( $segments as $segment ) {
@@ -196,41 +196,77 @@ class Exporter
 	 */
 	protected function exportEntry( object $type, object $entry ): void
 	{
-		$name = $entry->name();
+		$name  = $entry->name();
+		$route = $type->routingPaths()['single'];
 
+		// Taxonomy routes only require the entry name.
 		if ( $type->isTaxonomy() ) {
-			$path = $this->buildPath(
-				$type->routingPrefix(),
-				str_replace(
-					'{name}',
-					$name,
-					$type->routingPaths()['single']
+			$route = str_replace(
+				'{name}',
+				$name,
+				$route
+			);
+
+			$this->exportPath(
+				$this->buildPath(
+					$type->routingPrefix(),
+					$route
 				)
 			);
 
-			$this->exportPath( $path );
 			$this->exportTaxonomyPages( $type, $entry );
 
 			return;
 		}
 
-		// Remove a date prefix from dated content filenames.
-		$name = preg_replace(
-			'/^\d{4}-\d{2}-\d{2}\./',
-			'',
-			$name
+		// Replace date placeholders when used by the route.
+		if (
+			str_contains( $route, '{year}' )
+			|| str_contains( $route, '{month}' )
+			|| str_contains( $route, '{day}' )
+		) {
+			$date = $entry->published();
+
+			if ( ! $date ) {
+				return;
+			}
+
+			$timestamp = is_numeric( $date )
+				? (int) $date
+				: strtotime( $date );
+
+			if ( ! $timestamp ) {
+				return;
+			}
+
+			$route = str_replace(
+				[
+					'{year}',
+					'{month}',
+					'{day}'
+				],
+				[
+					date( 'Y', $timestamp ),
+					date( 'm', $timestamp ),
+					date( 'd', $timestamp )
+				],
+				$route
+			);
+		}
+
+		// Replace the entry name placeholder.
+		$route = str_replace(
+			'{name}',
+			$name,
+			$route
 		);
 
-		$path = $this->buildPath(
-			$type->routingPrefix(),
-			str_replace(
-				'{name}',
-				$name,
-				$type->routingPaths()['single']
+		$this->exportPath(
+			$this->buildPath(
+				$type->routingPrefix(),
+				$route
 			)
 		);
-
-		$this->exportPath( $path );
 	}
 
 	/**
