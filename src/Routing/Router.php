@@ -58,6 +58,27 @@ class Router implements RoutingRouter
 	}
 
 	/**
+	 * Dispatches an HTTP request.
+	 *
+	 * This allows the router to handle a request other than the current
+	 * global request. The original request is restored after dispatching.
+	 *
+	 * @since 1.0.0
+	 */
+	public function dispatch( Request $request ): Response
+	{
+		$current = $this->request;
+
+		$this->request = $request;
+
+		try {
+			return $this->response();
+		} finally {
+			$this->request = $current;
+		}
+	}
+
+	/**
 	 * Returns a cached HTTP Response if global caching is enabled. If not,
 	 * returns a new HTTP Response.
 	 *
