@@ -15,6 +15,7 @@ namespace Novaris\Export;
 
 use Novaris\Contracts\Content\{ContentQuery, ContentTypes};
 use Novaris\Contracts\Routing\RoutingRouter;
+use Novaris\Core\Proxies\App;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,6 +64,9 @@ class Exporter
 		// Export the homepage.
 		$this->exportPath( '/' );
 
+		// Export pages.
+		$this->exportPages();
+
 		// Export each registered content type.
 		foreach ( $this->types->all() as $type ) {
 
@@ -70,9 +74,8 @@ class Exporter
 				continue;
 			}
 
-			// Pages use their filesystem path as their URL.
+			// Pages are exported separately from the content directory.
 			if ( 'page' === $type->name() ) {
-				$this->exportPages( $type );
 				continue;
 			}
 
@@ -110,26 +113,19 @@ class Exporter
 	/**
 	 * Exports page content.
 	 *
-	 * Pages may use either of these structures:
-	 *
-	 * about.md
-	 * about/index.md
-	 *
-	 * Both structures resolve to /about.
-	 *
 	 * @since 1.0.0
 	 */
-	protected function exportPages( object $type ): void
+	protected function exportPages(): void
 	{
-		$path = $type->path();
+		$contentPath = App::resolve( 'path.content' );
 
-		if ( ! is_dir( $path ) ) {
+		if ( ! is_dir( $contentPath ) ) {
 			return;
 		}
 
 		$iterator = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator(
-				$path,
+				$contentPath,
 				RecursiveDirectoryIterator::SKIP_DOTS
 			)
 		);
@@ -146,19 +142,12 @@ class Exporter
 
 			$relative = substr(
 				$file->getPathname(),
-				strlen( rtrim( $path, '/\\' ) ) + 1
+				strlen( rtrim( $contentPath, '/\\' ) ) + 1
 			);
 
 			$relative = str_replace( '\\', '/', $relative );
 
-			// Remove the Markdown extension.
-			$relative = preg_replace(
-				'/\.md$/i',
-				'',
-				$relative
-			);
-
-			// Ignore private files and directories.
+			// Skip private and content-type directories.
 			$segments = explode( '/', $relative );
 
 			foreach ( $segments as $segment ) {
@@ -166,6 +155,13 @@ class Exporter
 					continue 2;
 				}
 			}
+
+			// Remove the Markdown extension.
+			$relative = preg_replace(
+				'/\.md$/i',
+				'',
+				$relative
+			);
 
 			// index.md represents its parent directory.
 			if ( 'index' === basename( $relative ) ) {
@@ -178,6 +174,7 @@ class Exporter
 
 			$path = '/' . trim( $relative, '/' );
 
+			// Homepage is already exported.
 			if ( '/' === $path ) {
 				continue;
 			}
