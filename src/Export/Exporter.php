@@ -15,6 +15,8 @@ namespace Novaris\Export;
 
 use Novaris\Contracts\Content\{ContentQuery, ContentTypes};
 use Novaris\Contracts\Routing\RoutingRouter;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Request;
 
 class Exporter
@@ -68,6 +70,12 @@ class Exporter
 				continue;
 			}
 
+			// Pages use their filesystem path as their URL.
+			if ( 'page' === $type->name() ) {
+				$this->exportPages( $type );
+				continue;
+			}
+
 			// Export the collection unless this type is the homepage.
 			if ( ! $type->isHomeAlias() ) {
 				$this->exportPath( $type->urlPath() );
@@ -97,6 +105,85 @@ class Exporter
 		}
 
 		return $this->exported;
+	}
+
+	/**
+	 * Exports page content.
+	 *
+	 * Pages may use either of these structures:
+	 *
+	 * about.md
+	 * about/index.md
+	 *
+	 * Both structures resolve to /about.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function exportPages( object $type ): void
+	{
+		$path = $type->path();
+
+		if ( ! is_dir( $path ) ) {
+			return;
+		}
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$path,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			)
+		);
+
+		foreach ( $iterator as $file ) {
+
+			if ( ! $file->isFile() ) {
+				continue;
+			}
+
+			if ( 'md' !== strtolower( $file->getExtension() ) ) {
+				continue;
+			}
+
+			$relative = substr(
+				$file->getPathname(),
+				strlen( rtrim( $path, '/\\' ) ) + 1
+			);
+
+			$relative = str_replace( '\\', '/', $relative );
+
+			// Remove the Markdown extension.
+			$relative = preg_replace(
+				'/\.md$/i',
+				'',
+				$relative
+			);
+
+			// Ignore private files and directories.
+			$segments = explode( '/', $relative );
+
+			foreach ( $segments as $segment ) {
+				if ( str_starts_with( $segment, '_' ) ) {
+					continue 2;
+				}
+			}
+
+			// index.md represents its parent directory.
+			if ( 'index' === basename( $relative ) ) {
+				$relative = dirname( $relative );
+
+				if ( '.' === $relative ) {
+					$relative = '';
+				}
+			}
+
+			$path = '/' . trim( $relative, '/' );
+
+			if ( '/' === $path ) {
+				continue;
+			}
+
+			$this->exportPath( $path );
+		}
 	}
 
 	/**
