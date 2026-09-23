@@ -87,7 +87,7 @@ class Kernel
 			$this->app->make( RoutingRouter::class ),
 			$this->app->make( ContentTypes::class ),
 			$this->app->make( ContentQuery::class ),
-			$this->app->basePath( 'dist' )
+			$this->app['path'] . '/dist'
 		);
 
 		$exported = $exporter->export();
