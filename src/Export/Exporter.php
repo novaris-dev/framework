@@ -30,6 +30,13 @@ class Exporter
 	protected string $path;
 
 	/**
+	 * Export URL.
+	 *
+	 * @since 1.0.0
+	 */
+	protected ?string $url;
+
+	/**
 	 * Exported paths.
 	 *
 	 * @since 1.0.0
@@ -45,9 +52,11 @@ class Exporter
 		protected RoutingRouter $router,
 		protected ContentTypes $types,
 		protected ContentQuery $query,
-		string $path
+		string $path,
+		?string $url = null
 	) {
 		$this->path = rtrim( $path, '/\\' );
+		$this->url  = $url ? rtrim( $url, '/' ) : null;
 	}
 
 	/**
@@ -443,9 +452,9 @@ class Exporter
 			return;
 		}
 
-		$content = $this->rewriteAssetUrls(
-			(string) $response->getContent()
-		);
+		$content = (string) $response->getContent();
+
+		$content = $this->rewriteUrls( $content );
 
 		$this->write(
 			$path,
@@ -453,6 +462,35 @@ class Exporter
 		);
 
 		$this->exported[] = $path;
+	}
+
+	/**
+	 * Rewrites URLs for the static export.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function rewriteUrls( string $content ): string
+	{
+		$content = $this->rewriteAssetUrls( $content );
+
+		if ( ! $this->url ) {
+			return $content;
+		}
+
+		$configuredUrl = rtrim(
+			App::resolve( 'url' ),
+			'/'
+		);
+
+		if ( ! $configuredUrl || $configuredUrl === $this->url ) {
+			return $content;
+		}
+
+		return str_replace(
+			$configuredUrl,
+			$this->url,
+			$content
+		);
 	}
 
 	/**

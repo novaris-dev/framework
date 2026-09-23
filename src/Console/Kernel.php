@@ -36,6 +36,13 @@ class Kernel
 	protected Output $output;
 
 	/**
+	 * Console arguments.
+	 *
+	 * @since 1.0.0
+	 */
+	protected array $arguments = [];
+
+	/**
 	 * Create a new console kernel.
 	 *
 	 * @since 1.0.0
@@ -54,6 +61,8 @@ class Kernel
 	public function run( array $arguments ): int
 	{
 		try {
+			$this->arguments = $arguments;
+
 			$this->app->boot();
 
 			$command = $arguments[1] ?? '';
@@ -79,15 +88,24 @@ class Kernel
 	 */
 	protected function export(): int
 	{
+		$url = $this->option( 'url' );
+
 		$this->output->info(
 			'Exporting site...'
 		);
+
+		if ( $url ) {
+			$this->output->line(
+				"  URL: {$url}"
+			);
+		}
 
 		$exporter = new Exporter(
 			$this->app->make( RoutingRouter::class ),
 			$this->app->make( ContentTypes::class ),
 			$this->app->make( ContentQuery::class ),
-			$this->app['path'] . '/dist'
+			$this->app['path'] . '/dist',
+			$url
 		);
 
 		$exported = $exporter->export();
@@ -107,6 +125,45 @@ class Kernel
 		);
 
 		return 0;
+	}
+
+	/**
+	 * Get a command-line option.
+	 *
+	 * Supports both --option=value and --option value.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function option( string $name ): ?string
+	{
+		$option = "--{$name}";
+
+		foreach ( $this->arguments as $index => $argument ) {
+
+			if ( str_starts_with( $argument, "{$option}=" ) ) {
+				$value = substr(
+					$argument,
+					strlen( $option ) + 1
+				);
+
+				return '' !== $value ? $value : null;
+			}
+
+			if ( $option === $argument ) {
+				$value = $this->arguments[ $index + 1 ] ?? null;
+
+				if (
+					null !== $value
+					&& ! str_starts_with( $value, '--' )
+				) {
+					return $value;
+				}
+
+				return null;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -204,13 +261,16 @@ class Kernel
 		$this->output->line( 'Novaris CLI' );
 		$this->output->line();
 		$this->output->line( 'Usage:' );
-		$this->output->line( '  php novaris <command>' );
+		$this->output->line( '  php novaris <command> [options]' );
 		$this->output->line();
 		$this->output->line( 'Available commands:' );
 		$this->output->line( '  export          Export the site as static HTML' );
 		$this->output->line( '  theme:update    Update the active theme or its parent theme' );
 		$this->output->line( '  version         Display the Novaris version' );
 		$this->output->line( '  help            Display available commands' );
+		$this->output->line();
+		$this->output->line( 'Export options:' );
+		$this->output->line( '  --url=<url>      Set the URL for the exported site' );
 
 		return 0;
 	}
