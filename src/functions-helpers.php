@@ -573,10 +573,18 @@ if ( ! function_exists( 'vendor_url' ) ) {
 }
 
 if ( ! function_exists( 'asset' ) ) {
-	function asset( string $entry ): string {
+	/**
+	 * Returns the compiled asset URL for a Vite manifest entry.
+	 *
+	 * @since 1.0.0
+	 */
+	function asset( string $entry ): string
+	{
 		static $manifest = null;
 
-		$private = config( 'app.private' );
+		$private   = config( 'app.private' );
+		$exporting = app()->bound( 'exporting' )
+			&& app( 'exporting' );
 
 		if ( $private ) {
 			$manifest_file = public_path( 'assets/manifest.json' );
@@ -601,13 +609,13 @@ if ( ! function_exists( 'asset' ) ) {
 			) ?: [];
 		}
 
-		if ( ! isset( $manifest[$entry]['file'] ) ) {
+		if ( ! isset( $manifest[ $entry ]['file'] ) ) {
 			throw new Exception( "Missing manifest entry: {$entry}" );
 		}
 
-		$file = ltrim( $manifest[$entry]['file'], '/' );
+		$file = ltrim( $manifest[ $entry ]['file'], '/' );
 
-		if ( $private ) {
+		if ( $private || $exporting ) {
 			return public_url( 'assets/' . $file );
 		}
 
