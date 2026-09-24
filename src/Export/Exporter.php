@@ -117,6 +117,11 @@ class Exporter
 			if ( $type->hasDateArchives() ) {
 				$this->exportDateArchives( $type, $query );
 			}
+
+			// Export author archives for posts.
+			if ( 'post' === $type->name() ) {
+				$this->exportAuthorArchives( $type, $query );
+			}
 		}
 
 		// Copy compiled theme assets.
@@ -456,6 +461,71 @@ class Exporter
 					$day
 				)
 			);
+		}
+	}
+
+	/**
+	 * Exports author archive paths.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function exportAuthorArchives( object $type, ContentQuery $query ): void
+	{
+		$authors = [];
+
+		// Collect unique authors from the content entries.
+		foreach ( $query as $entry ) {
+			foreach ( $entry->authors() as $author ) {
+
+				$author = sanitize_slug( (string) $author );
+
+				if ( $author ) {
+					$authors[ $author ] = true;
+				}
+			}
+		}
+
+		$perPage = $type->collectionArgs()['number'] ?? 10;
+
+		foreach ( array_keys( $authors ) as $author ) {
+
+			// Export the main author archive.
+			$this->exportPath(
+				$this->buildPath(
+					'author',
+					$author
+				)
+			);
+
+			if ( 1 > $perPage ) {
+				continue;
+			}
+
+			// Query all entries for this author to calculate pagination.
+			$authorQuery = clone $this->query;
+
+			$authorQuery->make( [
+				'type'      => $type->name(),
+				'author'    => $author,
+				'number'    => 0,
+				'nocontent' => true
+			] );
+
+			$pages = (int) ceil(
+				$authorQuery->total() / $perPage
+			);
+
+			// Export paginated author archives.
+			for ( $page = 2; $page <= $pages; $page++ ) {
+				$this->exportPath(
+					$this->buildPath(
+						'author',
+						$author,
+						'page',
+						(string) $page
+					)
+				);
+			}
 		}
 	}
 
