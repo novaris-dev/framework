@@ -68,73 +68,67 @@ class Exporter
 	{
 		$this->exported = [];
 
-		App::resolve( 'app' )->instance( 'exporting', true );
+		$this->prepareDirectory();
 
-		try {
-			$this->prepareDirectory();
+		// Export the homepage.
+		$this->exportPath( '/' );
 
-			// Export the homepage.
-			$this->exportPath( '/' );
+		// Export the 404 page.
+		$this->export404();
 
-			// Export the 404 page.
-			$this->export404();
+		// Export pages.
+		$this->exportPages();
 
-			// Export pages.
-			$this->exportPages();
+		// Export each registered content type.
+		foreach ( $this->types->all() as $type ) {
 
-			// Export each registered content type.
-			foreach ( $this->types->all() as $type ) {
-
-				if ( ! $type->isPublic() || ! $type->hasRouting() ) {
-					continue;
-				}
-
-				// Pages are exported separately from the content directory.
-				if ( 'page' === $type->name() ) {
-					continue;
-				}
-
-				// Export the collection unless this type is the homepage.
-				if ( ! $type->isHomeAlias() ) {
-					$this->exportPath( $type->urlPath() );
-				}
-
-				// Query all entries for this content type.
-				$query = clone $this->query;
-
-				$query->make( [
-					'type'      => $type->name(),
-					'number'    => 0,
-					'nocontent' => true
-				] );
-
-				// Export each entry.
-				foreach ( $query as $entry ) {
-					$this->exportEntry( $type, $entry );
-				}
-
-				// Export collection pagination.
-				$this->exportCollectionPages( $type );
-
-				// Export date archives.
-				if ( $type->hasDateArchives() ) {
-					$this->exportDateArchives( $type, $query );
-				}
-
-				// Export author archives for posts.
-				if ( 'post' === $type->name() ) {
-					$this->exportAuthorArchives( $type, $query );
-				}
+			if ( ! $type->isPublic() || ! $type->hasRouting() ) {
+				continue;
 			}
 
-			// Copy compiled theme assets.
-			$this->copyDirectory(
-				App::resolve( 'app' )->themePath( 'public/assets' ),
-				$this->path . '/public/assets'
-			);
-		} finally {
-			App::resolve( 'app' )->instance( 'exporting', false );
+			// Pages are exported separately from the content directory.
+			if ( 'page' === $type->name() ) {
+				continue;
+			}
+
+			// Export the collection unless this type is the homepage.
+			if ( ! $type->isHomeAlias() ) {
+				$this->exportPath( $type->urlPath() );
+			}
+
+			// Query all entries for this content type.
+			$query = clone $this->query;
+
+			$query->make( [
+				'type'      => $type->name(),
+				'number'    => 0,
+				'nocontent' => true
+			] );
+
+			// Export each entry.
+			foreach ( $query as $entry ) {
+				$this->exportEntry( $type, $entry );
+			}
+
+			// Export collection pagination.
+			$this->exportCollectionPages( $type );
+
+			// Export date archives.
+			if ( $type->hasDateArchives() ) {
+				$this->exportDateArchives( $type, $query );
+			}
+
+			// Export author archives for posts.
+			if ( 'post' === $type->name() ) {
+				$this->exportAuthorArchives( $type, $query );
+			}
 		}
+
+		// Copy compiled theme assets.
+		$this->copyDirectory(
+			App::resolve( 'app' )->themePath( 'public/assets' ),
+			$this->path . '/public/assets'
+		);
 
 		return $this->exported;
 	}
@@ -552,7 +546,7 @@ class Exporter
 			return;
 		}
 
-		$request = Request::create( $path, 'GET' );
+		$request  = Request::create( $path, 'GET' );
 		$response = $this->router->dispatch( $request );
 
 		if ( ! $response->isSuccessful() ) {
@@ -579,6 +573,13 @@ class Exporter
 	 */
 	protected function rewriteUrls( string $content ): string
 	{
+		// Rewrite theme asset URLs to the exported asset directory.
+		$content = preg_replace(
+			'#/themes/[^/]+/public/assets/#',
+			'/public/assets/',
+			$content
+		);
+
 		if ( ! $this->url ) {
 			return $content;
 		}
