@@ -118,7 +118,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns the entry URL.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	abstract public function url(): string;
 
@@ -146,7 +146,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns entry metadata.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function meta( string $name = '', mixed $default = false ): mixed
 	{
@@ -163,7 +163,7 @@ abstract class Entry implements ContentEntry
 	 * Returns only a single meta value. Shifts and returns the first value
 	 * if the metadata is an array.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function metaSingle( string $name, mixed $default = false ): mixed
 	{
@@ -175,7 +175,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Ensures that an array of meta values is returned.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function metaArr( string $name, array $default = [] ): array
 	{
@@ -190,7 +190,7 @@ abstract class Entry implements ContentEntry
 	 * Returns a ContentQuery for content type entries stored in the current
 	 * entry's metadata.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function metaQuery( string $name, array $args = [] ): ContentQuery|false
 	{
@@ -266,7 +266,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns a formatted entry date by meta key name.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function date( string $name = 'published', string $format = '' ): string
 	{
@@ -292,21 +292,32 @@ abstract class Entry implements ContentEntry
 	 */
 	public function author(): Entry|false
 	{
-		if ( $meta = $this->metaSingle( 'author' ) ) {
-			$author = sanitize_slug( (string) $meta );
-
-			return new Virtual( [
-				'name' => $author,
-				'url'  => route( 'author', [
-					'author' => $author
-				] ),
-				'meta' => [
-					'title' => (string) $meta
-				]
-			] );
+		if ( ! $meta = $this->metaSingle( 'author' ) ) {
+			return false;
 		}
 
-		return false;
+		$author = sanitize_slug( (string) $meta );
+
+		// Query the author profile.
+		$profile = Query::make( [
+			'path' => '_authors',
+			'slug' => $author
+		] )->single();
+
+		if ( $profile ) {
+			return $profile;
+		}
+
+		// Fall back to a virtual author.
+		return new Virtual( [
+			'name' => $author,
+			'url'  => route( 'author', [
+				'author' => $author
+			] ),
+			'meta' => [
+				'title' => (string) $meta
+			]
+		] );
 	}
 
 	/**
@@ -323,7 +334,7 @@ abstract class Entry implements ContentEntry
 	 * Returns a media object based on a media file path stored as metadata.
 	 * Note: pass in the meta key for the `$name` and not the media type.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function media( string $name = 'image' ): Media|null
 	{
@@ -353,7 +364,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns an array of view paths assigned as metadata.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function viewPaths(): array
 	{
@@ -369,7 +380,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns an array of Query arguments if assigned as metadata.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function collectionArgs(): array
 	{
@@ -386,7 +397,7 @@ abstract class Entry implements ContentEntry
 	 * Returns an array of the taxonomy (content type) objects associated
 	 * with the entry.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function taxonomies(): array
 	{
@@ -406,7 +417,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Conditional check if the entry is associated with a taxonomy.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function hasTaxonomy( string $taxonomy ): bool
 	{
@@ -418,7 +429,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns a Query of taxonomy entries or false.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function terms( string $taxonomy, array $args = [] ): ContentQuery|false
 	{
@@ -430,7 +441,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Conditional check if the entry has a term from a specific taxonomy.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function hasTerm( string $taxonomy, string $term ): bool
 	{
@@ -442,7 +453,7 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns the entry excerpt.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function excerpt( int $limit = 50, string $more = '&#8230;' ): string
 	{
