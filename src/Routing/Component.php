@@ -88,7 +88,7 @@ class Component implements Bootable
 		// Add sitemap routes if supported.
 		if ( Config::get( 'app.sitemap' ) ) {
 			$this->routes->add( 'sitemap/{type}', [
-				'name'       => "sitemap",
+				'name'       => 'sitemap',
 				'controller' => Controllers\Sitemap::class
 			] );
 
@@ -102,6 +102,18 @@ class Component implements Bootable
 		$this->routes->add( '/', [
 			'name'       => 'home',
 			'controller' => Controllers\Home::class
+		] );
+
+		// Add author paged archive route.
+		$this->routes->add( 'author/{author}/page/{page}', [
+			'name'       => 'author.paged',
+			'controller' => Controllers\Author::class
+		] );
+
+		// Add author archive route.
+		$this->routes->add( 'author/{author}', [
+			'name'       => 'author',
+			'controller' => Controllers\Author::class
 		] );
 
 		// Add cache purge route for individual stores.
