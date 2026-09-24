@@ -125,8 +125,12 @@ class Exporter
 		}
 
 		// Copy compiled theme assets.
+		$theme       = config( 'app.theme' );
+		$parent      = app( 'theme.metadata' )->parent();
+		$asset_theme = $parent ?: $theme;
+
 		$this->copyDirectory(
-			App::resolve( 'app' )->themePath( 'public/assets' ),
+			themes_path( "{$asset_theme}/public/assets" ),
 			$this->path . '/public/assets'
 		);
 
