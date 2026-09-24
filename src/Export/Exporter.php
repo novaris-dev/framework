@@ -573,18 +573,6 @@ class Exporter
 	 */
 	protected function rewriteUrls( string $content ): string
 	{
-		$theme = basename(
-			App::resolve( 'app' )->themePath()
-		);
-
-		// Rewrite theme assets to the static export location.
-		$content = str_replace(
-			"/themes/{$theme}/public/assets/",
-			'/public/assets/',
-			$content
-		);
-
-		// Keep the configured URL when no export URL is provided.
 		if ( ! $this->url ) {
 			return $content;
 		}
@@ -594,19 +582,18 @@ class Exporter
 			'/'
 		);
 
-		// Rewrite the configured site URL to the export URL.
 		if (
-			$configured_url
-			&& $configured_url !== $this->url
+			! $configured_url
+			|| $configured_url === $this->url
 		) {
-			$content = str_replace(
-				$configured_url,
-				$this->url,
-				$content
-			);
+			return $content;
 		}
 
-		return $content;
+		return str_replace(
+			$configured_url,
+			$this->url,
+			$content
+		);
 	}
 
 	/**
