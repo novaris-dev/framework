@@ -26,11 +26,11 @@ class Author extends Controller
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
-		$author = sanitize_slug( $params['author'] ?? '' );
-		$page   = intval( $params['page'] ?? 1 );
+		$author_slug = sanitize_slug( $params['author'] ?? '' );
+		$page        = intval( $params['page'] ?? 1 );
 
 		// If there is no author, bail early.
-		if ( ! $author ) {
+		if ( ! $author_slug ) {
 			return $this->forward404( $params, $request );
 		}
 
@@ -48,24 +48,24 @@ class Author extends Controller
 		// Set required variables for the query.
 		$query_args['number'] = $query_args['number'] ?? 10;
 		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
-		$query_args['author'] = $author;
+		$query_args['author'] = $author_slug;
 
 		// Query the author profile.
-		$single = Query::make( [
+		$author = Query::make( [
 			'path' => '_authors',
-			'slug' => $author
+			'slug' => $author_slug
 		] )->single();
 
 		// Fall back to a virtual author if no profile exists.
-		if ( ! $single ) {
-			$single = new Virtual( [
-				'name'    => $author,
+		if ( ! $author ) {
+			$author = new Virtual( [
+				'name'    => $author_slug,
 				'url'     => route( 'author', [
-					'author' => $author
+					'author' => $author_slug
 				] ),
 				'content' => '',
 				'meta'    => [
-					'title' => $author
+					'title' => $author_slug
 				]
 			] );
 		}
@@ -78,23 +78,23 @@ class Author extends Controller
 			// Set the current request context.
 			$this->context( 'author' );
 
-			$doctitle = new DocumentTitle( $single->title(), [
+			$doctitle = new DocumentTitle( $author->title(), [
 				'page' => $page
 			] );
 
 			$pagination = new Pagination( [
-				'basepath' => "author/{$author}",
+				'basepath' => "author/{$author_slug}",
 				'current'  => $page,
 				'total'    => $collection->pages()
 			] );
 
 			return $this->response( $this->view(
 				'index',
-				Hierarchy::author( $author ),
+				Hierarchy::author( $author_slug ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
-					'single'     => $single,
+					'author'     => $author,
 					'collection' => $collection,
 					'type'       => $type
 				]

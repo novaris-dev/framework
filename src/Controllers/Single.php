@@ -98,10 +98,10 @@ class Single extends Controller
 				] )->single();
 			}
 
-			$collection = false;
+			$entries = false;
 
 			if ( $args = $single->collectionArgs() ) {
-				$collection = Query::make( $args );
+				$entries = Query::make( $args );
 			}
 
 			$doctitle = new DocumentTitle( $single->title() );
@@ -113,7 +113,7 @@ class Single extends Controller
 					'doctitle'   => $doctitle,
 					'pagination' => false,
 					'single'     => $single,
-					'collection' => $collection,
+					'entries'    => $entries,
 					'type'       => $type,
 					'parent'     => $parent
 				]

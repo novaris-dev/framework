@@ -38,40 +38,40 @@ class Page extends Single
 		}
 
 		// Look for an `path/index.md` file.
-		$single = Query::make( [
+		$page = Query::make( [
 			'path' => $path,
 			'slug' => 'index'
 		] )->single();
 
 		// Look for a `path/{$name}.md` file if `path/index.md` not found.
-		if ( ! $single ) {
-			$single = Query::make( [
+		if ( ! $page ) {
+			$page = Query::make( [
 				'path' => Str::beforeLast( $path, '/' ),
 				'slug' => $name
 			] )->single();
 		}
 
-		if ( $single && $single->isPublic() ) {
+		if ( $page && $page->isPublic() ) {
 
 			// Set the current request context.
 			$this->context( 'page' );
 
-			$collection = false;
+			$entries = false;
 
-			if ( $args = $single->collectionArgs() ) {
-				$collection = Query::make( $args );
+			if ( $args = $page->collectionArgs() ) {
+				$entries = Query::make( $args );
 			}
 
-			$doctitle = new DocumentTitle( $single->title() );
+			$doctitle = new DocumentTitle( $page->title() );
 
 			return $this->response( $this->view(
 				'index',
-				Hierarchy::page( $single ),
+				Hierarchy::page( $page ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => false,
-					'single'     => $single,
-					'collection' => $collection,
+					'page'       => $page,
+					'entries'    => $entries,
 					'type'       => $type
 				]
 			) );

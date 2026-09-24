@@ -97,7 +97,7 @@ class Archive extends Controller
 		}
 
 		// Create a virtual entry for the archive data.
-		$single = new Virtual( [
+		$archive = new Virtual( [
 			'content' => '',
 			'meta'    => [ 'title' => $title ?? 'Archives' ]
 		] );
@@ -116,7 +116,7 @@ class Archive extends Controller
 			// Set the current request context.
 			$this->context( 'archive' );
 
-			$doctitle = new DocumentTitle( $single->title(), [
+			$doctitle = new DocumentTitle( $archive->title(), [
 				'page' => $page
 			] );
 
@@ -132,7 +132,7 @@ class Archive extends Controller
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
-					'single'     => $single,
+					'archive'    => $archive,
 					'collection' => $collection,
 					'type'       => $type,
 					'parent'     => $parent

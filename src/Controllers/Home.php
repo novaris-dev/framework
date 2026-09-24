@@ -41,8 +41,8 @@ class Home extends Controller
 		if ( $type && $collect ) {
 			$page = intval( $params['page'] ?? 1 );
 
-			// Query single content type.
-			$single = Query::make( [
+			// Query homepage content type.
+			$home = Query::make( [
 				'path' => $type->path(),
 				'slug' => 'index'
 			] )->single();
@@ -50,16 +50,16 @@ class Home extends Controller
 			// Merge default collection query args with user-defined args.
 			$query_args = array_merge(
 				$type->collectionArgs(),
-				$single ? $single->collectionArgs() : []
+				$home ? $home->collectionArgs() : []
 			);
 
 			$query_args['number'] = $query_args['number'] ?? 10;
 			$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 
-			$collection = Query::make( $query_args );
+			$entries = Query::make( $query_args );
 
-			// Render if single and collection exist.
-			if ( $single && $collection->all() ) {
+			// Render if home and entries exist.
+			if ( $home && $entries->all() ) {
 
 				// Set the current request context.
 				$this->context( 'home' );
@@ -69,17 +69,17 @@ class Home extends Controller
 				$pagination = new Pagination( [
 					'basepath' => '',
 					'current'  => $page,
-					'total'    => $collection->pages()
+					'total'    => $entries->pages()
 				] );
 
 				return $this->response( $this->view(
 					'index',
-					Hierarchy::collectionHome( $single ),
+					Hierarchy::collectionHome( $home ),
 					[
 						'doctitle'   => $doctitle,
 						'pagination' => $pagination,
-						'single'     => $single,
-						'collection' => $collection,
+						'home'       => $home,
+						'entries'    => $entries,
 						'type'       => $type
 					]
 				) );
@@ -87,25 +87,25 @@ class Home extends Controller
 		}
 
 		// Query homepage index file.
-		$single = Query::make( [ 'slug' => 'index' ] )->single();
+		$home = Query::make( [ 'slug' => 'index' ] )->single();
 
-		if ( $single && $single->isPublic() ) {
+		if ( $home && $home->isPublic() ) {
 
 			// Set the current request context.
 			$this->context( 'home' );
 
-			$collection = $single->collectionArgs()
-				? Query::make( $single->collectionArgs() )
+			$entries = $home->collectionArgs()
+				? Query::make( $home->collectionArgs() )
 				: null;
 
 			return $this->response( $this->view(
 				'index',
-				Hierarchy::singleHome( $single ),
+				Hierarchy::singleHome( $home ),
 				[
 					'doctitle'   => new DocumentTitle(),
 					'pagination' => null,
-					'single'     => $single,
-					'collection' => $collection,
+					'home'       => $home,
+					'entries'    => $entries,
 					'type'       => null
 				]
 			) );

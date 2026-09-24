@@ -29,14 +29,14 @@ class Error404 extends Controller
 		// Set the current request context.
 		$this->context( '404' );
 
-		$single = Query::make( [
+		$error = Query::make( [
 			'path' => '_error',
 			'slug' => '404'
 		] )->single();
 
 		// Create a virtual entry if no user-provided entry.
-		if ( ! $single ) {
-			$single = new Virtual( [
+		if ( ! $error ) {
+			$error = new Virtual( [
 				'meta'    => [ 'title' => 'Nothing Found' ],
 				'content' => '<p>Sorry, nothing was found here.</p>',
 			] );
@@ -46,9 +46,9 @@ class Error404 extends Controller
 			'index',
 			Hierarchy::error404(),
 			[
-				'doctitle'   => new DocumentTitle( $single->title() ),
+				'doctitle'   => new DocumentTitle( $error->title() ),
 				'pagination' => false,
-				'single'     => $single,
+				'error'      => $error,
 				'collection' => false,
 				'type'       => null
 			]

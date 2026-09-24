@@ -47,7 +47,7 @@ class Collection extends Controller
 		}
 
 		// Query the content type's index file.
-		$single = Query::make( [
+		$collection = Query::make( [
 			'path' => $type->path(),
 			'slug' => 'index'
 		] )->single();
@@ -56,39 +56,39 @@ class Collection extends Controller
 		// with user query args.
 		$query_args = array_merge(
 			$type->collectionArgs(),
-			$single ? $single->collectionArgs() : []
+			$collection ? $collection->collectionArgs() : []
 		);
 
 		// Set required variables for the query.
 		$query_args['number'] = $query_args['number'] ?? 10;
 		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 
-		// Query the content type collection.
-		$collection = Query::make( $query_args );
+		// Query the content type collection entries.
+		$entries = Query::make( $query_args );
 
-		if ( $single && $collection->hasEntries() ) {
+		if ( $collection && $entries->hasEntries() ) {
 
 			// Set the current request context.
 			$this->context( 'collection' );
 
-			$doctitle = new DocumentTitle( $single->title(), [
+			$doctitle = new DocumentTitle( $collection->title(), [
 				'page' => $page
 			] );
 
 			$pagination = new Pagination( [
 				'basepath' => $path,
 				'current'  => $page,
-				'total'    => $collection->pages()
+				'total'    => $entries->pages()
 			] );
 
 			return $this->response( $this->view(
 				'index',
-				Hierarchy::collection( $single ),
+				Hierarchy::collection( $collection ),
 				[
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
-					'single'     => $single,
 					'collection' => $collection,
+					'entries'    => $entries,
 					'type'       => $type
 				]
 			) );

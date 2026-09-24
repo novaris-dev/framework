@@ -57,7 +57,7 @@ class Taxonomy extends Controller
 		}
 
 		// Query the taxonomy term.
-		$single = Query::make( [
+		$term = Query::make( [
 			'path' => $type->path(),
 			'slug' => $name
 		] )->single();
@@ -79,44 +79,44 @@ class Taxonomy extends Controller
 		// with user-defined collection args.
 		$query_args = array_merge(
 			$type->termCollectionArgs(),
-			$single ? $single->collectionArgs() : []
+			$term ? $term->collectionArgs() : []
 		);
 
 		// Set required variables for the query.
 		$query_args['number'] = $query_args['number'] ?? 10;
 		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 
-		// Query the taxonomy term's content collection.
-		$collection = Query::make( array_merge( $query_args, [
+		// Query the taxonomy term's content entries.
+		$entries = Query::make( array_merge( $query_args, [
 			'meta_key'   => $type->type(),
 			'meta_value' => $name
 		] ) );
 
-		if ( $single && $single->isPublic() && $collection->all() ) {
+		if ( $term && $term->isPublic() && $entries->all() ) {
 
 			// Set the current request context.
 			$this->context( 'taxonomy' );
 
-			$doctitle = new DocumentTitle( $single->title(), [
+			$doctitle = new DocumentTitle( $term->title(), [
 				'page' => $page
 			] );
 
 			$pagination = new Pagination( [
 				'basepath' => $path,
 				'current'  => $page,
-				'total'    => $collection->pages()
+				'total'    => $entries->pages()
 			] );
 
 			return $this->response( $this->view(
 				'index',
-				Hierarchy::taxonomy( $single ),
+				Hierarchy::taxonomy( $term ),
 				[
-					'doctitle'   => $doctitle,
-					'pagination' => $pagination,
-					'single'     => $single,
-					'collection' => $collection,
-					'type'       => $type,
-					'parent'     => $parent,
+					'doctitle'    => $doctitle,
+					'pagination'  => $pagination,
+					'term'        => $term,
+					'entries'     => $entries,
+					'type'        => $type,
+					'parent'      => $parent,
 					'parent_type' => $parent_type
 				]
 			) );
