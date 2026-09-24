@@ -573,6 +573,17 @@ class Exporter
 	 */
 	protected function rewriteUrls( string $content ): string
 	{
+		$theme = basename(
+			App::resolve( 'app' )->themePath()
+		);
+
+		// Rewrite theme asset paths for the static export.
+		$content = str_replace(
+			"/themes/{$theme}/public/assets/",
+			'/public/assets/',
+			$content
+		);
+
 		if ( ! $this->url ) {
 			return $content;
 		}
