@@ -5,7 +5,7 @@
  * Developers can pass an array of data to the constructor with keys matching
  * the class properties to set up a virtual entry. This is primarily useful for
  * creating the `$single` entry object for routed URIs that do not exist in the
- * filesystem.  For example, custom date-based archive pages.
+ * filesystem. For example, custom date-based archive pages.
  *
  * @package   Novaris
  * @author    Benjamin Lu <benlumia007@gmail.com>
@@ -16,11 +16,25 @@
 
 namespace Novaris\Content\Entry;
 
-use Novaris\Core\Proxies\App;
 use Novaris\Contracts\Content\ContentType;
+use Novaris\Core\Proxies\App;
 
 class Virtual extends Entry
 {
+	/**
+	 * Virtual entry name.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $name = '';
+
+	/**
+	 * Virtual entry URL.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $url = '';
+
 	/**
 	 * Sets up the object state.
 	 *
@@ -52,16 +66,16 @@ class Virtual extends Entry
 	 */
 	public function name(): string
 	{
-		return '';
+		return $this->name;
 	}
 
 	/**
 	 * Returns the entry URL.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function url(): string
 	{
-		return '';
+		return $this->url;
 	}
 }

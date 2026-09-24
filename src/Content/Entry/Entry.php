@@ -15,7 +15,7 @@ namespace Novaris\Content\Entry;
 use Novaris\Contracts\Content\{ContentEntry, ContentQuery, ContentType};
 
 // Concretes.
-use Novaris\Core\Proxies\{App, Config, Query, Url};
+use Novaris\Core\Proxies\{App, Config, Query};
 use Novaris\Tools\{Media, Str};
 
 abstract class Entry implements ContentEntry
@@ -168,6 +168,7 @@ abstract class Entry implements ContentEntry
 	public function metaSingle( string $name, mixed $default = false ): mixed
 	{
 		$meta = $this->meta( $name, $default );
+
 		return $meta && is_array( $meta ) ? array_shift( $meta ) : $meta;
 	}
 
@@ -287,13 +288,21 @@ abstract class Entry implements ContentEntry
 	/**
 	 * Returns the entry author.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function author(): Entry|false
 	{
 		if ( $meta = $this->metaSingle( 'author' ) ) {
+			$author = sanitize_slug( (string) $meta );
+
 			return new Virtual( [
-				'meta' => [ 'title' => (string) $meta ]
+				'name' => $author,
+				'url'  => route( 'author', [
+					'author' => $author
+				] ),
+				'meta' => [
+					'title' => (string) $meta
+				]
 			] );
 		}
 
@@ -402,6 +411,7 @@ abstract class Entry implements ContentEntry
 	public function hasTaxonomy( string $taxonomy ): bool
 	{
 		$taxonomies = $this->taxonomies();
+
 		return isset( $taxonomies[ $taxonomy ] );
 	}
 
@@ -425,6 +435,7 @@ abstract class Entry implements ContentEntry
 	public function hasTerm( string $taxonomy, string $term ): bool
 	{
 		$terms = $this->terms( $taxonomy );
+
 		return $terms ? $terms->has( $term ) : false;
 	}
 
