@@ -29,10 +29,12 @@ class Author extends Controller
 		$author = $params['author'] ?? '';
 		$page   = intval( $params['page'] ?? 1 );
 
+		// If there is no author, bail early.
 		if ( ! $author ) {
 			return $this->forward404( $params, $request );
 		}
 
+		// Get the post content type.
 		$types = App::resolve( 'content.types' );
 		$type  = $types->get( 'post' );
 
@@ -40,13 +42,15 @@ class Author extends Controller
 			return $this->forward404( $params, $request );
 		}
 
+		// Get the content type collection vars.
 		$query_args = $type->collectionArgs();
 
-		$query_args['number']     = $query_args['number'] ?? 10;
-		$query_args['offset']     = $query_args['number'] * ( $page - 1 );
-		$query_args['meta_key']   = 'author';
-		$query_args['meta_value'] = $author;
+		// Set required variables for the query.
+		$query_args['number'] = $query_args['number'] ?? 10;
+		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
+		$query_args['author'] = $author;
 
+		// Create a virtual entry for the author archive.
 		$single = new Virtual( [
 			'content' => '',
 			'meta'    => [
@@ -54,6 +58,7 @@ class Author extends Controller
 			]
 		] );
 
+		// Query the author collection.
 		$collection = Query::make( $query_args );
 
 		if ( $collection->all() ) {
@@ -61,12 +66,9 @@ class Author extends Controller
 			// Set the current request context.
 			$this->context( 'author' );
 
-			$doctitle = new DocumentTitle(
-				$single->title(),
-				[
-					'page' => $page
-				]
-			);
+			$doctitle = new DocumentTitle( $single->title(), [
+				'page' => $page
+			] );
 
 			$pagination = new Pagination( [
 				'basepath' => "author/{$author}",
@@ -87,6 +89,7 @@ class Author extends Controller
 			) );
 		}
 
+		// If all else fails, return a 404.
 		return $this->forward404( $params, $request );
 	}
 }
