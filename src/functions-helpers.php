@@ -582,9 +582,7 @@ if ( ! function_exists( 'asset' ) ) {
 	{
 		static $manifest = null;
 
-		$private   = config( 'app.private' );
-		$exporting = app()->bound( 'exporting' )
-			&& app( 'exporting' );
+		$private = config( 'app.private' );
 
 		if ( $private ) {
 			$manifest_file = public_path( 'assets/manifest.json' );
@@ -615,7 +613,7 @@ if ( ! function_exists( 'asset' ) ) {
 
 		$file = ltrim( $manifest[ $entry ]['file'], '/' );
 
-		if ( $private || $exporting ) {
+		if ( $private ) {
 			return public_url( 'assets/' . $file );
 		}
 
