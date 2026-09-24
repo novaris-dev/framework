@@ -71,9 +71,9 @@ class Author extends Controller
 		}
 
 		// Query the author collection.
-		$collection = Query::make( $query_args );
+		$entries = Query::make( $query_args );
 
-		if ( $collection->all() ) {
+		if ( $entries->all() ) {
 
 			// Set the current request context.
 			$this->context( 'author' );
@@ -85,7 +85,7 @@ class Author extends Controller
 			$pagination = new Pagination( [
 				'basepath' => "author/{$author_slug}",
 				'current'  => $page,
-				'total'    => $collection->pages()
+				'total'    => $entries->pages()
 			] );
 
 			return $this->response( $this->view(
@@ -95,7 +95,8 @@ class Author extends Controller
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'author'     => $author,
-					'collection' => $collection,
+					'archive'    => $author,
+					'entries'    => $entries,
 					'type'       => $type
 				]
 			) );

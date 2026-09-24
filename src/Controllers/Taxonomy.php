@@ -114,6 +114,7 @@ class Taxonomy extends Controller
 					'doctitle'    => $doctitle,
 					'pagination'  => $pagination,
 					'term'        => $term,
+					'archive'     => $term,
 					'entries'     => $entries,
 					'type'        => $type,
 					'parent'      => $parent,
