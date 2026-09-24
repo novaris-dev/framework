@@ -29,16 +29,33 @@ class Error404 extends Controller
 		// Set the current request context.
 		$this->context( '404' );
 
+		// Query the user-provided 404 entry.
 		$error = Query::make( [
 			'path' => '_error',
 			'slug' => '404'
 		] )->single();
 
-		// Create a virtual entry if no user-provided entry.
+		// Create a virtual entry if no user-provided entry exists.
 		if ( ! $error ) {
+			$messages = [
+				'Well, this is awkward. There’s nothing here.',
+				'This page wandered off somewhere.',
+				'Nothing here but digital tumbleweeds.',
+				'You found the void. Congratulations!',
+				'This page has left the building.',
+				'Looks like this page got lost somewhere in the framework.',
+				'We looked everywhere. Still nothing.',
+				'Plot twist: this page doesn’t exist.',
+			];
+
 			$error = new Virtual( [
-				'meta'    => [ 'title' => 'Nothing Found' ],
-				'content' => '<p>Sorry, nothing was found here.</p>',
+				'meta' => [
+					'title' => 'Nothing Found'
+				],
+				'content' => sprintf(
+					'<p>%s</p>',
+					$messages[ array_rand( $messages ) ]
+				)
 			] );
 		}
 
