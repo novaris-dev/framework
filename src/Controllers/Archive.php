@@ -109,9 +109,9 @@ class Archive extends Controller
 		] )->single();
 
 		// Query the content type collection.
-		$collection = Query::make( $query_args );
+		$entries = Query::make( $query_args );
 
-		if ( $collection->all() ) {
+		if ( $entries->all() ) {
 
 			// Set the current request context.
 			$this->context( 'archive' );
@@ -123,7 +123,7 @@ class Archive extends Controller
 			$pagination = new Pagination( [
 				'basepath' => $basepath,
 				'current'  => $page,
-				'total'    => $collection->pages()
+				'total'    => $entries->pages()
 			] );
 
 			return $this->response( $this->view(
@@ -133,7 +133,7 @@ class Archive extends Controller
 					'doctitle'   => $doctitle,
 					'pagination' => $pagination,
 					'archive'    => $archive,
-					'collection' => $collection,
+					'entries'    => $entries,
 					'type'       => $type,
 					'parent'     => $parent
 				]
