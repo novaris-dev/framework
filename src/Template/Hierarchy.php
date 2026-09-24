@@ -84,11 +84,11 @@ class Hierarchy
 		$type_name  = $entry->type()->name();
 		$model_name = static::modelName( $entry->type() );
 
-		return [
+		return array_merge( $entry->viewPaths(), [
 			"collection-{$type_name}",
 			"collection-{$model_name}",
 			'collection',
-		];
+		] );
 	}
 
 	/**
@@ -113,11 +113,11 @@ class Hierarchy
 		$entry_name = $entry->name();
 		$type_name  = $entry->type()->name();
 
-		return [
+		return array_merge( $entry->viewPaths(), [
 			"{$type_name}-{$entry_name}",
 			$type_name,
 			'archive'
-		];
+		] );
 	}
 
 	/**
