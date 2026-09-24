@@ -156,6 +156,18 @@ if ( ! function_exists( 'is_archive' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_author' ) ) {
+	/**
+	 * Determines whether the current request is an author archive.
+	 *
+	 * @since 1.0.0
+	 */
+	function is_author(): bool
+	{
+		return app( 'routing.context' )->isAuthor();
+	}
+}
+
 if ( ! function_exists( 'is_404' ) ) {
 	/**
 	 * Determines whether the current request is a 404 page.
@@ -200,6 +212,10 @@ if ( ! function_exists( 'body_class' ) ) {
 			$classes[] = 'archive';
 		}
 
+		if ( is_author() ) {
+			$classes[] = 'author';
+		}
+
 		if ( is_404() ) {
 			$classes[] = 'error-404';
 		}
@@ -207,7 +223,6 @@ if ( ! function_exists( 'body_class' ) ) {
 		return implode( ' ', array_unique( $classes ) );
 	}
 }
-
 
 if ( ! function_exists( 'post_class' ) ) {
 	/**
