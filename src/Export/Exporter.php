@@ -555,6 +555,7 @@ class Exporter
 
 		$content = (string) $response->getContent();
 
+		// Rewrite URLs in the exported HTML only.
 		$content = $this->rewriteUrls( $content );
 
 		$this->write(
@@ -572,44 +573,38 @@ class Exporter
 	 */
 	protected function rewriteUrls( string $content ): string
 	{
-		$content = $this->rewriteAssetUrls( $content );
-
-		if ( ! $this->url ) {
-			return $content;
-		}
-
-		$configuredUrl = rtrim(
+		$configured_url = rtrim(
 			App::resolve( 'url' ),
 			'/'
 		);
 
-		if ( ! $configuredUrl || $configuredUrl === $this->url ) {
-			return $content;
-		}
+		$export_url = $this->url ?: $configured_url;
 
-		return str_replace(
-			$configuredUrl,
-			$this->url,
-			$content
-		);
-	}
-
-	/**
-	 * Rewrites dynamic theme asset URLs for the static export.
-	 *
-	 * @since 1.0.0
-	 */
-	protected function rewriteAssetUrls( string $content ): string
-	{
 		$theme = basename(
 			App::resolve( 'app' )->themePath()
 		);
 
-		return str_replace(
-			"/themes/{$theme}/public/assets/",
-			'/public/assets/',
+		// Rewrite theme asset URLs for the static export.
+		$content = str_replace(
+			"{$configured_url}/themes/{$theme}/public/assets/",
+			"{$export_url}/public/assets/",
 			$content
 		);
+
+		// Rewrite remaining site URLs when an export URL is provided.
+		if (
+			$this->url
+			&& $configured_url
+			&& $configured_url !== $this->url
+		) {
+			$content = str_replace(
+				$configured_url,
+				$this->url,
+				$content
+			);
+		}
+
+		return $content;
 	}
 
 	/**
