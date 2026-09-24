@@ -26,7 +26,7 @@ class Author extends Controller
 	 */
 	public function __invoke( array $params, Request $request ): Response
 	{
-		$author = $params['author'] ?? '';
+		$author = sanitize_slug( $params['author'] ?? '' );
 		$page   = intval( $params['page'] ?? 1 );
 
 		// If there is no author, bail early.
@@ -50,17 +50,25 @@ class Author extends Controller
 		$query_args['offset'] = $query_args['number'] * ( $page - 1 );
 		$query_args['author'] = $author;
 
-		// Create a virtual entry for the author archive.
-		$single = new Virtual( [
-			'name'    => $author,
-			'url'     => route( 'author', [
-				'author' => $author
-			] ),
-			'content' => '',
-			'meta'    => [
-				'title' => $author
-			]
-		] );
+		// Query the author profile.
+		$single = Query::make( [
+			'path' => '_authors',
+			'slug' => $author
+		] )->single();
+
+		// Fall back to a virtual author if no profile exists.
+		if ( ! $single ) {
+			$single = new Virtual( [
+				'name'    => $author,
+				'url'     => route( 'author', [
+					'author' => $author
+				] ),
+				'content' => '',
+				'meta'    => [
+					'title' => $author
+				]
+			] );
+		}
 
 		// Query the author collection.
 		$collection = Query::make( $query_args );
