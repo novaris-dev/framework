@@ -52,6 +52,10 @@ class Author extends Controller
 
 		// Create a virtual entry for the author archive.
 		$single = new Virtual( [
+			'name'    => $author,
+			'url'     => route( 'author', [
+				'author' => $author
+			] ),
 			'content' => '',
 			'meta'    => [
 				'title' => $author
