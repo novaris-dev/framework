@@ -153,11 +153,11 @@ interface ContentEntry {
 	public function media( string $name = 'image' ): Media|null;
 
 	/**
-	 * Returns the entry featured image.
+	 * Returns the entry thumbnail.
 	 *
 	 * @since 1.0.0
 	 */
-	public function featuredImage(): Media|null;
+	public function thumbnail(): Media|null;
 
 	/**
 	 * Returns an array of view paths assigned as metadata.
