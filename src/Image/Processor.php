@@ -39,18 +39,32 @@ class Processor
 	}
 
 	/**
-	 * Processes an image.
+	 * Processes an image using a registered image size.
 	 *
 	 * @since 1.0.0
 	 */
 	public function process(
 		Media $media,
 		string $destination,
-		int $width,
-		int $height,
-		bool $crop = false
+		string $size
 	): void {
 		if ( ! $media->isValid() || ! $media->hasType( 'image' ) ) {
+			return;
+		}
+
+		$options = config(
+			"app.supports.featured-image.sizes.{$size}"
+		);
+
+		if ( ! is_array( $options ) ) {
+			return;
+		}
+
+		$width  = (int) ( $options['width'] ?? 0 );
+		$height = (int) ( $options['height'] ?? 0 );
+		$crop   = (bool) ( $options['crop'] ?? false );
+
+		if ( ! $width || ! $height ) {
 			return;
 		}
 
