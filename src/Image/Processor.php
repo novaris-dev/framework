@@ -33,8 +33,8 @@ class Processor
 	 */
 	public function __construct()
 	{
-		$this->manager = ImageManager::usingDriver(
-			Driver::class
+		$this->manager = new ImageManager(
+			new Driver()
 		);
 	}
 
@@ -54,7 +54,7 @@ class Processor
 			return;
 		}
 
-		$image = $this->manager->decodePath(
+		$image = $this->manager->read(
 			$media->path()
 		);
 
