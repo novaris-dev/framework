@@ -9,31 +9,35 @@
  * @license   https://www.gnu.org/licenses/gpl-2.0.html
  */
 namespace Novaris\Content\Entry;
-// Abstracts.
+
 use Novaris\Contracts\Content\{ContentEntry, ContentQuery, ContentType};
-// Concretes.
 use Novaris\Core\Proxies\{App, Config, Query};
 use Novaris\Tools\{Media, Str};
+
 abstract class Entry implements ContentEntry
 {
+
 	/**
 	 * Entry content type.
 	 *
 	 * @since 1.0.0
 	 */
 	protected ?ContentType $type = null;
+
 	/**
 	 * Entry content.
 	 *
 	 * @since 1.0.0
 	 */
 	protected string $content = '';
+
 	/**
 	 * Stores the entry metadata (front matter).
 	 *
 	 * @since 1.0.0
 	 */
 	protected array $meta = [];
+
 	/**
 	 * Resolved metadata, which represent content type relationships, such
 	 * as taxonomy terms.
@@ -41,33 +45,38 @@ abstract class Entry implements ContentEntry
 	 * @since 1.0.0
 	 */
 	protected array $resolved_meta = [];
+
 	/**
 	 * Stores the taxonomies associated with the entry.
 	 *
 	 * @since 1.0.0
 	 */
 	protected array $taxonomies = [];
+
 	/**
 	 * Entry path info.
 	 *
 	 * @since 1.0.0
 	 */
 	protected array $pathinfo = [];
+
 	/**
 	 * Returns the entry type.
 	 *
 	 * @since 1.0.0
 	 */
 	abstract public function type(): ContentType;
+
 	/**
 	 * Returns the entry name (slug).
 	 *
 	 * @since 1.0.0
 	 */
 	abstract public function name(): string;
+
 	/**
 	 * Returns a post's visibility. Currently, the API allows for
-	 * \`public\` and \`hidden\`.
+	 * `public` and `hidden`.
 	 *
 	 * @since 1.0.0
 	 */
@@ -81,6 +90,7 @@ abstract class Entry implements ContentEntry
 		}
 		return 'public';
 	}
+
 	/**
 	 * Checks if an entry is viewable to the public.
 	 *
@@ -90,6 +100,7 @@ abstract class Entry implements ContentEntry
 	{
 		return 'public' === $this->visibility();
 	}
+
 	/**
 	 * Checks if an entry is hidden from the public.
 	 *
@@ -99,12 +110,14 @@ abstract class Entry implements ContentEntry
 	{
 		return 'hidden' === $this->visibility();
 	}
+
 	/**
 	 * Returns the entry URL.
 	 *
 	 * @since 1.0.0
 	 */
 	abstract public function url(): string;
+
 	/**
 	 * Returns the entry URL.
 	 *
@@ -115,6 +128,7 @@ abstract class Entry implements ContentEntry
 	{
 		return $this->url();
 	}
+
 	/**
 	 * Returns the entry content.
 	 *
@@ -124,6 +138,7 @@ abstract class Entry implements ContentEntry
 	{
 		return $this->content;
 	}
+
 	/**
 	 * Returns entry metadata.
 	 *
@@ -138,6 +153,7 @@ abstract class Entry implements ContentEntry
 		}
 		return $this->meta;
 	}
+
 	/**
 	 * Returns only a single meta value. Shifts and returns the first value
 	 * if the metadata is an array.
@@ -149,6 +165,7 @@ abstract class Entry implements ContentEntry
 		$meta = $this->meta( $name, $default );
 		return $meta && is_array( $meta ) ? array_shift( $meta ) : $meta;
 	}
+
 	/**
 	 * Ensures that an array of meta values is returned.
 	 *
@@ -161,6 +178,7 @@ abstract class Entry implements ContentEntry
 		}
 		return is_array( $meta ) ? $meta : (array) $meta;
 	}
+
 	/**
 	 * Returns a ContentQuery for content type entries stored in the current
 	 * entry's metadata.
@@ -186,6 +204,7 @@ abstract class Entry implements ContentEntry
 		// Return the resolved meta.
 		return $this->resolved_meta[ $name ];
 	}
+
 	/**
 	 * Returns the entry title.
 	 *
@@ -195,6 +214,7 @@ abstract class Entry implements ContentEntry
 	{
 		return (string) $this->metaSingle( 'title' );
 	}
+
 	/**
 	 * Returns the entry subtitle.
 	 *
@@ -204,6 +224,7 @@ abstract class Entry implements ContentEntry
 	{
 		return (string) $this->metaSingle( 'subtitle' );
 	}
+
 	/**
 	 * Returns the entry published datetime.
 	 *
@@ -213,6 +234,7 @@ abstract class Entry implements ContentEntry
 	{
 		return $this->date( 'published', $format );
 	}
+
 	/**
 	 * Returns the entry updated datetime.
 	 *
@@ -227,6 +249,7 @@ abstract class Entry implements ContentEntry
 		// Fall back to published meta if it exists.
 		return $this->published( $format );
 	}
+
 	/**
 	 * Returns a formatted entry date by meta key name.
 	 *
@@ -237,7 +260,7 @@ abstract class Entry implements ContentEntry
 		$format = $format ?: Config::get( 'app.date_format' );
 		// Get the date by meta key name.
 		$date = $this->metaSingle( $name );
-		// Back-compat check for older \`date\` meta key.
+		// Back-compat check for older `date` meta key.
 		if ( ! $date && 'published' === $name ) {
 			$date = $this->metaSingle( 'date' );
 		}
@@ -245,6 +268,7 @@ abstract class Entry implements ContentEntry
 			   ? date( $format, is_numeric( $date ) ? $date : strtotime( $date ) )
 			   : '';
 	}
+
 	/**
 	 * Returns the entry author.
 	 *
@@ -275,6 +299,7 @@ abstract class Entry implements ContentEntry
 			]
 		] );
 	}
+
 	/**
 	 * Returns the entry authors.
 	 *
@@ -284,9 +309,10 @@ abstract class Entry implements ContentEntry
 	{
 		return $this->metaArr( 'author' );
 	}
+
 	/**
 	 * Returns a media object based on a media file path stored as metadata.
-	 * Note: pass in the meta key for the \`$name\` and not the media type.
+	 * Note: pass in the meta key for the `$name` and not the media type.
 	 *
 	 * @since 1.0.0
 	 */
@@ -299,6 +325,7 @@ abstract class Entry implements ContentEntry
 		$media = new Media( $meta );
 		return $media->isValid() ? $media : null;
 	}
+
 	/**
 	 * Returns the entry thumbnail.
 	 *
@@ -317,6 +344,7 @@ abstract class Entry implements ContentEntry
 			$size
 		);
 	}
+
 	/**
 	 * Returns an array of view paths assigned as metadata.
 	 *
@@ -332,6 +360,7 @@ abstract class Entry implements ContentEntry
 			)
 		);
 	}
+
 	/**
 	 * Returns an array of Query arguments if assigned as metadata.
 	 *
@@ -345,6 +374,7 @@ abstract class Entry implements ContentEntry
 		$is_associative = array_keys( $keys ) !== $keys;
 		return $is_associative ? $collection : [];
 	}
+
 	/**
 	 * Returns an array of the taxonomy (content type) objects associated
 	 * with the entry.
@@ -363,6 +393,7 @@ abstract class Entry implements ContentEntry
 		}
 		return $this->taxonomies;
 	}
+
 	/**
 	 * Conditional check if the entry is associated with a taxonomy.
 	 *
@@ -373,6 +404,7 @@ abstract class Entry implements ContentEntry
 		$taxonomies = $this->taxonomies();
 		return isset( $taxonomies[ $taxonomy ] );
 	}
+
 	/**
 	 * Returns a Query of taxonomy entries or false.
 	 *
@@ -384,6 +416,7 @@ abstract class Entry implements ContentEntry
 			   ? $this->metaQuery( $taxonomy, $args )
 			   : false;
 	}
+
 	/**
 	 * Conditional check if the entry has a term from a specific taxonomy.
 	 *
@@ -394,6 +427,7 @@ abstract class Entry implements ContentEntry
 		$terms = $this->terms( $taxonomy );
 		return $terms ? $terms->has( $term ) : false;
 	}
+
 	/**
 	 * Returns the entry excerpt.
 	 *
@@ -406,7 +440,7 @@ abstract class Entry implements ContentEntry
 				$content
 			)->content();
 		}
-		// Remove \`<figcaption>\` so that its text isn't in the excerpt.
+		// Remove `<figcaption>` so that its text isn't in the excerpt.
 		$content = preg_replace(
 			"/<figcaption.*?>(.*?)<\/figcaption>/i",
 			"",
@@ -418,6 +452,7 @@ abstract class Entry implements ContentEntry
 			$more
 		) );
 	}
+
 	/**
 	 * Returns an estimated reading time in hours (if an hour or longer) and
 	 * minutes.
@@ -428,6 +463,7 @@ abstract class Entry implements ContentEntry
 	{
 		return Str::readingTime( $this->content(), $words_per_min );
 	}
+
 	/**
 	 * Returns the entry name when it's used as a string.
 	 *
