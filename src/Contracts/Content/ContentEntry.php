@@ -157,7 +157,7 @@ interface ContentEntry {
 	 *
 	 * @since 1.0.0
 	 */
-	public function thumbnail(): Media|null;
+	public function thumbnail( string $size = '' ): Media|null;
 
 	/**
 	 * Returns an array of view paths assigned as metadata.
