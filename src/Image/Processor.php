@@ -45,11 +45,10 @@ class Processor
 	 */
 	public function process(
 		Media $media,
-		string $destination,
 		string $size
-	): void {
+	): ?Media {
 		if ( ! $media->isValid() || ! $media->hasType( 'image' ) ) {
-			return;
+			return null;
 		}
 
 		$options = config(
@@ -57,7 +56,7 @@ class Processor
 		);
 
 		if ( ! is_array( $options ) ) {
-			return;
+			return null;
 		}
 
 		$width  = (int) ( $options['width'] ?? 0 );
@@ -65,22 +64,40 @@ class Processor
 		$crop   = (bool) ( $options['crop'] ?? false );
 
 		if ( ! $width || ! $height ) {
-			return;
+			return null;
 		}
 
-		$image = $this->manager->read(
-			$media->path()
+		$pathinfo = pathinfo( $media->path() );
+
+		$filename = sprintf(
+			'%s-%dx%d.%s',
+			$pathinfo['filename'],
+			$width,
+			$height,
+			$pathinfo['extension']
 		);
 
-		if ( $crop ) {
-			$image->cover( $width, $height );
-		} else {
-			$image->scaleDown(
-				width: $width,
-				height: $height
+		$destination = $pathinfo['dirname']
+			. DIRECTORY_SEPARATOR
+			. $filename;
+
+		if ( ! is_file( $destination ) ) {
+			$image = $this->manager->read(
+				$media->path()
 			);
+
+			if ( $crop ) {
+				$image->cover( $width, $height );
+			} else {
+				$image->scaleDown(
+					width: $width,
+					height: $height
+				);
+			}
+
+			$image->save( $destination );
 		}
 
-		$image->save( $destination );
+		return new Media( $destination );
 	}
 }
