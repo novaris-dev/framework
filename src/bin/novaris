@@ -34,7 +34,7 @@ switch ( $command ) {
 		$app = new Application( $path );
 		$app->boot();
 
-		$app->make( 'cache' )->purge();
+		\Novaris\Cache::purge();
 
 		echo 'Cache cleared successfully.' . PHP_EOL;
 		break;
