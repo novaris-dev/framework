@@ -65,10 +65,13 @@ class Component implements Bootable
 	 */
 	public function boot(): void
 	{
-		foreach ( $this->config as $id ) {
-			$options = $this->catalog->get( $id );
+		foreach ( $this->config as $id => $options ) {
+			if ( is_int( $id ) ) {
+				$id      = $options;
+				$options = $this->catalog->get( $id );
+			}
 
-			if ( ! $options ) {
+			if ( ! is_string( $id ) || ! is_array( $options ) ) {
 				continue;
 			}
 
