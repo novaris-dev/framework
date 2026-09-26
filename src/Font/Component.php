@@ -65,10 +65,6 @@ class Component implements Bootable
 	 */
 	public function boot(): void
 	{
-
-		var_dump( $this->config );
-	exit;
-
 		foreach ( $this->config as $id ) {
 			$options = $this->catalog->get( $id );
 
