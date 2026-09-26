@@ -233,7 +233,7 @@ class Application extends Container implements ApplicationContract, Bootable
 
 				$this['config']->set(
 					'app',
-					array_replace_recursive(
+					array_replace(
 						$defaults,
 						$overrides
 					)
