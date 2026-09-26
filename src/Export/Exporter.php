@@ -134,6 +134,12 @@ class Exporter
 			$this->path . '/public/assets'
 		);
 
+		// Copy user media.
+		$this->copyDirectory(
+			App::resolve( 'path.media' ),
+			$this->path . '/user/media'
+		);
+
 		return $this->exported;
 	}
 
