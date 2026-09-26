@@ -23,7 +23,7 @@ function fonts(): void
 	$families = [];
 
 	foreach ( app( 'fonts' ) as $font ) {
-		if ( ! $font->isGoogle() ) {
+		if ( ! $font instanceof Font || ! $font->isGoogle() ) {
 			continue;
 		}
 
