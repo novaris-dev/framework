@@ -201,8 +201,9 @@ class Application extends Container implements ApplicationContract, Bootable
 		// Add config path early (cannot change).
 		$this->instance( 'path.config', Str::appendPath( $this['path'], 'config' ) );
 
-		// Loop through user-supplied config files and set the data.
-		foreach ( [ 'app', 'cache', 'content', 'fonts', 'markdown', 'template' ] as $type ) {
+		// Load site configuration. Theme-owned configuration is loaded
+		// separately from the active theme.
+		foreach ( [ 'app', 'cache', 'content', 'markdown' ] as $type ) {
 			$filepath = Str::appendPath( $this['path.config'], "{$type}.php" );
 
 			if ( file_exists( $filepath ) ) {
@@ -215,9 +216,14 @@ class Application extends Container implements ApplicationContract, Bootable
 		// Load the active theme app configuration as defaults and allow the
 		// application app configuration to override those values.
 		if ( ! $this['config']->get( 'app.private', false ) && $theme ) {
-			$themeConfig = Str::appendPath(
+			$themeConfigPath = Str::appendPath(
 				$this['path'],
-				"themes/{$theme}/config/app.php"
+				"themes/{$theme}/config"
+			);
+
+			$themeAppConfig = Str::appendPath(
+				$themeConfigPath,
+				'app.php'
 			);
 
 			$appConfig = Str::appendPath(
@@ -225,8 +231,8 @@ class Application extends Container implements ApplicationContract, Bootable
 				'app.php'
 			);
 
-			if ( file_exists( $themeConfig ) ) {
-				$defaults  = include $themeConfig;
+			if ( file_exists( $themeAppConfig ) ) {
+				$defaults  = include $themeAppConfig;
 				$overrides = file_exists( $appConfig )
 					? include $appConfig
 					: [];
@@ -238,6 +244,27 @@ class Application extends Container implements ApplicationContract, Bootable
 						$overrides
 					)
 				);
+			}
+
+			// Load configuration owned by the active theme.
+			foreach ( [ 'fonts', 'template' ] as $type ) {
+				$filepath = Str::appendPath(
+					$themeConfigPath,
+					"{$type}.php"
+				);
+
+				if ( file_exists( $filepath ) ) {
+					$this['config']->set( $type, include $filepath );
+				}
+			}
+		} else {
+			// Private applications own their theme configuration.
+			foreach ( [ 'fonts', 'template' ] as $type ) {
+				$filepath = Str::appendPath( $this['path.config'], "{$type}.php" );
+
+				if ( file_exists( $filepath ) ) {
+					$this['config']->set( $type, include $filepath );
+				}
 			}
 		}
 
