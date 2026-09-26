@@ -58,14 +58,7 @@ switch ( $command ) {
 
 		$app = new Application( $path );
 		$app->boot();
-
-		var_dump(
-			env( 'APP_URL' ),
-			config( 'app.url' ),
-			$url
-		);
-		exit;
-
+		
 		$exportPath = $path . '/dist';
 
 		$exporter = new Exporter(
