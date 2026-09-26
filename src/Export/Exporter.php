@@ -594,20 +594,17 @@ class Exporter
 			return $content;
 		}
 
-		$configured_url = rtrim(
-			App::resolve( 'url' ),
+		$runtimeUrl = rtrim(
+			(string) config( 'app.url' ),
 			'/'
 		);
 
-		if (
-			! $configured_url
-			|| $configured_url === $this->url
-		) {
+		if ( ! $runtimeUrl || $runtimeUrl === $this->url ) {
 			return $content;
 		}
 
 		return str_replace(
-			$configured_url,
+			$runtimeUrl,
 			$this->url,
 			$content
 		);
