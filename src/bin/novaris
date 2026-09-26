@@ -20,7 +20,7 @@ if ( PHP_SAPI !== 'cli' ) {
 
 define( 'NOVARIS_CLI', true );
 
-require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
+require dirname( __DIR__, 4 ) . '/autoload.php';
 
 $version = \Novaris\Core\Application::VERSION;
 

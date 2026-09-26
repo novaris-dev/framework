@@ -34,5 +34,8 @@
         "guzzlehttp/guzzle": "^7.9",
         "intervention/image": "^3"
     },
+    "bin": [
+        "src/bin/novaris"
+    ],
 	"prefer-stable": true
 }
