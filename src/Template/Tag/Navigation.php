@@ -14,7 +14,7 @@
 namespace Novaris\Template\Tag;
 
 use Novaris\Contracts\{Displayable, Renderable};
-use Symfony\Component\HttpFoundation\Request;
+use Novaris\Core\Proxies\App;
 
 use function Novaris\Theme\Menu\normalize_path;
 
@@ -48,12 +48,10 @@ class Navigation implements Displayable, Renderable
 	 */
 	public function __construct( array $items = [], array $options = [] )
 	{
-		// Use Symfony Request to get the current path.
-		$request = Request::createFromGlobals();
+		$this->currentPath = normalize_path(
+			App::resolve( 'routing.router' )->path()
+		);
 
-		$this->currentPath = normalize_path( $request->getPathInfo() );
-
-		// Initialize items and display settings.
 		$this->items = $items;
 
 		$this->display = array_merge( [
@@ -117,8 +115,9 @@ class Navigation implements Displayable, Renderable
 	 */
 	private function formatItem( string $name, string $url ): string
 	{
-		$itemPath  = normalize_path( uri( $url ) );
+		$itemPath  = normalize_path( $url );
 		$isCurrent = $this->currentPath === $itemPath;
+		$fullUrl   = uri( $url );
 
 		$itemClass = trim(
 			$this->display['item_class']
@@ -133,7 +132,7 @@ class Navigation implements Displayable, Renderable
 			'<%1$s class="%2$s"><a href="%3$s" class="%4$s"%5$s>%6$s</a></%1$s>',
 			escape_tag( $this->display['item_tag'] ),
 			e( $itemClass ),
-			e( $url ),
+			e( $fullUrl ),
 			e( $this->display['anchor_class'] ),
 			$ariaCurrent,
 			e( $name )
