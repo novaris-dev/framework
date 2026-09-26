@@ -15,6 +15,7 @@ namespace Novaris\Core\Providers;
 
 use Novaris\Core\ServiceProvider;
 use Novaris\Font\{
+	Catalog,
 	Component,
 	Fonts
 };
@@ -33,11 +34,13 @@ class Font extends ServiceProvider
 	 */
 	public function register(): void
 	{
+		$this->app->singleton( Catalog::class );
 		$this->app->singleton( Fonts::class );
 
 		$this->app->singleton( Component::class, function( $app ) {
 			return new Component(
 				$app->make( Fonts::class ),
+				$app->make( Catalog::class ),
 				$app->make( 'config' )->get( 'fonts', [] )
 			);
 		} );

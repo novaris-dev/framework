@@ -30,6 +30,13 @@ class Component implements Bootable
 	protected Fonts $fonts;
 
 	/**
+	 * Stores the font catalog.
+	 *
+	 * @since 1.0.0
+	 */
+	protected Catalog $catalog;
+
+	/**
 	 * Stores the font configuration.
 	 *
 	 * @since 1.0.0
@@ -41,10 +48,14 @@ class Component implements Bootable
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( Fonts $fonts, array $config = [] )
-	{
-		$this->fonts  = $fonts;
-		$this->config = $config;
+	public function __construct(
+		Fonts $fonts,
+		Catalog $catalog,
+		array $config = []
+	) {
+		$this->fonts   = $fonts;
+		$this->catalog = $catalog;
+		$this->config  = $config;
 	}
 
 	/**
@@ -54,7 +65,13 @@ class Component implements Bootable
 	 */
 	public function boot(): void
 	{
-		foreach ( $this->config as $id => $options ) {
+		foreach ( $this->config as $id ) {
+			$options = $this->catalog->get( $id );
+
+			if ( ! $options ) {
+				continue;
+			}
+
 			$this->fonts->add( $id, $options );
 		}
 	}
