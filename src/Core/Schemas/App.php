@@ -26,7 +26,7 @@ class App
 		return Expect::structure( [
 			'url'         => Expect::string( '' ),
 			'title'       => Expect::string( 'Novaris' ),
-			'tagline'     => Expect::string( '' ),
+			'tagline'     => Expect::string( 'A Novaris Theme' ),
 			'theme'       => Expect::string( '' ),
 			'timezone'    => Expect::string( 'America/Los_Angeles' ),
 			'primary'     => Expect::array( [] ),
