@@ -212,6 +212,35 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		$theme = $this['config']->get( 'app.theme', '' );
 
+		// Load the active theme app configuration as defaults and allow the
+		// application app configuration to override those values.
+		if ( ! $this['config']->get( 'app.private', false ) && $theme ) {
+			$themeConfig = Str::appendPath(
+				$this['path'],
+				"themes/{$theme}/config/app.php"
+			);
+
+			$appConfig = Str::appendPath(
+				$this['path.config'],
+				'app.php'
+			);
+
+			if ( file_exists( $themeConfig ) ) {
+				$defaults  = include $themeConfig;
+				$overrides = file_exists( $appConfig )
+					? include $appConfig
+					: [];
+
+				$this['config']->set(
+					'app',
+					array_replace_recursive(
+						$defaults,
+						$overrides
+					)
+				);
+			}
+		}
+
 		// Add default paths.
 		$this->instance( 'path.app',      $this['path']                                         );
 		$this->instance( 'path.public',   Str::appendPath( $this['path'],         'public'    ) );
