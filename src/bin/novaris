@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Novaris command-line interface.
+ *
+ * Provides the command-line entry point for Novaris.
+ *
+ * @package   Novaris
+ * @author    Benjamin Lu <benlumia007@gmail.com>
+ * @copyright 2024 Benjamin Lu
+ * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ * @link      https://github.com/novaris-dev/framework
+ */
+
+declare(strict_types=1);
+
+if ( PHP_SAPI !== 'cli' ) {
+	exit( 1 );
+}
+
+define( 'NOVARIS_CLI', true );
+
+require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
+
+$version = \Novaris\Core\Application::VERSION;
+
+echo "Novaris {$version}" . PHP_EOL;
