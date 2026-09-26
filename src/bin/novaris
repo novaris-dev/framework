@@ -47,6 +47,14 @@ switch ( $command ) {
 
 	case 'export':
 		$path = dirname( __DIR__, 5 );
+		$url  = null;
+
+		foreach ( array_slice( $argv, 2 ) as $argument ) {
+			if ( str_starts_with( $argument, '--url=' ) ) {
+				$url = substr( $argument, 6 );
+				$url = rtrim( $url, '/' );
+			}
+		}
 
 		$app = new Application( $path );
 		$app->boot();
@@ -57,7 +65,8 @@ switch ( $command ) {
 			$app->make( RoutingRouter::class ),
 			$app->make( ContentTypes::class ),
 			$app->make( ContentQuery::class ),
-			$exportPath
+			$exportPath,
+			$url
 		);
 
 		$exported = $exporter->export();
@@ -86,6 +95,7 @@ switch ( $command ) {
 		echo '  export         Export the site as static HTML' . PHP_EOL;
 		echo PHP_EOL;
 		echo 'Options:' . PHP_EOL;
+		echo '  --url=URL        Set the URL for the static export' . PHP_EOL;
 		echo '  -h, --help       Display help' . PHP_EOL;
 		echo '  -V, --version    Display the Novaris version' . PHP_EOL;
 		break;
