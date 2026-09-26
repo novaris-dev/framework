@@ -583,6 +583,11 @@ class Exporter
 	 */
 	protected function rewriteUrls( string $content ): string
 	{
+		$runtimeUrl = rtrim(
+			(string) config( 'app.url', '' ),
+			'/'
+		);
+
 		// Rewrite theme asset URLs to the exported asset directory.
 		$content = preg_replace(
 			'#/themes/[^/]+/public/assets/#',
@@ -590,16 +595,11 @@ class Exporter
 			$content
 		);
 
-		if ( ! $this->url ) {
-			return $content;
-		}
-
-		$runtimeUrl = rtrim(
-			(string) config( 'app.url' ),
-			'/'
-		);
-
-		if ( ! $runtimeUrl || $runtimeUrl === $this->url ) {
+		if (
+			! $this->url
+			|| ! $runtimeUrl
+			|| $runtimeUrl === $this->url
+		) {
 			return $content;
 		}
 
