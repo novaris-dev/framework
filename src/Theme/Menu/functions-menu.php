@@ -75,7 +75,7 @@ function display_nav_menu( $args = [] )
 
 	foreach ( $items as $name => $url ) {
 		$fullUrl  = uri( $url );
-		$itemPath = normalize_path( $fullUrl );
+		$itemPath = normalize_path( $url );
 
 		$class = 'menu-items__item';
 
