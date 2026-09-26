@@ -104,14 +104,4 @@ class Metadata
 			? $data['supports'][ $feature ]
 			: [];
 	}
-
-	/**
-	 * Determine whether the active theme supports featured images.
-	 *
-	 * @since 1.0.0
-	 */
-	public function featuredImage(): bool
-	{
-		return $this->supports( 'featured-image' );
-	}
 }
