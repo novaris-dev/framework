@@ -22,7 +22,13 @@ define( 'NOVARIS_CLI', true );
 
 require dirname( __DIR__, 4 ) . '/autoload.php';
 
+use Novaris\Contracts\Content\{
+	ContentQuery,
+	ContentTypes
+};
+use Novaris\Contracts\Routing\RoutingRouter;
 use Novaris\Core\Application;
+use Novaris\Export\Exporter;
 
 $version = Application::VERSION;
 $command = $argv[1] ?? '';
@@ -39,6 +45,30 @@ switch ( $command ) {
 		echo 'Cache cleared successfully.' . PHP_EOL;
 		break;
 
+	case 'export':
+		$path = dirname( __DIR__, 5 );
+
+		$app = new Application( $path );
+		$app->boot();
+
+		$exportPath = $path . '/dist';
+
+		$exporter = new Exporter(
+			$app->make( RoutingRouter::class ),
+			$app->make( ContentTypes::class ),
+			$app->make( ContentQuery::class ),
+			$exportPath
+		);
+
+		$exported = $exporter->export();
+
+		echo sprintf(
+			'Exported %d paths to %s',
+			count( $exported ),
+			$exportPath
+		) . PHP_EOL;
+		break;
+
 	case '--version':
 	case '-V':
 		echo "Novaris {$version}" . PHP_EOL;
@@ -53,6 +83,7 @@ switch ( $command ) {
 		echo PHP_EOL;
 		echo 'Commands:' . PHP_EOL;
 		echo '  cache:clear    Clear all cache stores' . PHP_EOL;
+		echo '  export         Export the site as static HTML' . PHP_EOL;
 		echo PHP_EOL;
 		echo 'Options:' . PHP_EOL;
 		echo '  -h, --help       Display help' . PHP_EOL;
