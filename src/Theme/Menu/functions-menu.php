@@ -1,9 +1,25 @@
 <?php
+/**
+ * Menu functions.
+ *
+ * Provides helper functions for working with and displaying navigation menus.
+ *
+ * @package   Novaris
+ * @author    Benjamin Lu <benlumia007@gmail.com>
+ * @copyright 2024 Benjamin Lu
+ * @link      https://github.com/novaris-dev/framework
+ * @license   https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 namespace Novaris\Theme\Menu;
 
 use Novaris\Template\Tag\Navigation;
 
+/**
+ * Normalizes a URL or URI to a comparable path.
+ *
+ * @since 1.0.0
+ */
 function normalize_path( $value ): string
 {
 	$value = (string) $value;
@@ -20,7 +36,12 @@ function normalize_path( $value ): string
 	return $path === '' ? '/' : $path;
 }
 
-function display_nav_menu( $args = [] )
+/**
+ * Displays or returns a navigation menu.
+ *
+ * @since 1.0.0
+ */
+function display( $args = [] )
 {
 	$defaults = [
 		'menu'            => '',
@@ -40,6 +61,7 @@ function display_nav_menu( $args = [] )
 
 	if ( ! $items && is_callable( $args['fallback_cb'] ) ) {
 		call_user_func( $args['fallback_cb'] );
+
 		return;
 	}
 
@@ -52,6 +74,7 @@ function display_nav_menu( $args = [] )
 
 	if ( $args['echo'] ) {
 		$navigation->display();
+
 		return;
 	}
 
