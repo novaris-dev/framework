@@ -22,6 +22,44 @@ define( 'NOVARIS_CLI', true );
 
 require dirname( __DIR__, 4 ) . '/autoload.php';
 
-$version = \Novaris\Core\Application::VERSION;
+use Novaris\Core\Application;
 
-echo "Novaris {$version}" . PHP_EOL;
+$version = Application::VERSION;
+$command = $argv[1] ?? '';
+
+switch ( $command ) {
+	case 'cache:clear':
+		$path = dirname( __DIR__, 5 );
+
+		$app = new Application( $path );
+		$app->boot();
+
+		$app->make( 'cache' )->purge();
+
+		echo 'Cache cleared successfully.' . PHP_EOL;
+		break;
+
+	case '--version':
+	case '-V':
+		echo "Novaris {$version}" . PHP_EOL;
+		break;
+
+	case '--help':
+	case '-h':
+		echo "Novaris {$version}" . PHP_EOL;
+		echo PHP_EOL;
+		echo 'Usage:' . PHP_EOL;
+		echo '  novaris [command] [options]' . PHP_EOL;
+		echo PHP_EOL;
+		echo 'Commands:' . PHP_EOL;
+		echo '  cache:clear    Clear all cache stores' . PHP_EOL;
+		echo PHP_EOL;
+		echo 'Options:' . PHP_EOL;
+		echo '  -h, --help       Display help' . PHP_EOL;
+		echo '  -V, --version    Display the Novaris version' . PHP_EOL;
+		break;
+
+	default:
+		echo "Novaris {$version}" . PHP_EOL;
+		break;
+}
