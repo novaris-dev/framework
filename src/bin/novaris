@@ -51,9 +51,14 @@ switch ( $command ) {
 		$app = new Application( $path );
 		$app->boot();
 
-		$app->make( 'theme.installer' )->updateActive();
+		$themePath = $app->make( 'theme.installer' )->updateActive();
+		$metadata  = $app->make( 'theme.metadata' )->read( $themePath );
 
-		echo 'Theme updated successfully.' . PHP_EOL;
+		$theme = $metadata['name']
+			?? $metadata['slug']
+			?? basename( $themePath );
+
+		echo "Success: {$theme} updated successfully." . PHP_EOL;
 		break;
 
 	case 'export':
