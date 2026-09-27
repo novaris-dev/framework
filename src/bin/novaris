@@ -51,14 +51,32 @@ switch ( $command ) {
 		$app = new Application( $path );
 		$app->boot();
 
-		$themePath = $app->make( 'theme.installer' )->updateActive();
-		$metadata  = $app->make( 'theme.metadata' )->read( $themePath );
+		$installer = $app->make( 'theme.installer' );
+		$metadata  = $app->make( 'theme.metadata' );
 
-		$theme = $metadata['name']
-			?? $metadata['slug']
+		$parentPath = parent_theme_path();
+		$themePath  = $parentPath ?: theme_path();
+
+		$current = $metadata->read( $themePath );
+
+		$theme = $current['name']
+			?? $current['slug']
 			?? basename( $themePath );
 
-		echo "Success: {$theme} updated successfully." . PHP_EOL;
+		$currentVersion = $current['version'] ?? '';
+
+		if ( ! $installer->updateAvailable( $themePath ) ) {
+			echo "\033[32mSuccess:\033[0m {$theme} is already up to date ({$currentVersion})." . PHP_EOL;
+			break;
+		}
+
+		$installer->updateActive();
+
+		$updated = $metadata->read( $themePath );
+
+		$newVersion = $updated['version'] ?? '';
+
+		echo "\033[32mSuccess:\033[0m {$theme} updated from {$currentVersion} to {$newVersion}." . PHP_EOL;
 		break;
 
 	case 'export':
