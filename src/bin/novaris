@@ -45,6 +45,17 @@ switch ( $command ) {
 		echo 'Cache cleared successfully.' . PHP_EOL;
 		break;
 
+	case 'theme:update':
+		$path = dirname( __DIR__, 5 );
+
+		$app = new Application( $path );
+		$app->boot();
+
+		$app->make( 'theme.installer' )->updateActive();
+
+		echo 'Theme updated successfully.' . PHP_EOL;
+		break;
+
 	case 'export':
 		$path = dirname( __DIR__, 5 );
 		$url  = null;
@@ -58,7 +69,7 @@ switch ( $command ) {
 
 		$app = new Application( $path );
 		$app->boot();
-		
+
 		$exportPath = $path . '/dist';
 
 		$exporter = new Exporter(
@@ -92,6 +103,7 @@ switch ( $command ) {
 		echo PHP_EOL;
 		echo 'Commands:' . PHP_EOL;
 		echo '  cache:clear    Clear all cache stores' . PHP_EOL;
+		echo '  theme:update   Update the active theme' . PHP_EOL;
 		echo '  export         Export the site as static HTML' . PHP_EOL;
 		echo PHP_EOL;
 		echo 'Options:' . PHP_EOL;
