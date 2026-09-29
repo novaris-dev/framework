@@ -127,10 +127,10 @@ switch ( $command ) {
 		$watchPaths = [
 			$app->contentPath(),
 			$app->viewPath(),
-			$app->themePath(),
+			theme_path( 'app' ),
+			theme_path( 'config' ),
+			theme_path( 'resources' ),
 		];
-
-		$modified = [];
 
 		$scan = static function ( array $paths ): array {
 			$files = [];
@@ -152,15 +152,11 @@ switch ( $command ) {
 						continue;
 					}
 
-					$pathname = $file->getPathname();
-
-					if ( str_contains( $pathname, DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR ) ) {
-						continue;
-					}
-
-					$files[ $pathname ] = $file->getMTime();
+					$files[ $file->getPathname() ] = $file->getMTime();
 				}
 			}
+
+			ksort( $files );
 
 			return $files;
 		};
@@ -183,6 +179,8 @@ switch ( $command ) {
 			echo 'Change detected. Exporting...' . PHP_EOL;
 
 			$runExport();
+
+			$modified = $scan( $watchPaths );
 		}
 
 	case '--version':
