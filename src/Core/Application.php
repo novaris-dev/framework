@@ -299,7 +299,6 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'url.app',      $this['url']                                         );
 		$this->instance( 'url.config',   Str::appendPath( $this['url'],         'config'    ) );
 		$this->instance( 'url.public',   Str::appendPath( $this['url'],         'public'    ) );
-		$this->instance( 'url.view',     Str::appendPath( $this['url.public'],  'views'     ) );
 		$this->instance( 'url.resource', Str::appendPath( $this['url'],         'resources' ) );
 		$this->instance( 'url.storage',  Str::appendPath( $this['url'],         'storage'   ) );
 		$this->instance( 'url.cache',    Str::appendPath( $this['url.storage'], 'cache'     ) );
@@ -570,16 +569,6 @@ class Application extends Container implements ApplicationContract, Bootable
 	public function publicUrl( string $append = '' ): string
 	{
 		return $this->url( 'public', $append );
-	}
-
-	/**
-	 * Returns view URL with optional appended path/file.
-	 *
-	 * @since 1.0.0
-	 */
-	public function viewUrl( string $append = '' ): string
-	{
-		return $this->url( 'view', $append );
 	}
 
 	/**
