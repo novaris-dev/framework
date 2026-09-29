@@ -207,7 +207,6 @@ switch ( $command ) {
 		echo '◉ Watching for changes...' . PHP_EOL;
 
 		$modified = $scan( $watchPaths );
-		$rebuilt  = false;
 
 		while ( true ) {
 			usleep( 250000 );
@@ -220,22 +219,8 @@ switch ( $command ) {
 
 			$modified = $current;
 
-			$pages = $runExport();
+			$runExport();
 
-			if ( $pages ) {
-				$time    = date( 'g:i:s A' );
-				$message = "✓ Rebuilt {$pages} pages at {$time}";
-			} else {
-				$message = '✗ Export failed';
-			}
-
-			if ( $rebuilt ) {
-				echo "\r\033[2K";
-			}
-
-			echo $message;
-
-			$rebuilt  = true;
 			$modified = $scan( $watchPaths );
 		}
 
