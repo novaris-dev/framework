@@ -270,9 +270,9 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		// Add default paths.
 		$this->instance( 'path.app',      $this['path']                                         );
-		$this->instance( 'path.public',   Str::appendPath( $this['path'],         'public'    ) );
-		$this->instance( 'path.view',     Str::appendPath( $this['path.public'],  'views'     ) );
-		$this->instance( 'path.resource', Str::appendPath( $this['path'],         'resources' ) );
+		$this->instance( 'path.public',   Str::appendPath( $this['path'],          'public'    ) );
+		$this->instance( 'path.resource', Str::appendPath( $this['path'],          'resources' ) );
+		$this->instance( 'path.view',     Str::appendPath( $this['path.resource'], 'views'     ) );
 		$this->instance( 'path.storage',  Str::appendPath( $this['path'],         'storage'   ) );
 		$this->instance( 'path.cache',    Str::appendPath( $this['path.storage'], 'cache'     ) );
 		$this->instance( 'path.user',     Str::appendPath( $this['path'],         'user'      ) );
