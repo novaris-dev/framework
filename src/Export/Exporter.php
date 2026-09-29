@@ -589,9 +589,13 @@ class Exporter
 		);
 
 		// Rewrite theme asset URLs to the exported asset directory.
+		$assetUrl = $this->url
+			? $this->url . '/assets/'
+			: '/assets/';
+
 		$content = preg_replace(
-			'#/themes/[^/]+/public/assets/#',
-			'/assets/',
+			'#(?:https?://[^/]+)?(?:/[^/]+)*/themes/[^/]+/public/assets/#',
+			$assetUrl,
 			$content
 		);
 
