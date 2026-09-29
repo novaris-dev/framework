@@ -157,7 +157,7 @@ switch ( $command ) {
 			return $files;
 		};
 
-		$runExport = static function () use ( $argv, $url ): void {
+		$runExport = static function () use ( $argv, $url ): string {
 			$command = escapeshellarg( PHP_BINARY )
 				. ' '
 				. escapeshellarg( $argv[0] )
@@ -167,11 +167,16 @@ switch ( $command ) {
 				$command .= ' --url=' . escapeshellarg( $url );
 			}
 
-			passthru( $command, $status );
+			$output = [];
+			$status = 0;
+
+			exec( $command, $output, $status );
 
 			if ( 0 !== $status ) {
-				echo 'Export failed.' . PHP_EOL;
+				return 'Export failed.';
 			}
+
+			return implode( ' ', $output );
 		};
 
 		if ( function_exists( 'pcntl_async_signals' ) ) {
@@ -187,11 +192,12 @@ switch ( $command ) {
 			pcntl_signal( SIGTERM, $stop );
 		}
 
-		$runExport();
+		$result = $runExport();
+
+		echo $result . PHP_EOL;
+		echo 'Watching for changes. Press Ctrl+C to stop.' . PHP_EOL;
 
 		$modified = $scan( $watchPaths );
-
-		echo 'Watching for changes. Press Ctrl+C to stop.' . PHP_EOL;
 
 		while ( true ) {
 			usleep( 250000 );
@@ -204,9 +210,9 @@ switch ( $command ) {
 
 			$modified = $current;
 
-			echo 'Change detected. Exporting...' . PHP_EOL;
+			$result = $runExport();
 
-			$runExport();
+			echo "\r\033[2K{$result}";
 
 			$modified = $scan( $watchPaths );
 		}
