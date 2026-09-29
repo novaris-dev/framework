@@ -100,10 +100,7 @@ switch ( $command ) {
 
 		$exportPath = $app->publicPath();
 
-		$runExport = static function () use ( $path, $url, $exportPath ): void {
-			$app = new Application( $path );
-			$app->boot();
-
+		if ( ! $watch ) {
 			$exporter = new Exporter(
 				$app->make( RoutingRouter::class ),
 				$app->make( ContentTypes::class ),
@@ -119,11 +116,7 @@ switch ( $command ) {
 				count( $exported ),
 				$exportPath
 			) . PHP_EOL;
-		};
 
-		$runExport();
-
-		if ( ! $watch ) {
 			break;
 		}
 
@@ -163,6 +156,25 @@ switch ( $command ) {
 
 			return $files;
 		};
+
+		$runExport = static function () use ( $argv, $url ): void {
+			$command = escapeshellarg( PHP_BINARY )
+				. ' '
+				. escapeshellarg( $argv[0] )
+				. ' export';
+
+			if ( $url ) {
+				$command .= ' --url=' . escapeshellarg( $url );
+			}
+
+			passthru( $command, $status );
+
+			if ( 0 !== $status ) {
+				echo 'Export failed.' . PHP_EOL;
+			}
+		};
+
+		$runExport();
 
 		$modified = $scan( $watchPaths );
 
