@@ -131,7 +131,7 @@ class Exporter
 
 		$this->copyDirectory(
 			themes_path( "{$asset_theme}/public/assets" ),
-			$this->path . '/public/assets'
+			$this->path . '/assets'
 		);
 
 		// Copy user media.
@@ -591,7 +591,7 @@ class Exporter
 		// Rewrite theme asset URLs to the exported asset directory.
 		$content = preg_replace(
 			'#/themes/[^/]+/public/assets/#',
-			'/public/assets/',
+			'/assets/',
 			$content
 		);
 
