@@ -131,13 +131,6 @@ interface Application extends Container
 	public function publicUrl( string $append = '' ): string;
 
 	/**
-	 * Returns view URL with optional appended path/file.
-	 *
-	 * @since 1.0.0
-	 */
-	public function viewUrl( string $append = '' ): string;
-
-	/**
 	 * Returns resource URL with optional appended path/file.
 	 *
 	 * @since 1.0.0
