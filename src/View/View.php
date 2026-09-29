@@ -144,7 +144,7 @@ class View implements ViewContract
 
 		foreach ( $this->hierarchy() as $template ) {
 			$themeTemplate = theme_path(
-				"public/views/{$template}"
+				"app/{$template}"
 			);
 
 			if ( is_file( $themeTemplate ) ) {
@@ -153,7 +153,7 @@ class View implements ViewContract
 
 			if ( $parentTheme ) {
 				$parentTemplate = parent_theme_path(
-					"public/views/{$template}"
+					"app/{$template}"
 				);
 
 				if ( is_file( $parentTemplate ) ) {
