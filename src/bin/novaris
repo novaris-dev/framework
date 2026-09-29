@@ -83,7 +83,6 @@ switch ( $command ) {
 		$path  = dirname( __DIR__, 5 );
 		$url   = null;
 		$watch = false;
-		$quiet = false;
 		$count = false;
 
 		foreach ( array_slice( $argv, 2 ) as $argument ) {
@@ -94,10 +93,6 @@ switch ( $command ) {
 
 			if ( '--watch' === $argument ) {
 				$watch = true;
-			}
-
-			if ( '--quiet' === $argument ) {
-				$quiet = true;
 			}
 
 			if ( '--count' === $argument ) {
@@ -120,19 +115,14 @@ switch ( $command ) {
 			);
 
 			$exported = $exporter->export();
+			$total    = count( $exported );
 
 			if ( $count ) {
-				echo count( $exported ) . PHP_EOL;
+				echo $total . PHP_EOL;
 				break;
 			}
 
-			if ( ! $quiet ) {
-				echo sprintf(
-					'Exported %d pages.',
-					count( $exported )
-				) . PHP_EOL;
-			}
-
+			echo "Exported {$total} pages." . PHP_EOL;
 			break;
 		}
 
@@ -177,7 +167,7 @@ switch ( $command ) {
 			$command = escapeshellarg( PHP_BINARY )
 				. ' '
 				. escapeshellarg( $argv[0] )
-				. ' export --quiet --count';
+				. ' export --count';
 
 			if ( $url ) {
 				$command .= ' --url=' . escapeshellarg( $url );
@@ -188,13 +178,11 @@ switch ( $command ) {
 
 			exec( $command, $output, $status );
 
-			if ( 0 !== $status ) {
+			if ( 0 !== $status || ! isset( $output[0] ) ) {
 				return 0;
 			}
 
-			return isset( $output[0] )
-				? (int) $output[0]
-				: 0;
+			return (int) trim( $output[0] );
 		};
 
 		if ( function_exists( 'pcntl_async_signals' ) ) {
@@ -221,6 +209,7 @@ switch ( $command ) {
 		echo '◉ Watching for changes...' . PHP_EOL;
 
 		$modified = $scan( $watchPaths );
+		$rebuilt  = false;
 
 		while ( true ) {
 			usleep( 250000 );
@@ -236,13 +225,19 @@ switch ( $command ) {
 			$pages = $runExport();
 
 			if ( $pages ) {
-				$time = date( 'g:i:s A' );
-
-				echo "\r\033[2K✓ Rebuilt {$pages} pages at {$time}";
+				$time    = date( 'g:i:s A' );
+				$message = "✓ Rebuilt {$pages} pages at {$time}";
 			} else {
-				echo "\r\033[2K✗ Export failed";
+				$message = '✗ Export failed';
 			}
 
+			if ( $rebuilt ) {
+				echo "\r\033[2K";
+			}
+
+			echo $message;
+
+			$rebuilt  = true;
 			$modified = $scan( $watchPaths );
 		}
 
