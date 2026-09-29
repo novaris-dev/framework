@@ -199,9 +199,6 @@ switch ( $command ) {
 
 		$count = $runExport();
 
-		echo "Novaris {$version}" . PHP_EOL;
-		echo PHP_EOL;
-
 		if ( $count ) {
 			echo "✓ Generated {$count} pages" . PHP_EOL;
 		} else {
