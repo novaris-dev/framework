@@ -100,15 +100,18 @@ switch ( $command ) {
 
 		$exportPath = $app->publicPath();
 
-		$exporter = new Exporter(
-			$app->make( RoutingRouter::class ),
-			$app->make( ContentTypes::class ),
-			$app->make( ContentQuery::class ),
-			$exportPath,
-			$url
-		);
+		$runExport = static function () use ( $path, $url, $exportPath ): void {
+			$app = new Application( $path );
+			$app->boot();
 
-		$runExport = static function () use ( $exporter, $exportPath ): void {
+			$exporter = new Exporter(
+				$app->make( RoutingRouter::class ),
+				$app->make( ContentTypes::class ),
+				$app->make( ContentQuery::class ),
+				$exportPath,
+				$url
+			);
+
 			$exported = $exporter->export();
 
 			echo sprintf(
