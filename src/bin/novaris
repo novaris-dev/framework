@@ -80,13 +80,18 @@ switch ( $command ) {
 		break;
 
 	case 'export':
-		$path = dirname( __DIR__, 5 );
-		$url  = null;
+		$path  = dirname( __DIR__, 5 );
+		$url   = null;
+		$watch = false;
 
 		foreach ( array_slice( $argv, 2 ) as $argument ) {
 			if ( str_starts_with( $argument, '--url=' ) ) {
 				$url = substr( $argument, 6 );
 				$url = rtrim( $url, '/' );
+			}
+
+			if ( '--watch' === $argument ) {
+				$watch = true;
 			}
 		}
 
@@ -103,14 +108,82 @@ switch ( $command ) {
 			$url
 		);
 
-		$exported = $exporter->export();
+		$runExport = static function () use ( $exporter, $exportPath ): void {
+			$exported = $exporter->export();
 
-		echo sprintf(
-			'Exported %d paths to %s',
-			count( $exported ),
-			$exportPath
-		) . PHP_EOL;
-		break;
+			echo sprintf(
+				'Exported %d paths to %s',
+				count( $exported ),
+				$exportPath
+			) . PHP_EOL;
+		};
+
+		$runExport();
+
+		if ( ! $watch ) {
+			break;
+		}
+
+		$watchPaths = [
+			$app->contentPath(),
+			$app->viewPath(),
+			$app->themePath(),
+		];
+
+		$modified = [];
+
+		$scan = static function ( array $paths ): array {
+			$files = [];
+
+			foreach ( $paths as $watchPath ) {
+				if ( ! is_dir( $watchPath ) ) {
+					continue;
+				}
+
+				$iterator = new RecursiveIteratorIterator(
+					new RecursiveDirectoryIterator(
+						$watchPath,
+						RecursiveDirectoryIterator::SKIP_DOTS
+					)
+				);
+
+				foreach ( $iterator as $file ) {
+					if ( ! $file->isFile() ) {
+						continue;
+					}
+
+					$pathname = $file->getPathname();
+
+					if ( str_contains( $pathname, DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR ) ) {
+						continue;
+					}
+
+					$files[ $pathname ] = $file->getMTime();
+				}
+			}
+
+			return $files;
+		};
+
+		$modified = $scan( $watchPaths );
+
+		echo 'Watching for changes. Press Ctrl+C to stop.' . PHP_EOL;
+
+		while ( true ) {
+			sleep( 1 );
+
+			$current = $scan( $watchPaths );
+
+			if ( $current === $modified ) {
+				continue;
+			}
+
+			$modified = $current;
+
+			echo 'Change detected. Exporting...' . PHP_EOL;
+
+			$runExport();
+		}
 
 	case '--version':
 	case '-V':
@@ -131,6 +204,7 @@ switch ( $command ) {
 		echo PHP_EOL;
 		echo 'Options:' . PHP_EOL;
 		echo '  --url=URL        Set the URL for the static export' . PHP_EOL;
+		echo '  --watch          Watch for changes and re-export' . PHP_EOL;
 		echo '  -h, --help       Display help' . PHP_EOL;
 		echo '  -V, --version    Display the Novaris version' . PHP_EOL;
 		break;
