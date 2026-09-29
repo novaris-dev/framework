@@ -119,10 +119,8 @@ switch ( $command ) {
 
 			if ( $count ) {
 				echo $total . PHP_EOL;
-				break;
 			}
 
-			echo "Exported {$total} pages." . PHP_EOL;
 			break;
 		}
 
