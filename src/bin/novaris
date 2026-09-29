@@ -93,7 +93,7 @@ switch ( $command ) {
 		$app = new Application( $path );
 		$app->boot();
 
-		$exportPath = $path . '/dist';
+		$exportPath = $app->publicPath();
 
 		$exporter = new Exporter(
 			$app->make( RoutingRouter::class ),
