@@ -112,9 +112,8 @@ switch ( $command ) {
 			$exported = $exporter->export();
 
 			echo sprintf(
-				'Exported %d paths to %s',
-				count( $exported ),
-				$exportPath
+				'Exported %d pages.',
+				count( $exported )
 			) . PHP_EOL;
 
 			break;
@@ -157,7 +156,7 @@ switch ( $command ) {
 			return $files;
 		};
 
-		$runExport = static function () use ( $argv, $url ): string {
+		$runExport = static function () use ( $argv, $url ): int {
 			$command = escapeshellarg( PHP_BINARY )
 				. ' '
 				. escapeshellarg( $argv[0] )
@@ -173,17 +172,23 @@ switch ( $command ) {
 			exec( $command, $output, $status );
 
 			if ( 0 !== $status ) {
-				return 'Export failed.';
+				return 0;
 			}
 
-			return implode( ' ', $output );
+			$result = implode( ' ', $output );
+
+			if ( preg_match( '/Exported\s+(\d+)\s+pages\./', $result, $matches ) ) {
+				return (int) $matches[1];
+			}
+
+			return 0;
 		};
 
 		if ( function_exists( 'pcntl_async_signals' ) ) {
 			pcntl_async_signals( true );
 
 			$stop = static function (): void {
-				echo PHP_EOL . 'Watcher stopped.' . PHP_EOL;
+				echo PHP_EOL . '■ Watcher stopped.' . PHP_EOL;
 
 				exit( 0 );
 			};
@@ -192,10 +197,18 @@ switch ( $command ) {
 			pcntl_signal( SIGTERM, $stop );
 		}
 
-		$result = $runExport();
+		$count = $runExport();
 
-		echo $result . PHP_EOL;
-		echo 'Watching for changes. Press Ctrl+C to stop.' . PHP_EOL;
+		echo "Novaris {$version}" . PHP_EOL;
+		echo PHP_EOL;
+
+		if ( $count ) {
+			echo "✓ Generated {$count} pages" . PHP_EOL;
+		} else {
+			echo '✗ Export failed' . PHP_EOL;
+		}
+
+		echo '◉ Watching for changes...' . PHP_EOL;
 
 		$modified = $scan( $watchPaths );
 
@@ -210,9 +223,15 @@ switch ( $command ) {
 
 			$modified = $current;
 
-			$result = $runExport();
+			$count = $runExport();
 
-			echo "\r\033[2K{$result}";
+			if ( $count ) {
+				$time = date( 'g:i:s A' );
+
+				echo "\r\033[2K✓ Rebuilt {$count} pages at {$time}";
+			} else {
+				echo "\r\033[2K✗ Export failed";
+			}
 
 			$modified = $scan( $watchPaths );
 		}
