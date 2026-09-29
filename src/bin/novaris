@@ -83,6 +83,8 @@ switch ( $command ) {
 		$path  = dirname( __DIR__, 5 );
 		$url   = null;
 		$watch = false;
+		$quiet = false;
+		$count = false;
 
 		foreach ( array_slice( $argv, 2 ) as $argument ) {
 			if ( str_starts_with( $argument, '--url=' ) ) {
@@ -92,6 +94,14 @@ switch ( $command ) {
 
 			if ( '--watch' === $argument ) {
 				$watch = true;
+			}
+
+			if ( '--quiet' === $argument ) {
+				$quiet = true;
+			}
+
+			if ( '--count' === $argument ) {
+				$count = true;
 			}
 		}
 
@@ -111,10 +121,17 @@ switch ( $command ) {
 
 			$exported = $exporter->export();
 
-			echo sprintf(
-				'Exported %d pages.',
-				count( $exported )
-			) . PHP_EOL;
+			if ( $count ) {
+				echo count( $exported ) . PHP_EOL;
+				break;
+			}
+
+			if ( ! $quiet ) {
+				echo sprintf(
+					'Exported %d pages.',
+					count( $exported )
+				) . PHP_EOL;
+			}
 
 			break;
 		}
@@ -160,7 +177,7 @@ switch ( $command ) {
 			$command = escapeshellarg( PHP_BINARY )
 				. ' '
 				. escapeshellarg( $argv[0] )
-				. ' export';
+				. ' export --quiet --count';
 
 			if ( $url ) {
 				$command .= ' --url=' . escapeshellarg( $url );
@@ -175,13 +192,9 @@ switch ( $command ) {
 				return 0;
 			}
 
-			$result = implode( ' ', $output );
-
-			if ( preg_match( '/Exported\s+(\d+)\s+pages\./', $result, $matches ) ) {
-				return (int) $matches[1];
-			}
-
-			return 0;
+			return isset( $output[0] )
+				? (int) $output[0]
+				: 0;
 		};
 
 		if ( function_exists( 'pcntl_async_signals' ) ) {
@@ -197,10 +210,10 @@ switch ( $command ) {
 			pcntl_signal( SIGTERM, $stop );
 		}
 
-		$count = $runExport();
+		$pages = $runExport();
 
-		if ( $count ) {
-			echo "✓ Generated {$count} pages" . PHP_EOL;
+		if ( $pages ) {
+			echo "✓ Generated {$pages} pages" . PHP_EOL;
 		} else {
 			echo '✗ Export failed' . PHP_EOL;
 		}
@@ -220,12 +233,12 @@ switch ( $command ) {
 
 			$modified = $current;
 
-			$count = $runExport();
+			$pages = $runExport();
 
-			if ( $count ) {
+			if ( $pages ) {
 				$time = date( 'g:i:s A' );
 
-				echo "\r\033[2K✓ Rebuilt {$count} pages at {$time}";
+				echo "\r\033[2K✓ Rebuilt {$pages} pages at {$time}";
 			} else {
 				echo "\r\033[2K✗ Export failed";
 			}
