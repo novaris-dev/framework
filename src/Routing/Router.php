@@ -127,7 +127,7 @@ class Router implements RoutingRouter
 		if ( null !== $content ) {
 			$created = (int) $store->created( $cache_key );
 
-			if ( $created < $this->lastModified() ) {
+			if ( $created <= $this->lastModified() ) {
 				$store->forget( $cache_key );
 				$content = null;
 			}

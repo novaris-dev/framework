@@ -199,7 +199,7 @@ class File implements ContentLocator
 		if (
 			false === $this->cache_time ||
 			false === $this->content_time ||
-			$this->content_time > $this->cache_time
+			$this->content_time >= $this->cache_time
 		) {
 			$store->forget( $this->cache_key );
 			$cache = [];
