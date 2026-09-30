@@ -107,6 +107,12 @@ class File implements ContentLocator
 		$this->located      = null;
 		$this->content_time = null;
 		$this->cache_time   = null;
+
+		// Refuse paths that step outside the content folder, such as
+		// `post/../../secret`. They locate nothing.
+		if ( in_array( '..', preg_split( '#[/\\\\]#', $path ), true ) ) {
+			$this->located = [];
+		}
 	}
 
 	/**
