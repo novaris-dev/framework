@@ -18,6 +18,7 @@ use Novaris\Markdown\{Parser, ImageRenderer, LinkRenderer, ParagraphRenderer};
 
 use League\CommonMark\{ConverterInterface, MarkdownConverter};
 use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Inline\{Image, Link};
 use League\CommonMark\Node\Block\Paragraph;
 
@@ -39,10 +40,21 @@ class Markdown extends ServiceProvider
                         // Configure the Environment.
                         $environment = new Environment( $markdown['config'] );
 
-			// Loops through user-added extensions and adds them.
-                        foreach ( $markdown['extensions'] as $extension ) {
-                                $environment->addExtension( new $extension() );
-                        }
+			// Always include the core CommonMark extension, which renders
+			// standard Markdown. Without it, every page fails to render.
+			$extensions = array_map(
+				fn( $extension ) => ltrim( $extension, '\\' ),
+				$markdown['extensions']
+			);
+
+			if ( ! in_array( CommonMarkCoreExtension::class, $extensions, true ) ) {
+				array_unshift( $extensions, CommonMarkCoreExtension::class );
+			}
+
+			// Loops through extensions and adds them.
+			foreach ( $extensions as $extension ) {
+				$environment->addExtension( new $extension() );
+			}
 
 			// Loops through user-added inline parsers and adds them.
 			foreach ( $markdown['inline_parsers'] as $parser ) {
