@@ -71,7 +71,10 @@ class Application extends Container implements ApplicationContract, Bootable
 	}
 
 	/**
-	 * Loads the active theme bootstrap file.
+	 * Checks that an active theme is configured.
+	 *
+	 * The theme and its parent are installed earlier, during construction,
+	 * because theme config is merged there.
 	 *
 	 * @since 1.0.0
 	 */
@@ -86,28 +89,6 @@ class Application extends Container implements ApplicationContract, Bootable
 		if ( empty( $theme ) ) {
 			( new Message() )->make(
 				'No active theme has been configured.'
-			)->dd();
-		}
-
-		try {
-			if ( ! is_dir( $this->themePath() ) ) {
-				$this['theme.installer']->install(
-					$theme,
-					$this['path.themes']
-				);
-			}
-
-			$parent = $this['theme.metadata']->parent();
-
-			if ( $parent && ! is_dir( $this->themesPath( $parent ) ) ) {
-				$this['theme.installer']->install(
-					$parent,
-					$this['path.themes']
-				);
-			}
-		} catch ( Throwable $e ) {
-			( new Message() )->make(
-				$e->getMessage()
 			)->dd();
 		}
 	}
