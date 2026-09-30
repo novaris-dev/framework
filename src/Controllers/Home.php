@@ -116,14 +116,19 @@ class Home extends Controller
 			) );
 		}
 
-		// If no index file is found, display a notice and return an empty response.
+		// If no index file is found, return the notice as a 404 so it is
+		// not cached or exported as a real homepage. The path is shown
+		// relative to the site root to avoid exposing server paths.
+		$indexPath = Str::appendPath( App::get( 'path.content' ), 'index.md' );
+
 		$notice = sprintf(
 			'No <code>%s</code> file found.',
-			Str::appendPath( App::get( 'path.content' ), 'index.md' )
+			e( ltrim( Str::afterFirst( $indexPath, App::get( 'path' ) ), '/\\' ) )
 		);
 
-		Message::make( $notice )->dump();
-
-		return new Response( '' );
+		return new Response(
+			Message::make( $notice )->render(),
+			Response::HTTP_NOT_FOUND
+		);
 	}
 }
