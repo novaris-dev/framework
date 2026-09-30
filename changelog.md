@@ -60,6 +60,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Asset URLs for private apps: `asset()` now returns URLs under
   `public/assets/`, and the static export rewrites them to `/assets/` like
   theme assets.
+- The static export could remove page content or rewrite other sites' URLs
+  when rewriting asset URLs. It now only rewrites this site's own asset URLs,
+  including sites installed in a subfolder.
+- Visiting `/sitemap/{type}` with an unknown content type crashed instead of
+  returning a 404.
+- Sitemaps listed content types marked `sitemap: false` or `public: false`,
+  and `Type::hasSitemap()` threw an error because it read the wrong config
+  key.
+- One content file with invalid front matter broke every page listing its
+  folder. The file is now skipped and the error is logged.
 
 ### Removed
 
