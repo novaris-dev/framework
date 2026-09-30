@@ -600,13 +600,15 @@ class Exporter
 			'/'
 		);
 
-		// Rewrite theme asset URLs to the exported asset directory.
+		// Rewrite asset URLs to the exported asset directory. This covers
+		// theme assets (`/themes/{theme}/public/assets/`) and private app
+		// assets (`/public/assets/`), which are both exported to `/assets/`.
 		$assetUrl = $this->url
 			? $this->url . '/assets/'
 			: '/assets/';
 
 		$content = preg_replace(
-			'#(?:https?://[^/]+)?(?:/[^/]+)*/themes/[^/]+/public/assets/#',
+			'#(?:https?://[^/]+)?(?:/[^/]+)*/(?:themes/[^/]+/)?public/assets/#',
 			$assetUrl,
 			$content
 		);

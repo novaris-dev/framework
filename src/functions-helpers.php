@@ -613,8 +613,10 @@ if ( ! function_exists( 'asset' ) ) {
 
 		$file = ltrim( $manifest[ $entry ]['file'], '/' );
 
+		// Private apps serve their compiled assets from `public/assets`. The
+		// static exporter rewrites these URLs to `/assets/` in exported HTML.
 		if ( $private ) {
-			return app_url( 'assets/' . $file );
+			return public_url( 'assets/' . $file );
 		}
 
 		return app_url(
