@@ -20,7 +20,34 @@ if ( PHP_SAPI !== 'cli' ) {
 
 define( 'NOVARIS_CLI', true );
 
-require dirname( __DIR__, 4 ) . '/autoload.php';
+// Find Composer's autoloader. Composer's `vendor/bin/novaris` proxy passes
+// its path. Otherwise, check the usual install location relative to this
+// file, then the current folder. Relative paths alone are not enough: when
+// the framework is symlinked into `vendor/` (a Composer path repository),
+// PHP resolves `__DIR__` to the real folder outside the site.
+$autoload = $GLOBALS['_composer_autoload_path'] ?? null;
+
+if ( ! $autoload ) {
+	foreach ( [
+		dirname( __DIR__, 4 ) . '/autoload.php',
+		getcwd() . '/vendor/autoload.php',
+	] as $candidate ) {
+		if ( is_file( $candidate ) ) {
+			$autoload = $candidate;
+			break;
+		}
+	}
+}
+
+if ( ! $autoload || ! is_file( $autoload ) ) {
+	fwrite( STDERR, 'Novaris: unable to find vendor/autoload.php. Run `composer install` in your site folder, then run this command from there.' . PHP_EOL );
+	exit( 1 );
+}
+
+require $autoload;
+
+// The site root is the folder that contains the `vendor` folder.
+$root = dirname( realpath( $autoload ), 2 );
 
 use Novaris\Contracts\Content\{
 	ContentQuery,
@@ -35,7 +62,7 @@ $command = $argv[1] ?? '';
 
 switch ( $command ) {
 	case 'cache:clear':
-		$path = dirname( __DIR__, 5 );
+		$path = $root;
 
 		$app = new Application( $path );
 		$app->boot();
@@ -46,7 +73,7 @@ switch ( $command ) {
 		break;
 
 	case 'theme:update':
-		$path = dirname( __DIR__, 5 );
+		$path = $root;
 
 		$app = new Application( $path );
 		$app->boot();
@@ -80,7 +107,7 @@ switch ( $command ) {
 		break;
 
 	case 'export':
-		$path  = dirname( __DIR__, 5 );
+		$path  = $root;
 		$url   = null;
 		$watch = false;
 		$count = false;
