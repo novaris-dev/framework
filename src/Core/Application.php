@@ -19,7 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
-use Novaris\Theme\{Metadata, ThemeServiceProvider};
+use Novaris\Theme\{Installer, Metadata, ThemeServiceProvider};
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -109,6 +109,31 @@ class Application extends Container implements ApplicationContract, Bootable
 			( new Message() )->make(
 				$e->getMessage()
 			)->dd();
+		}
+	}
+
+	/**
+	 * Downloads and installs a theme from its GitHub release when it is not
+	 * already present in the `themes` directory.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function ensureThemeInstalled( Metadata $metadata, string $theme ): void
+	{
+		$themes = Str::appendPath( $this['path'], 'themes' );
+
+		if ( is_dir( Str::appendPath( $themes, $theme ) ) ) {
+			return;
+		}
+
+		try {
+			( new Installer( $metadata ) )->install( $theme, $themes );
+		} catch ( Throwable $e ) {
+			( new Message() )->make( sprintf(
+				'Unable to install the "%s" theme: %s',
+				htmlspecialchars( $theme, ENT_QUOTES, 'UTF-8' ),
+				htmlspecialchars( $e->getMessage(), ENT_QUOTES, 'UTF-8' )
+			) )->dd();
 		}
 	}
 
@@ -226,10 +251,20 @@ class Application extends Container implements ApplicationContract, Bootable
 			);
 
 			$metadata  = new Metadata();
+
+			// Install the theme (and its parent) before reading its
+			// metadata. This has to happen here, not in `loadTheme()`,
+			// because theme config is merged during construction.
+			$this->ensureThemeInstalled( $metadata, $theme );
+
 			$themeData = $metadata->read( $themePath );
 			$parent    = isset( $themeData['parent'] )
 				? (string) $themeData['parent']
 				: '';
+
+			if ( $parent ) {
+				$this->ensureThemeInstalled( $metadata, $parent );
+			}
 
 			$parentConfigPath = $parent
 				? Str::appendPath(
