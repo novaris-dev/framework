@@ -31,7 +31,8 @@ class Sitemap extends Controller
 
 		$type = $params['type'] ?? '';
 
-		if ( ! $type ) {
+		// Return a 404 for a missing or unknown content type.
+		if ( ! $type || ! $types->has( $type ) ) {
 			return $this->forward404( $params, $request );
 		}
 
