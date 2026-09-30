@@ -86,8 +86,11 @@ class Router implements RoutingRouter
 	 */
 	public function response(): Response
 	{
-		// Just return the response if global caching is disabled.
-		if ( ! Config::get( 'cache.global' ) ) {
+		$expires = (int) Config::get( 'cache.expires' );
+
+		// Just return the response if global caching is disabled or no
+		// cache expiration time has been configured.
+		if ( ! Config::get( 'cache.global' ) || $expires <= 0 ) {
 			return $this->getResponse();
 		}
 
@@ -131,7 +134,7 @@ class Router implements RoutingRouter
 				Cache::put(
 					"global.{$cache_key}",
 					$content,
-					Config::get( 'cache.expires' )
+					$expires
 				);
 			}
 		}
