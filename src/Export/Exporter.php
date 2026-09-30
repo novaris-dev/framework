@@ -607,8 +607,22 @@ class Exporter
 			? $this->url . '/assets/'
 			: '/assets/';
 
+		// Only match URLs that belong to this site: the full site URL
+		// (e.g. `https://example.com/blog`) or its path (e.g. `/blog`).
+		$basePath = rtrim(
+			(string) parse_url( $runtimeUrl, PHP_URL_PATH ),
+			'/'
+		);
+
+		$prefix = $runtimeUrl
+			? '(?:' . preg_quote( $runtimeUrl, '#' ) . '|' . preg_quote( $basePath, '#' ) . ')'
+			: '';
+
+		// The URL must start at the beginning of an attribute value, CSS
+		// `url()`, or after whitespace, so the match can never reach back
+		// across other markup on the page.
 		$content = preg_replace(
-			'#(?:https?://[^/]+)?(?:/[^/]+)*/(?:themes/[^/]+/)?public/assets/#',
+			'#(?<![^\s"\'(=,])' . $prefix . '(?:/themes/[^/\s"\'<>]+)?/public/assets/#',
 			$assetUrl,
 			$content
 		);
