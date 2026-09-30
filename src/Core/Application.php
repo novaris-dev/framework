@@ -19,7 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
-use Novaris\Theme\ThemeServiceProvider;
+use Novaris\Theme\{Metadata, ThemeServiceProvider};
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -213,26 +213,62 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		$theme = $this['config']->get( 'app.theme', '' );
 
-		// Load the active theme app configuration as defaults and allow the
-		// application app configuration to override those values.
+		// Load theme configuration with parent theme inheritance.
 		if ( ! $this['config']->get( 'app.private', false ) && $theme ) {
-			$themeConfigPath = Str::appendPath(
+			$themePath = Str::appendPath(
 				$this['path'],
-				"themes/{$theme}/config"
+				"themes/{$theme}"
 			);
 
-			$themeAppConfig = Str::appendPath(
-				$themeConfigPath,
-				'app.php'
+			$themeConfigPath = Str::appendPath(
+				$themePath,
+				'config'
 			);
+
+			$metadata  = new Metadata();
+			$themeData = $metadata->read( $themePath );
+			$parent    = isset( $themeData['parent'] )
+				? (string) $themeData['parent']
+				: '';
+
+			$parentConfigPath = $parent
+				? Str::appendPath(
+					$this['path'],
+					"themes/{$parent}/config"
+				)
+				: '';
 
 			$appConfig = Str::appendPath(
 				$this['path.config'],
 				'app.php'
 			);
 
+			$defaults = [];
+
+			if ( $parentConfigPath ) {
+				$parentAppConfig = Str::appendPath(
+					$parentConfigPath,
+					'app.php'
+				);
+
+				if ( file_exists( $parentAppConfig ) ) {
+					$defaults = include $parentAppConfig;
+				}
+			}
+
+			$themeAppConfig = Str::appendPath(
+				$themeConfigPath,
+				'app.php'
+			);
+
 			if ( file_exists( $themeAppConfig ) ) {
-				$defaults  = include $themeAppConfig;
+				$defaults = array_replace(
+					$defaults,
+					include $themeAppConfig
+				);
+			}
+
+			if ( $defaults ) {
 				$overrides = file_exists( $appConfig )
 					? include $appConfig
 					: [];
@@ -246,15 +282,35 @@ class Application extends Container implements ApplicationContract, Bootable
 				);
 			}
 
-			// Load configuration owned by the active theme.
+			// Load theme-owned configuration with parent fallbacks.
 			foreach ( [ 'fonts', 'template' ] as $type ) {
+				$config = [];
+
+				if ( $parentConfigPath ) {
+					$parentFilepath = Str::appendPath(
+						$parentConfigPath,
+						"{$type}.php"
+					);
+
+					if ( file_exists( $parentFilepath ) ) {
+						$config = include $parentFilepath;
+					}
+				}
+
 				$filepath = Str::appendPath(
 					$themeConfigPath,
 					"{$type}.php"
 				);
 
 				if ( file_exists( $filepath ) ) {
-					$this['config']->set( $type, include $filepath );
+					$config = array_replace(
+						$config,
+						include $filepath
+					);
+				}
+
+				if ( $config ) {
+					$this['config']->set( $type, $config );
 				}
 			}
 		} else {
