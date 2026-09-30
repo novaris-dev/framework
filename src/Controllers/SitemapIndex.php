@@ -43,17 +43,14 @@ class SitemapIndex extends Controller
 			] );
 		}
 
-		$sitemaps = new Collection();
+		// Only list content types that have a sitemap. The copy keeps the
+		// same collection class, so sitemap views work as before.
+		$sitemaps = clone $types;
 
 		foreach ( $types as $type ) {
-			$sitemaps->add( $type->name(), new class( $type ) {
-				public function __construct( protected $type ) {}
-
-				public function url(): string
-				{
-					return url( 'sitemap/' . $this->type->name() );
-				}
-			} );
+			if ( ! $type->hasSitemap() ) {
+				$sitemaps->remove( $type->name() );
+			}
 		}
 
 		if ( $single ) {
@@ -67,7 +64,7 @@ class SitemapIndex extends Controller
 					'pagination' => false,
 					'single'     => $single,
 					'collection' => null,
-					'sitemaps'   => $types
+					'sitemaps'   => $sitemaps
 				]
 			), Response::HTTP_OK, [ 'content-type' => 'text/xml' ] );
 		}

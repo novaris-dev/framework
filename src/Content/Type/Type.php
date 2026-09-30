@@ -407,7 +407,9 @@ class Type implements ContentType
 	 */
 	public function hasSitemap(): bool
 	{
-		return Config::get( 'sitemap' ) && $this->sitemap;
+		return Config::get( 'app.sitemap' )
+			&& $this->sitemap
+			&& $this->isPublic();
 	}
 
 	/**
