@@ -13,8 +13,10 @@
 
 namespace Novaris\Image;
 
-use Intervention\Image\Drivers\Imagick\Driver;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\DriverInterface;
 use Novaris\Tools\Media;
 
 class Processor
@@ -24,7 +26,7 @@ class Processor
 	 *
 	 * @since 1.0.0
 	 */
-	protected ImageManager $manager;
+	protected ?ImageManager $manager = null;
 
 	/**
 	 * Creates the image processor.
@@ -33,9 +35,28 @@ class Processor
 	 */
 	public function __construct()
 	{
-		$this->manager = new ImageManager(
-			new Driver()
-		);
+		if ( $driver = static::driver() ) {
+			$this->manager = new ImageManager( $driver );
+		}
+	}
+
+	/**
+	 * Returns the best available image driver: Imagick if installed,
+	 * otherwise GD. Returns `null` if neither extension is available.
+	 *
+	 * @since 1.0.0
+	 */
+	protected static function driver(): ?DriverInterface
+	{
+		if ( extension_loaded( 'imagick' ) && class_exists( 'Imagick' ) ) {
+			return new ImagickDriver();
+		}
+
+		if ( extension_loaded( 'gd' ) ) {
+			return new GdDriver();
+		}
+
+		return null;
 	}
 
 	/**
@@ -65,6 +86,11 @@ class Processor
 
 		if ( ! $width || ! $height ) {
 			return null;
+		}
+
+		// Without an image extension, fall back to the original image.
+		if ( ! $this->manager ) {
+			return $media;
 		}
 
 		$pathinfo = pathinfo( $media->path() );
