@@ -90,6 +90,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   example with a Composer path repository). It now uses the autoload path from
   Composer's `vendor/bin/novaris`, and shows a clear message if no autoloader
   is found.
+- Sites without `CommonMarkCoreExtension` in `config/markdown.php` (or without
+  that file) failed to render any page. The core extension is now always
+  included.
 
 ### Removed
 
