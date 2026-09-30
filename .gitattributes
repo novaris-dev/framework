@@ -9,3 +9,8 @@
 
 
 * text=auto eol=lf
+
+# Leave development files out of Composer installs.
+/.github            export-ignore
+/tests              export-ignore
+/phpunit.xml.dist   export-ignore

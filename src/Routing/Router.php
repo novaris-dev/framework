@@ -28,6 +28,14 @@ class Router implements RoutingRouter
 	protected Request $request;
 
 	/**
+	 * Newest modified time of content and theme files, calculated once per
+	 * router instance (one per request).
+	 *
+	 * @since 1.0.0
+	 */
+	protected ?int $lastModified = null;
+
+	/**
 	 * Sets up the object state.
 	 *
 	 * @since 1.0.0
@@ -177,10 +185,8 @@ class Router implements RoutingRouter
 	 */
 	protected function lastModified(): int
 	{
-		static $time = null;
-
-		if ( null !== $time ) {
-			return $time;
+		if ( null !== $this->lastModified ) {
+			return $this->lastModified;
 		}
 
 		$time  = 0;
@@ -221,7 +227,7 @@ class Router implements RoutingRouter
 			$time = max( $time, (int) filemtime( $path ) );
 		}
 
-		return $time;
+		return $this->lastModified = $time;
 	}
 
 	/**

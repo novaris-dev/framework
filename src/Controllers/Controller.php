@@ -86,6 +86,24 @@ abstract class Controller
 	}
 
 	/**
+	 * Returns the page number from the route params. Returns `0` for
+	 * anything that isn't a valid page, including numbers too large to fit
+	 * in an integer, so callers can return a 404.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function pageNumber( array $params ): int
+	{
+		$page = filter_var(
+			$params['page'] ?? 1,
+			FILTER_VALIDATE_INT,
+			[ 'options' => [ 'min_range' => 1 ] ]
+		);
+
+		return false === $page ? 0 : $page;
+	}
+
+	/**
 	 * Forwards request to the `Error404` controller.
 	 *
 	 * @since 1.0.0

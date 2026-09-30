@@ -507,7 +507,12 @@ class Container implements ContainerContract, ArrayAccess
 		Proxy::setContainer( $this );
 
 		foreach ( $this->proxies as $class => $alias ) {
-			class_alias( $class, $alias );
+
+			// Aliases can only be declared once per process, which matters
+			// when more than one application boots (for example in tests).
+			if ( ! class_exists( $alias, false ) ) {
+				class_alias( $class, $alias );
+			}
 		}
 	}
 

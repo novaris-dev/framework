@@ -31,7 +31,7 @@ class Taxonomy extends Controller
 		// Get needed URI params from the router.
 		$name  = $params['name'];
 		$path  = $params['path'] ?? '';
-		$page  = intval( $params['page'] ?? 1 );
+		$page  = $this->pageNumber( $params );
 		$parts = explode( '/', $path );
 		$type  = false;
 

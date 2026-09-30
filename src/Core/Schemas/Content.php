@@ -25,6 +25,7 @@ class Content
 	{
 		return Expect::arrayOf( Expect::structure( [
 			'path'            => Expect::string(),
+			'public'          => Expect::bool( true ),
 			'collect'         => Expect::type( 'string|bool' )->nullable(),
 			'collection'      => Expect::array(),
 			'feed'            => Expect::type( 'bool|array' )->nullable(),

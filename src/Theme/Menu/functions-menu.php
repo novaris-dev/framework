@@ -13,6 +13,7 @@
 
 namespace Novaris\Theme\Menu;
 
+use Novaris\Core\Proxies\Config;
 use Novaris\Template\Tag\Navigation;
 
 /**
@@ -57,7 +58,12 @@ function display( $args = [] )
 
 	$args = array_merge( $defaults, $args );
 
-	$items = config( "app.{$args['theme_location']}" );
+	// A location with no configured items falls back to `fallback_cb`,
+	// since reading a missing config key throws an exception.
+	$key   = "app.{$args['theme_location']}";
+	$items = $args['theme_location'] && Config::exists( $key )
+		? config( $key )
+		: [];
 
 	if ( ! $items && is_callable( $args['fallback_cb'] ) ) {
 		call_user_func( $args['fallback_cb'] );

@@ -17,6 +17,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\DriverInterface;
+use Novaris\Core\Proxies\Config;
 use Novaris\Tools\Media;
 
 class Processor
@@ -72,9 +73,10 @@ class Processor
 			return null;
 		}
 
-		$options = config(
-			"app.supports.featured-image.sizes.{$size}"
-		);
+		// Only read sizes that are configured, since reading a missing
+		// config key throws an exception.
+		$key     = "app.supports.featured-image.sizes.{$size}";
+		$options = Config::exists( $key ) ? Config::get( $key ) : null;
 
 		if ( ! is_array( $options ) ) {
 			return null;

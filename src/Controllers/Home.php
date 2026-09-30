@@ -39,7 +39,7 @@ class Home extends Controller
 
 		// Query if type and collection exist.
 		if ( $type && $collect ) {
-			$page = intval( $params['page'] ?? 1 );
+			$page = $this->pageNumber( $params );
 
 			// Page numbers start at 1, so /page/0 is not a valid page.
 			if ( $page < 1 ) {

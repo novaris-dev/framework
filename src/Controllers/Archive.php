@@ -31,7 +31,7 @@ class Archive extends Controller
 
 		// Get or set params.
 		$path   = $basepath = $params['path'] ?? '';
-		$page   = intval( $params['page'] ?? 1 );
+		$page   = $this->pageNumber( $params );
 		$second = $params['second'] ?? '';
 		$minute = $params['minute'] ?? '';
 		$hour   = $params['hour']   ?? '';

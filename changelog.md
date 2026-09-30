@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The static export now writes a manifest of generated files to
   `storage/export.json`, used to clean up the previous export safely.
 - A `directory` cache store for ClassicPress and WordPress directory lookups.
+- A PHPUnit test suite (`composer test`) that builds small throwaway sites and
+  covers routing, content, caching, the static export and the CLI, plus a
+  GitHub Actions workflow that runs it on PHP 8.2, 8.3 and 8.4.
 
 ### Changed
 
@@ -36,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   in `config/app.php` no longer need `APP_URL`.
 - `Application::loadTheme()` no longer installs themes. The theme and its
   parent are installed during construction, where theme config is merged.
+- The router now caches the newest file time per router instance instead of
+  per process, and proxy aliases are only declared once per process, so more
+  than one application can boot in the same process.
 
 ### Fixed
 
@@ -101,6 +107,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sorting by `published` or `updated` put quoted or ISO-with-`T` dates above
   unquoted ones, because YAML parses them as text and numbers respectively.
   Dates are now compared as timestamps.
+- Very large page numbers in the URL crashed paginated pages with a
+  `TypeError` instead of returning a 404.
+- Content types could not be marked private: `public` was missing from the
+  content config schema, so `'public' => false` was rejected.
+- Asking for a thumbnail size that is not configured crashed the page instead
+  of returning `null`.
+- Menus for a location with no configured items crashed instead of running
+  `fallback_cb`.
 
 ### Removed
 
