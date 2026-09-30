@@ -614,7 +614,7 @@ if ( ! function_exists( 'asset' ) ) {
 		$file = ltrim( $manifest[ $entry ]['file'], '/' );
 
 		if ( $private ) {
-			return public_url( 'assets/' . $file );
+			return app_url( 'assets/' . $file );
 		}
 
 		return app_url(
