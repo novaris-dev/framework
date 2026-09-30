@@ -92,7 +92,7 @@ class MarkdownFile extends File
 	}
 
 	/**
-	 * Conditional for determining whether the Markdown has been parsed.
+	 * Conditional for determining whether the YAML has been parsed.
 	 *
 	 * @since 1.0.0
 	 */
@@ -135,9 +135,7 @@ class MarkdownFile extends File
 			return;
 		}
 
-		$content = file_get_contents(
-			$this->filepath(), false, null, 0, 4 * 1024
-		);
+		$content = file_get_contents( $this->filepath() );
 
 		$this->yaml_parsed = true;
 		$this->meta = $content ? Str::frontMatter( $content ) : [];
