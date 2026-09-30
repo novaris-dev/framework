@@ -188,7 +188,11 @@ switch ( $command ) {
 				return 0;
 			}
 
-			if ( ! isset( $output[0] ) || ! is_numeric( trim( $output[0] ) ) ) {
+			$last = $output
+				? trim( $output[ count( $output ) - 1 ] )
+				: null;
+
+			if ( null === $last || ! is_numeric( $last ) ) {
 				echo '✗ Export failed' . PHP_EOL;
 
 				if ( $output ) {
@@ -198,7 +202,7 @@ switch ( $command ) {
 				return 0;
 			}
 
-			return (int) trim( $output[0] );
+			return (int) $last;
 		};
 
 		if ( function_exists( 'pcntl_async_signals' ) ) {
