@@ -17,6 +17,7 @@ use Novaris\Contracts\Content\ContentLocator;
 // Classes.
 use Novaris\Core\Proxies\{App, Cache, Config};
 use Novaris\Tools\Str;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class File implements ContentLocator
@@ -293,7 +294,20 @@ class File implements ContentLocator
 			$content = file_get_contents( $filepath );
 
 			if ( $content ) {
-				$data = Str::frontMatter( $content );
+
+				// Skip files with invalid front matter so one broken
+				// file doesn't break every page that lists this folder.
+				try {
+					$data = Str::frontMatter( $content );
+				} catch ( ParseException $e ) {
+					error_log( sprintf(
+						'Novaris: skipped %s because its front matter is invalid: %s',
+						$filepath,
+						$e->getMessage()
+					) );
+
+					continue;
+				}
 
 				// Exclude meta from cache.
 				if ( $exclude ) {
