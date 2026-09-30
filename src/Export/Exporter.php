@@ -459,7 +459,7 @@ class Exporter
 		}
 
 		foreach ( array_keys( $years ) as $year ) {
-			$this->exportPath(
+			$this->exportPagedPath(
 				$this->buildPath(
 					$type->routingPrefix(),
 					$year
@@ -468,7 +468,7 @@ class Exporter
 		}
 
 		foreach ( array_keys( $months ) as $month ) {
-			$this->exportPath(
+			$this->exportPagedPath(
 				$this->buildPath(
 					$type->routingPrefix(),
 					$month
@@ -477,7 +477,7 @@ class Exporter
 		}
 
 		foreach ( array_keys( $days ) as $day ) {
-			$this->exportPath(
+			$this->exportPagedPath(
 				$this->buildPath(
 					$type->routingPrefix(),
 					$day
@@ -552,11 +552,12 @@ class Exporter
 	}
 
 	/**
-	 * Exports a single path.
+	 * Exports a single path. Returns whether the path exists, meaning it
+	 * was exported now or earlier.
 	 *
 	 * @since 1.0.0
 	 */
-	protected function exportPath( string $path ): void
+	protected function exportPath( string $path ): bool
 	{
 		$path = '/' . trim( $path, '/' );
 
@@ -565,14 +566,14 @@ class Exporter
 		}
 
 		if ( in_array( $path, $this->exported, true ) ) {
-			return;
+			return true;
 		}
 
 		$request  = Request::create( $path, 'GET' );
 		$response = $this->router->dispatch( $request );
 
 		if ( ! $response->isSuccessful() ) {
-			return;
+			return false;
 		}
 
 		$content = (string) $response->getContent();
@@ -586,6 +587,28 @@ class Exporter
 		);
 
 		$this->exported[] = $path;
+
+		return true;
+	}
+
+	/**
+	 * Exports a path and each of its `/page/{n}` pages, stopping at the
+	 * first page that doesn't exist.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function exportPagedPath( string $path ): void
+	{
+		if ( ! $this->exportPath( $path ) ) {
+			return;
+		}
+
+		// The limit only guards against a route that never returns a 404.
+		for ( $page = 2; $page <= 1000; $page++ ) {
+			if ( ! $this->exportPath( rtrim( $path, '/' ) . "/page/{$page}" ) ) {
+				break;
+			}
+		}
 	}
 
 	/**

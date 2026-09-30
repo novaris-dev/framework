@@ -714,6 +714,26 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	}
 
 	/**
+	 * Returns a value to sort by. Dates are compared as timestamps, since
+	 * YAML parses some date formats (`2024-01-05`) as numbers and others
+	 * (`"2024-01-05"`, `2024-06-01T10:00`) as text.
+	 *
+	 * @since 1.0.0
+	 */
+	private function sortValue( mixed $value ): mixed
+	{
+		if ( ! in_array( $this->orderby, [ 'published', 'updated' ], true ) ) {
+			return $value;
+		}
+
+		if ( is_numeric( $value ) ) {
+			return (int) $value;
+		}
+
+		return is_string( $value ) ? (int) strtotime( $value ) : 0;
+	}
+
+	/**
 	 * Sort entries by order query options.
 	 *
 	 * @since 1.0.0
@@ -744,7 +764,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 						return -1;
 					}
 
-					return $a[ $this->orderby ] <=> $b[ $this->orderby ];
+					return $this->sortValue( $a[ $this->orderby ] ) <=> $this->sortValue( $b[ $this->orderby ] );
 				}
 
 				// Fall back to descending order.
@@ -754,7 +774,7 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 					return -1;
 				}
 
-				return $b[ $this->orderby ] <=> $a[ $this->orderby ];
+				return $this->sortValue( $b[ $this->orderby ] ) <=> $this->sortValue( $a[ $this->orderby ] );
 			} );
 
 			return $entries;

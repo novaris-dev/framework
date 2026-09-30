@@ -45,6 +45,10 @@ class Taxonomy extends Controller
 			$path = Str::beforeFirst( $path, "/page/{$page}" );
 		}
 
+		// Keep the term's own path for pagination links, since the loop
+		// below shortens `$path` while looking up the taxonomy type.
+		$basepath = $path;
+
 		// Find the taxonomy type from the path or URI.
 		foreach ( array_reverse( $parts ) as $part ) {
 			$path = Str::beforeLast( $path, "/{$part}" );
@@ -107,7 +111,7 @@ class Taxonomy extends Controller
 			] );
 
 			$pagination = new Pagination( [
-				'basepath' => $path,
+				'basepath' => $basepath,
 				'current'  => $page,
 				'total'    => $entries->pages()
 			] );
