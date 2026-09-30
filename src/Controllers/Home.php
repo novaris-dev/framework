@@ -41,6 +41,11 @@ class Home extends Controller
 		if ( $type && $collect ) {
 			$page = intval( $params['page'] ?? 1 );
 
+			// Page numbers start at 1, so /page/0 is not a valid page.
+			if ( $page < 1 ) {
+				return $this->forward404( $params, $request );
+			}
+
 			// Query homepage content type.
 			$home = Query::make( [
 				'path' => $type->path(),

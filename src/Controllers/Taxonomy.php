@@ -35,6 +35,11 @@ class Taxonomy extends Controller
 		$parts = explode( '/', $path );
 		$type  = false;
 
+		// Page numbers start at 1, so /page/0 is not a valid page.
+		if ( $page < 1 ) {
+			return $this->forward404( $params, $request );
+		}
+
 		// If this is a paged view, strip the page from the path.
 		if ( Str::contains( $path, "/page/{$page}" ) ) {
 			$path = Str::beforeFirst( $path, "/page/{$page}" );

@@ -40,6 +40,11 @@ class Archive extends Controller
 		$year   = $params['year']   ?? '';
 		$type   = false;
 
+		// Page numbers start at 1, so /page/0 is not a valid page.
+		if ( $page < 1 ) {
+			return $this->forward404( $params, $request );
+		}
+
 		// Strip page from path.
 		if ( Str::contains( $path, "/page/{$page}" ) ) {
 			$path = $basepath = Str::beforeFirst( $path, "/page/{$page}" );

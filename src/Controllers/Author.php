@@ -29,6 +29,11 @@ class Author extends Controller
 		$author_slug = sanitize_slug( $params['author'] ?? '' );
 		$page        = intval( $params['page'] ?? 1 );
 
+		// Page numbers start at 1, so /page/0 is not a valid page.
+		if ( $page < 1 ) {
+			return $this->forward404( $params, $request );
+		}
+
 		// If there is no author, bail early.
 		if ( ! $author_slug ) {
 			return $this->forward404( $params, $request );
