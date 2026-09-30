@@ -704,6 +704,51 @@ class Exporter
 	{
 		if ( ! is_dir( $this->path ) ) {
 			mkdir( $this->path, 0755, true );
+
+			return;
+		}
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator(
+				$this->path,
+				RecursiveDirectoryIterator::SKIP_DOTS
+			),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		foreach ( $iterator as $item ) {
+
+			$relative = str_replace(
+				'\\',
+				'/',
+				$iterator->getSubPathName()
+			);
+
+			if (
+				'assets' === $relative
+				|| str_starts_with( $relative, 'assets/' )
+				|| 'user/media' === $relative
+				|| str_starts_with( $relative, 'user/media/' )
+			) {
+				continue;
+			}
+
+			if ( $item->isFile() ) {
+				if ( 'html' === strtolower( $item->getExtension() ) ) {
+					unlink( $item->getPathname() );
+				}
+
+				continue;
+			}
+
+			$files = array_diff(
+				scandir( $item->getPathname() ) ?: [],
+				[ '.', '..' ]
+			);
+
+			if ( ! $files ) {
+				rmdir( $item->getPathname() );
+			}
 		}
 	}
 }
