@@ -103,9 +103,14 @@ class Router implements RoutingRouter
 			'purge/cache'
 		], Config::get( 'cache.global_exclude' ) );
 
-		// Don't cache excluded pages. Just return response.
+		// Don't cache excluded pages or their child paths.
 		foreach ( (array) $exclude as $_path ) {
-			if ( Str::startsWith( $path, $_path ) ) {
+			$_path = Str::trimSlashes( $_path );
+
+			if (
+				$path === $_path ||
+				Str::startsWith( $path, "{$_path}/" )
+			) {
 				return $this->getResponse();
 			}
 		}
