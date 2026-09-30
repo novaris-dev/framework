@@ -93,6 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sites without `CommonMarkCoreExtension` in `config/markdown.php` (or without
   that file) failed to render any page. The core extension is now always
   included.
+- Pagination on taxonomy terms linked to the taxonomy's base path (for example
+  `/category/page/2`) instead of the term (`/category/uncategorized/page/2`).
+- The static export wrote only the first page of each year, month and day
+  archive, leaving broken pager links. Every page of a date archive is now
+  exported.
+- Sorting by `published` or `updated` put quoted or ISO-with-`T` dates above
+  unquoted ones, because YAML parses them as text and numbers respectively.
+  Dates are now compared as timestamps.
 
 ### Removed
 
