@@ -99,12 +99,11 @@ class Navigation implements Displayable, Renderable
 		);
 
 		return sprintf(
-			'<nav class="%s"><%s class="%s">%s</%s></nav>',
+			'<nav class="%1$s"><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-menu">Menu</button><%2$s id="primary-menu" class="%3$s">%4$s</%2$s></nav>',
 			e( $this->display['nav_class'] ),
 			escape_tag( $this->display['list_tag'] ),
 			e( $this->display['list_class'] ),
-			implode( '', $listItems ),
-			escape_tag( $this->display['list_tag'] )
+			implode( '', $listItems )
 		);
 	}
 
