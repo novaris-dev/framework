@@ -120,8 +120,19 @@ class File extends Driver
 		}
 
 		if ( $this->fileExists( $key ) ) {
-			$data = file_get_contents( $this->filepath( $key ) );
-			$data = unserialize( $data );
+			$content = file_get_contents( $this->filepath( $key ) );
+
+			if ( false === $content ) {
+				$this->forget( $key );
+				return null;
+			}
+
+			$data = @unserialize( $content );
+
+			if ( ! is_array( $data ) ) {
+				$this->forget( $key );
+				return null;
+			}
 
 			if ( $this->hasExpired( $data ) ) {
 				$this->forget( $key );
@@ -250,7 +261,7 @@ class File extends Driver
 	/**
 	 * Gets and returns data by key. Deletes previous data.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 */
 	public function pull( string $key ): mixed
 	{
