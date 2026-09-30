@@ -48,6 +48,10 @@ class Cache extends ServiceProvider
 				'global'  => [
 					'driver' => 'file.cache',
 					'path'   => $app->cachePath( 'global' )
+				],
+				'directory' => [
+					'driver' => 'file.cache',
+					'path'   => $app->cachePath( 'directory' )
 				]
 			], $app->make( 'config' )->get( 'cache.stores' ) );
 

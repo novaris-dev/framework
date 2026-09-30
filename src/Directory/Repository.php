@@ -15,6 +15,7 @@
 namespace Novaris\Directory;
 
 use GuzzleHttp\Client;
+use Novaris\Core\Proxies\Cache;
 
 class Repository
 {
@@ -53,9 +54,43 @@ class Repository
 	/**
 	 * Gets directory information for the given slug.
 	 *
+	 * Results are cached for a day. If every directory request failed,
+	 * the result is only cached for a few minutes so it is retried soon.
+	 *
 	 * @since 1.0.0
 	 */
-    public function get( string $slug ): array
+	public function get( string $slug ): array
+	{
+		$key    = "directory.{$slug}";
+		$cached = Cache::get( $key );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		$data = $this->fetch( $slug );
+
+		$failed = ! array_filter(
+			$data,
+			fn( $result ) => ! isset( $result['error'] )
+		);
+
+		Cache::put(
+			$key,
+			$data,
+			$failed ? 5 * MINUTE_IN_SECONDS : DAY_IN_SECONDS
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Fetches directory information for the given slug from the
+	 * ClassicPress and WordPress APIs.
+	 *
+	 * @since 1.0.0
+	 */
+    protected function fetch( string $slug ): array
     {
         $cp_theme = $this->classicPressTheme( $slug );
 
