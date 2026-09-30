@@ -226,7 +226,15 @@ class File implements IteratorAggregate, Makeable, ContentQuery
 	{
 		foreach ( array_keys( get_object_vars( $this ) ) as $key ) {
 			if ( isset( $options[ $key ] ) ) {
-				$this->$key = $options[ $key ];
+				$value = $options[ $key ];
+
+				// A huge page number overflows `number * (page - 1)` into a
+				// float. Cap it so the query simply finds nothing.
+				if ( is_float( $value ) && in_array( $key, [ 'number', 'offset' ], true ) ) {
+					$value = $value >= PHP_INT_MAX ? PHP_INT_MAX : (int) $value;
+				}
+
+				$this->$key = $value;
 			}
 		}
 
