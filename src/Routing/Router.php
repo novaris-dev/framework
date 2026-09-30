@@ -86,11 +86,8 @@ class Router implements RoutingRouter
 	 */
 	public function response(): Response
 	{
-		$expires = (int) Config::get( 'cache.expires' );
-
-		// Just return the response if global caching is disabled or no
-		// cache expiration time has been configured.
-		if ( ! Config::get( 'cache.global' ) || $expires <= 0 ) {
+		// Just return the response if global caching is disabled.
+		if ( ! Config::get( 'cache.global' ) ) {
 			return $this->getResponse();
 		}
 
@@ -121,8 +118,20 @@ class Router implements RoutingRouter
 		}
 
 		$cache_key = str_replace( [ '/', '\\' ], '.', $path );
-		$content   = Cache::get( "global.{$cache_key}" );
+		$store     = Cache::store( 'global' );
+		$content   = $store->get( $cache_key );
 		$response  = false;
+
+		// Throw away the cached page if content or theme files changed
+		// after it was cached.
+		if ( null !== $content ) {
+			$created = (int) $store->created( $cache_key );
+
+			if ( $created < $this->lastModified() ) {
+				$store->forget( $cache_key );
+				$content = null;
+			}
+		}
 
 		// If no cached content, get a new response and cache it.
 		if ( null === $content ) {
@@ -136,10 +145,10 @@ class Router implements RoutingRouter
 					'headers' => $response->headers->all()
 				];
 
-				Cache::put(
-					"global.{$cache_key}",
+				$store->put(
+					$cache_key,
 					$content,
-					$expires
+					(int) Config::get( 'cache.expires' )
 				);
 			}
 		}
@@ -157,8 +166,62 @@ class Router implements RoutingRouter
 			}
 		}
 
-		// Return HTTP response.
 		return $response;
+	}
+
+	/**
+	 * Returns the newest modified time across content and theme files.
+	 * Calculated once per request.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function lastModified(): int
+	{
+		static $time = null;
+
+		if ( null !== $time ) {
+			return $time;
+		}
+
+		$time  = 0;
+		$paths = [
+			content_path(),
+			config_path(),
+			view_path(),
+			theme_path( 'app' ),
+			theme_path( 'config' ),
+			theme_path( 'resources' ),
+		];
+
+		// Include the parent theme when using a child theme.
+		if ( parent_theme_path() ) {
+			$paths[] = parent_theme_path( 'app' );
+			$paths[] = parent_theme_path( 'config' );
+			$paths[] = parent_theme_path( 'resources' );
+		}
+
+		foreach ( $paths as $path ) {
+			if ( ! is_dir( $path ) ) {
+				continue;
+			}
+
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator(
+					$path,
+					\RecursiveDirectoryIterator::SKIP_DOTS
+				),
+				\RecursiveIteratorIterator::SELF_FIRST
+			);
+
+			// Folders count too, so deleted or renamed files are noticed.
+			foreach ( $iterator as $item ) {
+				$time = max( $time, (int) $item->getMTime() );
+			}
+
+			$time = max( $time, (int) filemtime( $path ) );
+		}
+
+		return $time;
 	}
 
 	/**
