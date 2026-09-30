@@ -22,6 +22,13 @@ use Symfony\Component\Yaml\Yaml;
 class File implements ContentLocator
 {
 	/**
+	 * Root content path.
+	 *
+	 * @since 1.0.0
+	 */
+	protected string $root;
+
+	/**
 	 * Full path to the user content folder to search.
 	 *
 	 * @since 1.0.0
@@ -61,7 +68,7 @@ class File implements ContentLocator
 	 *
 	 * @since 1.0.0
 	 */
-	protected ?int $cache_time = null;
+	protected int|false|null $cache_time = null;
 
 	/**
 	 * Sets up object state.
@@ -70,11 +77,10 @@ class File implements ContentLocator
 	 */
 	public function __construct( string $path = '' )
 	{
-		$this->path = App::resolve( 'path.content' );
+		$this->root = App::resolve( 'path.content' );
+		$this->path = $this->root;
 
-		if ( $path ) {
-			$this->setPath( $path );
-		}
+		$this->setPath( $path );
 	}
 
 	/**
@@ -88,12 +94,18 @@ class File implements ContentLocator
 		// Remove slashes and dots from the left/right sides.
 		$path = trim( $path, '/.' );
 
-		if ( $path ) {
-			$this->path = Str::appendPath( $this->path, $path );
-		}
+		// Always resolve the path from the content root.
+		$this->path = $path
+			? Str::appendPath( $this->root, $path )
+			: $this->root;
 
 		// Replace slash with dot for cache key.
 		$this->cache_key = str_replace( '/', '.', $path ?: 'index' );
+
+		// Reset state belonging to the previous path.
+		$this->located      = null;
+		$this->content_time = null;
+		$this->cache_time   = null;
 	}
 
 	/**
@@ -124,7 +136,8 @@ class File implements ContentLocator
 	 */
 	public function all(): array
 	{
-		// If the content has already been located, return it early.
+		// If the content has already been located for the current path,
+		// return it early.
 		if ( ! is_null( $this->located ) ) {
 			return $this->located;
 		}
@@ -143,7 +156,7 @@ class File implements ContentLocator
 			}
 		}
 
-		// Set or reset located array (it should be `null` here).
+		// Set located array for the current path.
 		$this->located = [];
 
 		// Loop through the entries and re-add the full filepath as the key.
