@@ -62,17 +62,22 @@ class Cache extends Controller
 
 		$doctitle = new DocumentTitle( $single->title() );
 
-		return $this->response( $this->view( [
-			"single-page-cache",
-			'single-page',
-			'single',
-			'index'
-		], [
-			'doctitle'   => $doctitle,
-			'pagination' => false,
-			'single'     => $single,
-			'collection' => false
-		] ) );
+		return $this->response(
+			$this->view(
+				'index',
+				[
+					'single-page-cache',
+					'single-page',
+					'single'
+				],
+				[
+					'doctitle'   => $doctitle,
+					'pagination' => false,
+					'single'     => $single,
+					'collection' => false
+				]
+			)
+		);
 	}
 
 	/**
