@@ -57,7 +57,7 @@ class File implements ContentLocator
 	protected string $cache_key = '';
 
 	/**
-	 * Stores the newest result of `filemtime()` for the content folder.
+	 * Stores the newest result of `filemtime()` for content files.
 	 *
 	 * @since 1.0.0
 	 */
@@ -189,14 +189,12 @@ class File implements ContentLocator
 			return $cache;
 		}
 
-		// Get the newest modified time from the user content folder.
-		$this->content_time = is_dir( $this->path )
-			? filemtime( $this->path )
-			: false;
+		// Get the newest modified time from the content files.
+		$this->content_time = $this->contentModifiedTime();
 
 		$this->cache_time = $store->created( $this->cache_key );
 
-		// If there are no modified file times or the content folder is
+		// If there are no modified file times or the content files are
 		// newer than the cache, forget the current cache.
 		if (
 			false === $this->cache_time ||
@@ -209,6 +207,37 @@ class File implements ContentLocator
 
 		// Return the cache, empty or otherwise.
 		return $cache;
+	}
+
+	/**
+	 * Returns the newest modified time for content files in the current path.
+	 *
+	 * @since 1.0.0
+	 */
+	protected function contentModifiedTime(): int|false
+	{
+		$search = Str::appendPath(
+			$this->path,
+			sprintf( '*.%s', $this->extension() )
+		);
+
+		$filepaths = glob( $search );
+
+		if ( ! $filepaths ) {
+			return false;
+		}
+
+		$modified = 0;
+
+		foreach ( $filepaths as $filepath ) {
+			$time = filemtime( $filepath );
+
+			if ( false !== $time && $time > $modified ) {
+				$modified = $time;
+			}
+		}
+
+		return $modified ?: false;
 	}
 
 	/**
