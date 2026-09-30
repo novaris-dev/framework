@@ -209,6 +209,13 @@ class Application extends Container implements ApplicationContract, Bootable
 			)->load();
 		}
 
+		// The site URL is required to build links and asset URLs.
+		if ( ! env( 'APP_URL' ) ) {
+			( new Message() )->make(
+				'APP_URL is not set. Add it to your .env file, for example: APP_URL="https://example.com"'
+			)->dd();
+		}
+
 		// Creates a new configuration instance and adds the default
 		// framework schemas.
 		$this->instance( Configuration::class, new Configuration( [
