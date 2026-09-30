@@ -190,13 +190,6 @@ class Application extends Container implements ApplicationContract, Bootable
 			)->load();
 		}
 
-		// The site URL is required to build links and asset URLs.
-		if ( ! env( 'APP_URL' ) ) {
-			( new Message() )->make(
-				'APP_URL is not set. Add it to your .env file, for example: APP_URL="https://example.com"'
-			)->dd();
-		}
-
 		// Creates a new configuration instance and adds the default
 		// framework schemas.
 		$this->instance( Configuration::class, new Configuration( [
@@ -216,12 +209,31 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		// Load site configuration. Theme-owned configuration is loaded
 		// separately from the active theme.
+		$siteApp = [];
+
 		foreach ( [ 'app', 'cache', 'content', 'markdown' ] as $type ) {
 			$filepath = Str::appendPath( $this['path.config'], "{$type}.php" );
 
 			if ( file_exists( $filepath ) ) {
-				$this['config']->set( $type, include $filepath );
+				$config = include $filepath;
+
+				if ( 'app' === $type && is_array( $config ) ) {
+					$siteApp = $config;
+				}
+
+				$this['config']->set( $type, $config );
 			}
+		}
+
+		// The site URL is required to build links and asset URLs. Check the
+		// value from `config/app.php` before any config is read, since a
+		// `null` URL would otherwise fail with a less helpful error.
+		$url = ( $siteApp['url'] ?? '' ) ?: ( $siteApp['uri'] ?? '' );
+
+		if ( ! is_string( $url ) || '' === trim( $url ) ) {
+			( new Message() )->make(
+				'The site URL is not set. Add APP_URL to your .env file, for example: APP_URL="https://example.com", and make sure <code>config/app.php</code> sets <code>\'url\' => env( \'APP_URL\' )</code>.'
+			)->dd();
 		}
 
 		$theme = $this['config']->get( 'app.theme', '' );
