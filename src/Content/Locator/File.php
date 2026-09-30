@@ -57,7 +57,7 @@ class File implements ContentLocator
 	protected string $cache_key = '';
 
 	/**
-	 * Stores the newest result of `filemtime()` for content files.
+	 * Stores the newest result of `filemtime()` for content files or directory.
 	 *
 	 * @since 1.0.0
 	 */
@@ -189,7 +189,7 @@ class File implements ContentLocator
 			return $cache;
 		}
 
-		// Get the newest modified time from the content files.
+		// Get the newest modified time from the content files or directory.
 		$this->content_time = $this->contentModifiedTime();
 
 		$this->cache_time = $store->created( $this->cache_key );
@@ -210,7 +210,7 @@ class File implements ContentLocator
 	}
 
 	/**
-	 * Returns the newest modified time for content files in the current path.
+	 * Returns the newest modified time for content files or directory.
 	 *
 	 * @since 1.0.0
 	 */
@@ -223,11 +223,13 @@ class File implements ContentLocator
 
 		$filepaths = glob( $search );
 
-		if ( ! $filepaths ) {
-			return false;
-		}
+		$modified = is_dir( $this->path )
+			? (int) filemtime( $this->path )
+			: 0;
 
-		$modified = 0;
+		if ( ! $filepaths ) {
+			return $modified ?: false;
+		}
 
 		foreach ( $filepaths as $filepath ) {
 			$time = filemtime( $filepath );
@@ -287,12 +289,8 @@ class File implements ContentLocator
 			// Set up empty array in case there's no data.
 			$data = [];
 
-			// Get the first 4 kb of data from the file. We're only
-			// grabbing the frontmatter. Anything even encroaching
-			// this number would be insane.
-			$content = file_get_contents(
-				$filepath, false, null, 0, 4 * 1024
-			);
+			// Get the file contents and parse the front matter.
+			$content = file_get_contents( $filepath );
 
 			if ( $content ) {
 				$data = Str::frontMatter( $content );
