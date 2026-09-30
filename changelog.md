@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cached, and rebuilds the page if they have. See `Router::lastModified()`.
 - The static export now writes a manifest of generated files to
   `storage/export.json`, used to clean up the previous export safely.
+- A `directory` cache store for ClassicPress and WordPress directory lookups.
 
 ### Changed
 
@@ -28,9 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `export --watch` prints the error output when an export fails, and reads the
   page count from the last line of output so PHP warnings no longer cause a
   false failure.
-- `APP_URL` is now required. If it is missing or empty, the framework stops
-  early with a clear message instead of failing later with
-  `app › url expects to be string, null given`.
+- The site URL is now required. If `url` in `config/app.php` is missing or
+  empty (usually because `APP_URL` is not set), the framework stops early with
+  a clear message instead of failing later with
+  `app › url expects to be string, null given`. Sites that set `url` directly
+  in `config/app.php` no longer need `APP_URL`.
+- `Application::loadTheme()` no longer installs themes. The theme and its
+  parent are installed during construction, where theme config is merged.
 
 ### Fixed
 
@@ -70,6 +75,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   key.
 - One content file with invalid front matter broke every page listing its
   folder. The file is now skipped and the error is logged.
+- `/page/0` on the home page, collections, date archives, taxonomies and author
+  archives showed the second page's entries instead of a 404.
+- Content paths containing `..` could read `.md` files outside the content
+  folder.
+- Thumbnails crashed on servers without the Imagick extension. GD is now used
+  as a fallback, and the original image is returned if neither is installed.
+- Directory pages called the ClassicPress and WordPress APIs on every visit.
+  Results are now cached for a day, or for 5 minutes when every request failed.
+- A site without `index.md` returned an empty home page with a 200 status,
+  which was cached and exported. It now returns a 404 with the notice, and
+  shows the path relative to the site instead of the full server path.
+- `bin/novaris` failed when the framework was symlinked into `vendor/` (for
+  example with a Composer path repository). It now uses the autoload path from
+  Composer's `vendor/bin/novaris`, and shows a clear message if no autoloader
+  is found.
 
 ### Removed
 
