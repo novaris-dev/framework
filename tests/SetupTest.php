@@ -130,7 +130,7 @@ class SetupTest extends TestCase
 		);
 
 		$this->assertSame( 0, $status, $output );
-		$this->assertStringContainsString( 'Novaris 1.0.0', $output );
+		$this->assertStringContainsString( 'Novaris ' . \Novaris\Core\Application::VERSION, $output );
 	}
 
 	public function testCliExplainsAMissingAutoloader(): void
