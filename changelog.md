@@ -5,6 +5,21 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- PHP 8.1 or newer is now required. The framework could not be installed on
+  PHP 8.0, because its dependencies already required 8.1.
+- The test workflow now also runs on PHP 8.5.
+
+### Fixed
+
+- `updated()` returned a garbled string instead of a date. It now returns the
+  `updated` date, then the `published` date, then the file's modified time.
+- `featured_image()` crashed with a call to an undefined `featuredImage()`
+  method. It now returns the entry's thumbnail.
+
 ## [1.0.0] - 09.30.2026
 
 ### Added
