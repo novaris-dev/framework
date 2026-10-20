@@ -45,6 +45,25 @@ class ContentTest extends TestCase
 		);
 	}
 
+	public function testUpdatedDateFallsBackCorrectly(): void
+	{
+		$site = $this->makeSite( [
+			'user/content/dates/index.md'   => $this->markdown( [ 'title' => 'Dates' ] ),
+			'user/content/dates/both.md'    => $this->markdown( [ 'title' => 'Both', 'published' => '2024-01-05', 'updated' => '2025-03-04' ] ),
+			'user/content/dates/publish.md' => $this->markdown( [ 'title' => 'Published only', 'published' => '2024-01-05' ] ),
+			'user/content/dates/none.md'    => $this->markdown( [ 'title' => 'No dates' ] ),
+		] );
+
+		touch( "{$site}/user/content/dates/none.md", mktime( 12, 0, 0, 7, 9, 2023 ) );
+
+		$query   = $this->boot( $site )->make( 'content.query' );
+		$updated = fn( string $slug ) => ( clone $query )->make( [ 'path' => 'dates', 'slug' => $slug ] )->single()->updated( 'Y-m-d' );
+
+		$this->assertSame( '2025-03-04', $updated( 'both' ) );
+		$this->assertSame( '2024-01-05', $updated( 'publish' ) );
+		$this->assertSame( '2023-07-09', $updated( 'none' ) );
+	}
+
 	public function testSkipsFilesWithInvalidFrontMatter(): void
 	{
 		$site = $this->makeSite( [

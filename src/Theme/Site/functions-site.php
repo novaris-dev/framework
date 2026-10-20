@@ -179,5 +179,5 @@ function featured_image(
 		return null;
 	}
 
-	return $entry->featuredImage();
+	return $entry->thumbnail();
 }

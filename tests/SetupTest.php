@@ -81,6 +81,19 @@ class SetupTest extends TestCase
 		$this->assertNull( ( new Processor() )->process( new Media( '/user/media/photo.png' ), 'missing-size' ) );
 	}
 
+	public function testFeaturedImageHelperReturnsTheThumbnail(): void
+	{
+		$site = $this->makeSite( [
+			'theme.json'                => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "featured-image": true } }',
+			'user/content/about/index.md' => $this->markdown( [ 'title' => 'About', 'thumbnail' => '/user/media/missing.png' ] ),
+		] );
+
+		$entry = $this->boot( $site )->make( 'content.query' )->make( [ 'path' => 'about', 'slug' => 'index' ] )->single();
+
+		// No such image exists, so the helper returns null instead of crashing.
+		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry ) );
+	}
+
 	public function testMenusHandleLocationsWithoutItems(): void
 	{
 		$this->boot( $this->makeSite( [], [ 'primary' => [ 'Blog' => '/blog' ] ] ) );

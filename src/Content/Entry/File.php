@@ -15,7 +15,7 @@ namespace Novaris\Content\Entry;
 use Novaris\Contracts\Content\ContentType;
 
 // Concretes.
-use Novaris\Core\Proxies\{App, Url};
+use Novaris\Core\Proxies\{App, Config, Url};
 use Novaris\Tools\Str;
 
 abstract class File extends Entry {
@@ -249,12 +249,15 @@ abstract class File extends Entry {
 	 */
 	public function updated( string $format = '' ): string
 	{
-		// Returned updated meta if found.
-		if ( $updated = parent::updated( 'updated', $format ) ) {
+		// Return the `updated` meta, which falls back to `published`.
+		if ( $updated = parent::updated( $format ) ) {
 			return $updated;
 		}
 
-		// Fall back to file's modified time.
-		return $this->date( filemtime( $this->filepath() ) );
+		// Fall back to the file's modified time.
+		return date(
+			$format ?: Config::get( 'app.date_format' ),
+			filemtime( $this->filepath() )
+		);
 	}
 }
