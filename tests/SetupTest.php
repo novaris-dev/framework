@@ -115,6 +115,23 @@ class SetupTest extends TestCase
 		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) ) );
 	}
 
+	public function testCustomHeaderIsConfiguredInConfig(): void
+	{
+		// Set in config/app.php: the default header URL is returned.
+		$this->boot( $this->makeSite( [], [ 'supports' => [ 'custom-header' => [ 'default' => '/user/media/header.jpg' ] ] ] ) );
+		$this->assertSame( '/user/media/header.jpg', \Novaris\Theme\Site\custom_header() );
+
+		// Not configured: an empty string.
+		$this->boot( $this->makeSite() );
+		$this->assertSame( '', \Novaris\Theme\Site\custom_header() );
+
+		// Only in theme.json, not config/app.php: off.
+		$this->boot( $this->makeSite( [
+			'theme.json' => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "custom-header": { "default": "/old.jpg" } } }',
+		] ) );
+		$this->assertSame( '', \Novaris\Theme\Site\custom_header() );
+	}
+
 	public function testMenusHandleLocationsWithoutItems(): void
 	{
 		$this->boot( $this->makeSite( [], [ 'primary' => [ 'Blog' => '/blog' ] ] ) );
