@@ -5,6 +5,20 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- A JSON schema for `theme.json` at `schemas/theme.schema.json`. Add
+  `"$schema": "https://raw.githubusercontent.com/novaris-dev/framework/develop/schemas/theme.schema.json"`
+  to a theme's `theme.json` for editor autocomplete and warnings about missing
+  or misspelled fields.
+- Readme documentation for themes and `theme.json`.
+
+### Fixed
+
+- The readme's installation example was missing its closing code fence.
+
 ## [1.0.2] - 11.03.2026
 
 ### Added
