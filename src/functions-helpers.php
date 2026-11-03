@@ -587,7 +587,7 @@ if ( ! function_exists( 'asset' ) ) {
 		if ( $private ) {
 			$manifest_file = public_path( 'assets/manifest.json' );
 		} else {
-			$theme       = config( 'app.theme' );
+			$theme       = \Novaris\Theme\Name::slug( config( 'app.theme' ) );
 			$parent      = app( 'theme.metadata' )->parent();
 			$asset_theme = $parent ?: $theme;
 

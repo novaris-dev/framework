@@ -5,6 +5,22 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Themes can be installed from any GitHub user or organization. Set
+  `'theme' => 'owner/slug'` in `config/app.php` (or `"parent": "owner/slug"` in
+  `theme.json`) to install from that repository. A plain slug, such as
+  `'amicable'`, still installs from `novaris-dev`. The theme's folder is always
+  the slug, for example `themes/amicable`.
+
+### Changed
+
+- Theme names are now validated. Names other than `slug` or `owner/slug`, such
+  as `../x`, stop with a clear message instead of being used in folder paths
+  and GitHub URLs.
+
 ## [1.0.1] - 10.20.2026
 
 ### Changed

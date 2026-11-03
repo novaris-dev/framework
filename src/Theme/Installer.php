@@ -25,11 +25,12 @@ use ZipArchive;
 class Installer
 {
 	/**
-	 * Default theme repository organization.
+	 * Default theme repository organization, used for theme names without
+	 * an owner. Kept for backwards compatibility; see `Name::DEFAULT_OWNER`.
 	 *
 	 * @since 1.0.0
 	 */
-	protected const DEFAULT_REPOSITORY = 'novaris-dev';
+	protected const DEFAULT_REPOSITORY = Name::DEFAULT_OWNER;
 
 	/**
 	 * GitHub API client.
@@ -183,19 +184,23 @@ class Installer
 			}
 		}
 
+		// `amicable` installs from `novaris-dev/amicable`, and
+		// `someone/their-theme` from `someone/their-theme`. Either way the
+		// theme's folder is the slug.
+		$slug       = Name::slug( $theme );
+		$repository = Name::repository( $theme );
+
 		$themePath = rtrim( $themes, '/\\' )
 			. DIRECTORY_SEPARATOR
-			. $theme;
+			. $slug;
 
 		if ( is_dir( $themePath ) ) {
 			return $themePath;
 		}
 
-		$repository = static::DEFAULT_REPOSITORY . "/{$theme}";
-
 		$temporary = rtrim( $themes, '/\\' )
 			. DIRECTORY_SEPARATOR
-			. ".{$theme}-install-" . uniqid();
+			. ".{$slug}-install-" . uniqid();
 
 		if ( ! mkdir( $temporary, 0755, true ) && ! is_dir( $temporary ) ) {
 			throw new RuntimeException(
@@ -207,7 +212,7 @@ class Installer
 
 		try {
 			$archive = $this->download(
-				$theme,
+				$slug,
 				$repository,
 				$temporary
 			);
@@ -230,7 +235,7 @@ class Installer
 				);
 			}
 
-			$source = $this->locateTheme( $temporary, $theme );
+			$source = $this->locateTheme( $temporary, $slug );
 
 			if ( ! rename( $source, $themePath ) ) {
 				throw new RuntimeException(

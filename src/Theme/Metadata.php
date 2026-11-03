@@ -59,8 +59,9 @@ class Metadata
 	{
 		$data = $this->read( theme_path() );
 
-		return isset( $data['parent'] )
-			? (string) $data['parent']
+		// A parent can be named `slug` or `owner/slug`. Return its folder.
+		return isset( $data['parent'] ) && Name::isValid( (string) $data['parent'] )
+			? Name::slug( (string) $data['parent'] )
 			: '';
 	}
 

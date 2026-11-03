@@ -19,7 +19,7 @@ use Novaris\Contracts\Core\Application as ApplicationContract;
 use Novaris\Contracts\Bootable;
 use Novaris\Core\{Proxies, Schemas};
 use Novaris\Messenger\Message;
-use Novaris\Theme\{Installer, Metadata, ThemeServiceProvider};
+use Novaris\Theme\{Installer, Metadata, Name, ThemeServiceProvider};
 use Novaris\Tools\Str;
 use Dotenv\Dotenv;
 use League\Config\Configuration;
@@ -101,9 +101,16 @@ class Application extends Container implements ApplicationContract, Bootable
 	 */
 	protected function ensureThemeInstalled( Metadata $metadata, string $theme ): void
 	{
+		if ( ! Name::isValid( $theme ) ) {
+			( new Message() )->make( sprintf(
+				'Invalid theme name "%s". Use a theme slug, such as <code>amicable</code>, or <code>owner/slug</code>, such as <code>novaris-dev/amicable</code>.',
+				htmlspecialchars( $theme, ENT_QUOTES, 'UTF-8' )
+			) )->dd();
+		}
+
 		$themes = Str::appendPath( $this['path'], 'themes' );
 
-		if ( is_dir( Str::appendPath( $themes, $theme ) ) ) {
+		if ( is_dir( Str::appendPath( $themes, Name::slug( $theme ) ) ) ) {
 			return;
 		}
 
@@ -114,6 +121,21 @@ class Application extends Container implements ApplicationContract, Bootable
 				'Unable to install the "%s" theme: %s',
 				htmlspecialchars( $theme, ENT_QUOTES, 'UTF-8' ),
 				htmlspecialchars( $e->getMessage(), ENT_QUOTES, 'UTF-8' )
+			) )->dd();
+		}
+	}
+
+	/**
+	 * Stops with a clear message if the configured theme name is invalid.
+	 *
+	 * @since 1.1.0
+	 */
+	protected function ensureThemeName( string $theme ): void
+	{
+		if ( ! Name::isValid( $theme ) ) {
+			( new Message() )->make( sprintf(
+				'Invalid theme name "%s" in <code>config/app.php</code>. Use a theme slug, such as <code>amicable</code>, or <code>owner/slug</code>, such as <code>novaris-dev/amicable</code>.',
+				htmlspecialchars( $theme, ENT_QUOTES, 'UTF-8' )
 			) )->dd();
 		}
 	}
@@ -240,9 +262,13 @@ class Application extends Container implements ApplicationContract, Bootable
 
 		// Load theme configuration with parent theme inheritance.
 		if ( ! $this['config']->get( 'app.private', false ) && $theme ) {
+			// A theme can be named `slug` or `owner/slug`. Its folder
+			// is always the slug.
+			$this->ensureThemeName( $theme );
+
 			$themePath = Str::appendPath(
 				$this['path'],
-				"themes/{$theme}"
+				'themes/' . Name::slug( $theme )
 			);
 
 			$themeConfigPath = Str::appendPath(
@@ -269,7 +295,7 @@ class Application extends Container implements ApplicationContract, Bootable
 			$parentConfigPath = $parent
 				? Str::appendPath(
 					$this['path'],
-					"themes/{$parent}/config"
+					'themes/' . Name::slug( $parent ) . '/config'
 				)
 				: '';
 
@@ -377,7 +403,7 @@ class Application extends Container implements ApplicationContract, Bootable
 				? $this['path']
 				: Str::appendPath(
 					$this['path.themes'],
-					$theme
+					$theme ? Name::slug( $theme ) : ''
 				)
 		);
 

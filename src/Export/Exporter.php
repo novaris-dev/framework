@@ -19,6 +19,7 @@ use Novaris\Core\Proxies\App;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Symfony\Component\HttpFoundation\Request;
+use Novaris\Theme\Name;
 
 class Exporter
 {
@@ -133,7 +134,7 @@ class Exporter
 		}
 
 		// Copy compiled theme assets.
-		$theme       = config( 'app.theme' );
+		$theme       = config( 'app.theme' ) ? Name::slug( config( 'app.theme' ) ) : '';
 		$parent      = app( 'theme.metadata' )->parent();
 		$asset_theme = $parent ?: $theme;
 
