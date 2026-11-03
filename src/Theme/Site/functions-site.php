@@ -173,9 +173,9 @@ function featured_image(
 	\Novaris\Contracts\Content\ContentEntry $entry
 ): \Novaris\Tools\Media|null
 {
-	$metadata = app( 'theme.metadata' );
-
-	if ( ! $metadata->supports( 'featured-image' ) ) {
+	// Featured images are turned on in config/app.php, under
+	// `supports.featured-image`, alongside their image sizes.
+	if ( ! \Novaris\Core\Proxies\Config::exists( 'app.supports.featured-image' ) ) {
 		return null;
 	}
 

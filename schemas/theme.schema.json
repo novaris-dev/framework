@@ -44,10 +44,6 @@
 			"description": "Features the theme supports. A feature is on when its value is true or an object of settings.",
 			"type": "object",
 			"properties": {
-				"featured-image": {
-					"description": "Shows entry thumbnails through featured_image(). Image sizes are set in config/app.php under supports.featured-image.sizes.",
-					"type": [ "boolean", "object" ]
-				},
 				"custom-header": {
 					"description": "Enables custom_header().",
 					"oneOf": [

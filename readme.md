@@ -51,7 +51,7 @@ Every theme has a `theme.json` at its root:
 | `version` | Yes | Version without a leading `v`, such as `1.0.0`. |
 | `repository` | For updates | GitHub repository updates come from, as `owner/slug`. |
 | `parent` | No | Parent theme, as `slug` or `owner/slug`. |
-| `supports` | No | Features the theme supports, such as `featured-image` and `custom-header`. |
+| `supports` | No | Features the theme supports, such as `custom-header`. Featured images are turned on in `config/app.php` instead, under `supports.featured-image`. |
 
 The `$schema` line is optional. It gives editors such as VS Code autocomplete and warnings for missing or misspelled fields. This file is not the WordPress `theme.json` format.
 
