@@ -1,0 +1,72 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://raw.githubusercontent.com/novaris-dev/framework/develop/schemas/theme.schema.json",
+	"title": "Novaris theme.json",
+	"description": "Metadata for a Novaris theme. This is not the WordPress theme.json format.",
+	"type": "object",
+	"required": [ "name", "slug", "version" ],
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"description": "The schema for this file, for editor autocomplete and validation.",
+			"type": "string"
+		},
+		"name": {
+			"description": "Theme name shown to people, such as \"Amicable\".",
+			"type": "string",
+			"minLength": 1
+		},
+		"slug": {
+			"description": "Theme folder name. It must match the GitHub repository name, because themes install into themes/{slug} and release zips are named {slug}.{version}.zip.",
+			"type": "string",
+			"pattern": "^(?!.*\\.\\.)[A-Za-z0-9][A-Za-z0-9._-]*$",
+			"examples": [ "amicable" ]
+		},
+		"version": {
+			"description": "Theme version, without a leading v. `novaris theme:update` compares it with the latest GitHub release tag.",
+			"type": "string",
+			"pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$",
+			"examples": [ "1.0.0" ]
+		},
+		"repository": {
+			"description": "GitHub repository that updates come from, as owner/slug. Needed for `novaris theme:update`.",
+			"type": "string",
+			"pattern": "^(?!.*\\.\\.)[A-Za-z0-9](?:-?[A-Za-z0-9])*/[A-Za-z0-9][A-Za-z0-9._-]*$",
+			"examples": [ "novaris-dev/amicable" ]
+		},
+		"parent": {
+			"description": "Parent theme to inherit templates and config from. A slug installs from novaris-dev; owner/slug installs from that GitHub user or organization.",
+			"type": "string",
+			"pattern": "^(?!.*\\.\\.)(?:[A-Za-z0-9](?:-?[A-Za-z0-9])*/)?[A-Za-z0-9][A-Za-z0-9._-]*$",
+			"examples": [ "amicable", "someone/their-theme" ]
+		},
+		"supports": {
+			"description": "Features the theme supports. A feature is on when its value is true or an object of settings.",
+			"type": "object",
+			"properties": {
+				"featured-image": {
+					"description": "Shows entry thumbnails through featured_image(). Image sizes are set in config/app.php under supports.featured-image.sizes.",
+					"type": [ "boolean", "object" ]
+				},
+				"custom-header": {
+					"description": "Enables custom_header().",
+					"oneOf": [
+						{ "type": "boolean" },
+						{
+							"type": "object",
+							"properties": {
+								"default": {
+									"description": "URL of the default header image.",
+									"type": "string"
+								}
+							}
+						}
+					]
+				}
+			},
+			"additionalProperties": {
+				"type": [ "boolean", "object", "array" ]
+			}
+		}
+	}
+}
