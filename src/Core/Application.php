@@ -39,7 +39,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 *
 	 * @since 1.0.0
 	 */
-	const VERSION = '1.0.1';
+	const VERSION = '1.0.2';
 
 	/**
 	 * Registers the default bindings, providers, and proxies for the
@@ -128,7 +128,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	/**
 	 * Stops with a clear message if the configured theme name is invalid.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	protected function ensureThemeName( string $theme ): void
 	{

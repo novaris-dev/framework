@@ -23,7 +23,7 @@ final class Name
 	/**
 	 * GitHub user or organization used when a name has no owner.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	public const DEFAULT_OWNER = 'novaris-dev';
 
@@ -31,7 +31,7 @@ final class Name
 	 * Allowed names: an optional GitHub owner (letters, numbers and single
 	 * hyphens) followed by a slug (letters, numbers, `.`, `_` and `-`).
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	private const PATTERN = '#^(?:[A-Za-z0-9](?:-?[A-Za-z0-9])*/)?[A-Za-z0-9][A-Za-z0-9._-]*$#';
 
@@ -39,7 +39,7 @@ final class Name
 	 * Whether a theme name is valid. Names end up in folder paths and
 	 * GitHub URLs, so anything else (such as `../x`) is rejected.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	public static function isValid( string $name ): bool
 	{
@@ -50,7 +50,7 @@ final class Name
 	/**
 	 * Returns the folder name, which is the part after the owner.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	public static function slug( string $name ): string
 	{
@@ -65,7 +65,7 @@ final class Name
 	 * Returns the `owner/slug` GitHub repository, using the default owner
 	 * when the name has none.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	public static function repository( string $name ): string
 	{
@@ -79,7 +79,7 @@ final class Name
 	/**
 	 * Throws an exception for an invalid name.
 	 *
-	 * @since 1.1.0
+	 * @since 1.0.2
 	 */
 	private static function validate( string $name ): void
 	{
