@@ -5,7 +5,7 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.3] - 11.03.2026
 
 ### Added
 
@@ -176,7 +176,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Novaris\Console\Kernel` and `Novaris\Console\Output`. They were unused and
   duplicated `bin/novaris` (which remains the command-line entry point).
 
-[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.0.2...develop
+[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.0.3...develop
+[1.0.3]: https://github.com/novaris-dev/framework/releases/tag/v1.0.3
 [1.0.2]: https://github.com/novaris-dev/framework/releases/tag/v1.0.2
 [1.0.1]: https://github.com/novaris-dev/framework/releases/tag/v1.0.1
 [1.0.0]: https://github.com/novaris-dev/framework/releases/tag/v1.0.0
