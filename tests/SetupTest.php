@@ -81,17 +81,55 @@ class SetupTest extends TestCase
 		$this->assertNull( ( new Processor() )->process( new Media( '/user/media/photo.png' ), 'missing-size' ) );
 	}
 
-	public function testFeaturedImageHelperReturnsTheThumbnail(): void
+	public function testFeaturedImageIsTurnedOnInConfig(): void
 	{
-		$site = $this->makeSite( [
-			'theme.json'                => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "featured-image": true } }',
-			'user/content/about/index.md' => $this->markdown( [ 'title' => 'About', 'thumbnail' => '/user/media/missing.png' ] ),
+		if ( ! extension_loaded( 'gd' ) ) {
+			$this->markTestSkipped( 'Needs the GD extension to create a test image.' );
+		}
+
+		$files = [
+			'user/content/about/index.md'   => $this->markdown( [ 'title' => 'About', 'thumbnail' => '/user/media/photo.png' ] ),
+			'user/content/missing/index.md' => $this->markdown( [ 'title' => 'Missing', 'thumbnail' => '/user/media/missing.png' ] ),
+		];
+
+		$entry = function ( string $site, string $path ) {
+			if ( ! is_file( "{$site}/user/media/photo.png" ) ) {
+				mkdir( "{$site}/user/media", 0755, true );
+				imagepng( imagecreatetruecolor( 40, 30 ), "{$site}/user/media/photo.png" );
+			}
+
+			return $this->boot( $site )->make( 'content.query' )->make( [ 'path' => $path, 'slug' => 'index' ] )->single();
+		};
+
+		// Turned on in config/app.php: the entry's thumbnail is returned.
+		$site = $this->makeSite( $files, [ 'supports' => [ 'featured-image' => [ 'sizes' => [] ] ] ] );
+		$this->assertSame( 40, \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) )?->width() );
+
+		// A missing image file still returns null instead of crashing.
+		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry( $site, 'missing' ) ) );
+
+		// Only in theme.json, not config/app.php: off.
+		$site = $this->makeSite( $files + [
+			'theme.json' => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "featured-image": true } }',
 		] );
+		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) ) );
+	}
 
-		$entry = $this->boot( $site )->make( 'content.query' )->make( [ 'path' => 'about', 'slug' => 'index' ] )->single();
+	public function testCustomHeaderIsConfiguredInConfig(): void
+	{
+		// Set in config/app.php: the default header URL is returned.
+		$this->boot( $this->makeSite( [], [ 'supports' => [ 'custom-header' => [ 'default' => '/user/media/header.jpg' ] ] ] ) );
+		$this->assertSame( '/user/media/header.jpg', \Novaris\Theme\Site\custom_header() );
 
-		// No such image exists, so the helper returns null instead of crashing.
-		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry ) );
+		// Not configured: an empty string.
+		$this->boot( $this->makeSite() );
+		$this->assertSame( '', \Novaris\Theme\Site\custom_header() );
+
+		// Only in theme.json, not config/app.php: off.
+		$this->boot( $this->makeSite( [
+			'theme.json' => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "custom-header": { "default": "/old.jpg" } } }',
+		] ) );
+		$this->assertSame( '', \Novaris\Theme\Site\custom_header() );
 	}
 
 	public function testMenusHandleLocationsWithoutItems(): void

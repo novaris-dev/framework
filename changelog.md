@@ -15,9 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   or misspelled fields.
 - Readme documentation for themes and `theme.json`.
 
+### Changed
+
+- Theme features are configured only in `config/app.php`, under `supports`.
+  Featured images use `supports.featured-image` (next to their image sizes) and
+  custom headers use `supports.custom-header.default`. `featured_image()` and
+  `custom_header()` no longer read `supports` from `theme.json`, and the
+  `theme.json` schema no longer includes `supports`.
+
 ### Fixed
 
 - The readme's installation example was missing its closing code fence.
+- `featured_image()` returned `null` for themes that turn on featured images in
+  `config/app.php`, because it only checked `theme.json`.
 
 ## [1.0.2] - 11.03.2026
 

@@ -150,15 +150,17 @@ function render_home_link( array $args = [] ): string
  */
 function custom_header(): string
 {
-	$metadata = app( 'theme.metadata' );
+	// Custom headers are configured in config/app.php, under
+	// `supports.custom-header`.
+	$key = 'app.supports.custom-header.default';
 
-	if ( ! $metadata->supports( 'custom-header' ) ) {
+	if ( ! \Novaris\Core\Proxies\Config::exists( $key ) ) {
 		return '';
 	}
 
-	$support = $metadata->support( 'custom-header' );
+	$default = \Novaris\Core\Proxies\Config::get( $key );
 
-	return $support['default'] ?? '';
+	return is_string( $default ) ? $default : '';
 }
 
 /**
@@ -173,9 +175,9 @@ function featured_image(
 	\Novaris\Contracts\Content\ContentEntry $entry
 ): \Novaris\Tools\Media|null
 {
-	$metadata = app( 'theme.metadata' );
-
-	if ( ! $metadata->supports( 'featured-image' ) ) {
+	// Featured images are turned on in config/app.php, under
+	// `supports.featured-image`, alongside their image sizes.
+	if ( ! \Novaris\Core\Proxies\Config::exists( 'app.supports.featured-image' ) ) {
 		return null;
 	}
 
