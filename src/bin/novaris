@@ -159,6 +159,13 @@ switch ( $command ) {
 			theme_path( 'resources' ),
 		];
 
+		// Watch inherited parent theme files when using a child theme.
+		if ( parent_theme_path() ) {
+			$watchPaths[] = parent_theme_path( 'app' );
+			$watchPaths[] = parent_theme_path( 'config' );
+			$watchPaths[] = parent_theme_path( 'resources' );
+		}
+
 		$scan = static function ( array $paths ): array {
 			$files = [];
 
