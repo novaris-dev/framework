@@ -153,6 +153,7 @@ switch ( $command ) {
 
 		$watchPaths = [
 			$app->contentPath(),
+			config_path(),
 			$app->viewPath(),
 			theme_path( 'app' ),
 			theme_path( 'config' ),
