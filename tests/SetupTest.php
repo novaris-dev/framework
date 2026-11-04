@@ -113,6 +113,16 @@ class SetupTest extends TestCase
 			'theme.json' => '{ "name": "Test", "slug": "test", "version": "1.0.0", "supports": { "featured-image": true } }',
 		] );
 		$this->assertNull( \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) ) );
+
+		// `true` turns them on too.
+		$site = $this->makeSite( $files, [ 'supports' => [ 'featured-image' => true ] ] );
+		$this->assertSame( 40, \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) )?->width() );
+
+		// `false`, or any value other than `true` or an array: off.
+		foreach ( [ false, null, 0, 'yes' ] as $value ) {
+			$site = $this->makeSite( $files, [ 'supports' => [ 'featured-image' => $value ] ] );
+			$this->assertNull( \Novaris\Theme\Site\featured_image( $entry( $site, 'about' ) ), var_export( $value, true ) );
+		}
 	}
 
 	public function testCustomHeaderIsConfiguredInConfig(): void

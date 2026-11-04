@@ -176,8 +176,14 @@ function featured_image(
 ): \Novaris\Tools\Media|null
 {
 	// Featured images are turned on in config/app.php, under
-	// `supports.featured-image`, alongside their image sizes.
-	if ( ! \Novaris\Core\Proxies\Config::exists( 'app.supports.featured-image' ) ) {
+	// `supports.featured-image`, alongside their image sizes. Only `true`
+	// or an array of options turns them on, so `false` turns them off.
+	$key     = 'app.supports.featured-image';
+	$support = \Novaris\Core\Proxies\Config::exists( $key )
+		? \Novaris\Core\Proxies\Config::get( $key )
+		: false;
+
+	if ( true !== $support && ! is_array( $support ) ) {
 		return null;
 	}
 
