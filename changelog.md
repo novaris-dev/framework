@@ -5,6 +5,17 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `NOVARIS_USER_PATH`, an optional `.env` setting that reads a site's
+  `content` and `media` from another folder instead of `user/`, such as a
+  clone of the theme test data. A relative path is relative to the site
+  root. URLs stay under `/user`, so links in content keep working, and the
+  static export copies the media to `user/media` as before. Without the
+  setting, sites use their `user/` folder as before.
+
 ## [1.0.6] - 11.04.2026
 
 ### Fixed

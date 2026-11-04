@@ -94,6 +94,40 @@ class Application extends Container implements ApplicationContract, Bootable
 	}
 
 	/**
+	 * Returns the folder that holds the site's `content` and `media`.
+	 *
+	 * This is the site's `user` folder, unless `NOVARIS_USER_PATH` is set in
+	 * the environment (such as in `.env`) to use another folder, such as a
+	 * copy of the theme test data. A relative path is relative to the site
+	 * root. URLs stay under `/user`, so links in content keep working.
+	 *
+	 * @since 1.0.7
+	 */
+	protected function resolveUserPath(): string
+	{
+		$default = Str::appendPath( $this['path'], 'user' );
+		$setting = trim( (string) env( 'NOVARIS_USER_PATH', '' ) );
+
+		if ( '' === $setting ) {
+			return $default;
+		}
+
+		$isAbsolute = 1 === preg_match( '#^(?:[A-Za-z]:)?[\\\\/]#', $setting );
+		$path       = realpath(
+			$isAbsolute ? $setting : Str::appendPath( $this['path'], $setting )
+		);
+
+		if ( false === $path || ! is_dir( $path ) ) {
+			( new Message() )->make( sprintf(
+				'<code>NOVARIS_USER_PATH</code> is set to "%s", but that folder does not exist. Point it at a folder with <code>content</code> and <code>media</code> folders, or remove it from <code>.env</code> to use the site\'s <code>user</code> folder.',
+				htmlspecialchars( $setting, ENT_QUOTES, 'UTF-8' )
+			) )->dd();
+		}
+
+		return $path;
+	}
+
+	/**
 	 * Downloads and installs a theme from its GitHub release when it is not
 	 * already present in the `themes` directory.
 	 *
@@ -392,7 +426,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'path.view',     Str::appendPath( $this['path.resource'], 'views'     ) );
 		$this->instance( 'path.storage',  Str::appendPath( $this['path'],         'storage'   ) );
 		$this->instance( 'path.cache',    Str::appendPath( $this['path.storage'], 'cache'     ) );
-		$this->instance( 'path.user',     Str::appendPath( $this['path'],         'user'      ) );
+		$this->instance( 'path.user',     $this->resolveUserPath()                              );
 		$this->instance( 'path.content',  Str::appendPath( $this['path.user'],    'content'   ) );
 		$this->instance( 'path.media',    Str::appendPath( $this['path.user'],    'media'     ) );
 		$this->instance( 'path.vendor',   Str::appendPath( $this['path'],         'vendor'    ) );
