@@ -5,6 +5,14 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `featured_image()` treated `'featured-image' => false` (or any other value)
+  in `config/app.php` as on, because it only checked that the key existed.
+  Only `true` or an array of options turns featured images on.
+
 ## [1.0.3] - 11.03.2026
 
 ### Added
