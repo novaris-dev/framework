@@ -64,17 +64,26 @@ class Media
 	 */
 	public function __construct( string $filepath )
 	{
+		// The user folder can live outside the site (see
+		// `NOVARIS_USER_PATH`), but its URLs are always under `/user`.
+		$userPath = rtrim( user_path(), '/\\' );
+
 		// Convert a full application URL or filesystem path to a path
 		// relative to the application root.
 		if ( str_starts_with( $filepath, url() ) ) {
 			$filepath = substr( $filepath, strlen( url() ) );
+		} elseif ( str_starts_with( $filepath, $userPath . DIRECTORY_SEPARATOR ) ) {
+			$filepath = '/user' . substr( $filepath, strlen( $userPath ) );
 		} elseif ( str_starts_with( $filepath, path() ) ) {
 			$filepath = substr( $filepath, strlen( path() ) );
 		}
 
 		$filepath = '/' . ltrim( $filepath, '/' );
 
-		$path = path( $filepath );
+		// Files under `/user` are read from the user folder.
+		$path = str_starts_with( $filepath, '/user/' )
+			? $userPath . substr( $filepath, strlen( '/user' ) )
+			: path( $filepath );
 
 		if ( file_exists( $path ) ) {
 			$this->path      = $path;

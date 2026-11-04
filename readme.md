@@ -19,6 +19,20 @@ Install Novaris using Composer:
 composer require novaris-dev/framework
 ```
 
+## Content folder
+
+A site's content and media live in its `user/` folder, in `user/content` and `user/media`.
+
+To use another folder for a while, such as a clone of [theme-test-data](https://github.com/novaris-dev/theme-test-data) when testing a theme, add `NOVARIS_USER_PATH` to the site's `.env`:
+
+```
+NOVARIS_USER_PATH=../theme-test-data
+```
+
+The folder needs `content` and `media` folders, like `user/`. A relative path is relative to the site root. URLs stay under `/user`, so links such as `/user/media/photo.jpg` in content keep working. Remove the line to go back to the site's own `user/` folder.
+
+Resized images are saved next to the originals, so they are written into that folder.
+
 ## Themes
 
 A site picks its theme in `config/app.php`:
