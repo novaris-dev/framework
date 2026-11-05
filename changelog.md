@@ -5,6 +5,21 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `novaris serve`, which runs the site with PHP's built-in web server
+  (`--host` and `--port` options, default `localhost:8000`).
+
+### Fixed
+
+- With `NOVARIS_USER_PATH`, images under `/user/media` (such as thumbnails)
+  returned 404 on live sites, because the web server looked for them in the
+  site's own `user/media` folder. Novaris now serves them from the configured
+  folder. PHP's built-in server answers missing files itself, so use
+  `novaris serve` with it.
+
 ## [1.0.7] - 11.04.2026
 
 ### Added
