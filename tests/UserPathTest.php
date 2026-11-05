@@ -183,6 +183,86 @@ class UserPathTest extends TestCase
 		$this->assertFileExists( $app->publicPath( 'user/media/photo.png' ) );
 	}
 
+	public function testLiveSitesServeMediaFromTheUserPath(): void
+	{
+		if ( ! extension_loaded( 'gd' ) ) {
+			$this->markTestSkipped( 'Needs the GD extension to create a test image.' );
+		}
+
+		$folder = $this->makeUserFolder();
+		$site   = $this->makeSiteUsing( $folder );
+
+		// The web server can't find these under the site's own `user`
+		// folder, so the request reaches Novaris, which serves the file.
+		$response = $this->get( $site, '/user/media/photo.png' );
+		$this->assertSame( 200, $response->getStatusCode() );
+		$this->assertSame( 'image/png', $response->headers->get( 'Content-Type' ) );
+		$this->assertSame( "{$folder}/media/photo.png", $response->getFile()->getPathname() );
+
+		// Resized images, written into the folder, are served the same way.
+		$this->testPost()->thumbnail( 'tiny' );
+		$this->assertSame( 200, $this->get( $site, '/user/media/photo-20x10.png' )->getStatusCode() );
+
+		// Missing files and paths outside the media folder are not served.
+		$this->assertSame( 404, $this->get( $site, '/user/media/missing.png' )->getStatusCode() );
+		$this->assertSame( 404, $this->get( $site, '/user/media/../content/index.md' )->getStatusCode() );
+		$this->assertSame( 404, $this->get( $site, '/user/media/%2E%2E/content/index.md' )->getStatusCode() );
+	}
+
+	public function testServeCommandServesPagesAssetsAndMedia(): void
+	{
+		// Without pcntl, the command runs the server as a child process,
+		// which the test can't stop.
+		if ( ! extension_loaded( 'gd' ) || ! function_exists( 'pcntl_exec' ) ) {
+			$this->markTestSkipped( 'Needs GD and pcntl.' );
+		}
+
+		$folder = $this->makeUserFolder();
+		$site   = $this->makeSiteUsing( $folder );
+
+		// The command finds the site from its `vendor/autoload.php`.
+		$this->write( "{$site}/vendor/autoload.php", "<?php\nreturn require " . var_export( $this->autoloadPath(), true ) . ";\n" );
+		$this->write( "{$site}/index.php", "<?php\nrequire 'vendor/autoload.php';\n\$app = new Novaris\\Core\\Application( __DIR__ );\n\$app->boot();\n\$app->make( 'routing.router' )->response()->send();\n" );
+		$this->write( "{$site}/public/assets/screen.css", 'body {}' );
+
+		// Find a free port.
+		$socket = stream_socket_server( 'tcp://127.0.0.1:0' );
+		$port   = (int) substr( strrchr( stream_socket_get_name( $socket, false ), ':' ), 1 );
+		fclose( $socket );
+
+		$server = proc_open(
+			[ PHP_BINARY, dirname( __DIR__ ) . '/src/bin/novaris', 'serve', '--host=127.0.0.1', "--port={$port}" ],
+			[ 1 => [ 'file', '/dev/null', 'w' ], 2 => [ 'file', '/dev/null', 'w' ] ],
+			$pipes,
+			$site
+		);
+
+		$fetch = static function ( string $path ) use ( $port ): array {
+			$context = stream_context_create( [ 'http' => [ 'ignore_errors' => true, 'timeout' => 5 ] ] );
+			$body    = @file_get_contents( "http://127.0.0.1:{$port}{$path}", false, $context );
+
+			return [ (int) substr( $http_response_header[0] ?? '', 9, 3 ), (string) $body ];
+		};
+
+		try {
+			// Wait for the server to start.
+			for ( $i = 0; $i < 50 && 0 === $fetch( '/public/assets/screen.css' )[0]; $i++ ) {
+				usleep( 100000 );
+			}
+
+			$this->assertSame( [ 200, 'body {}' ], $fetch( '/public/assets/screen.css' ) );
+			$this->assertSame( 200, $fetch( '/user/media/photo.png' )[0] );
+			$this->assertSame( file_get_contents( "{$folder}/media/photo.png" ), $fetch( '/user/media/photo.png' )[1] );
+
+			[ $status, $home ] = $fetch( '/' );
+			$this->assertSame( 200, $status );
+			$this->assertStringContainsString( 'From the test data.', $home );
+		} finally {
+			proc_terminate( $server );
+			proc_close( $server );
+		}
+	}
+
 	public function testMissingUserPathStopsWithAClearMessage(): void
 	{
 		$site = $this->makeSiteUsing( '../this-folder-does-not-exist' );

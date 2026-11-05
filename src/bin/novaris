@@ -279,6 +279,40 @@ switch ( $command ) {
 			$modified = $scan( $watchPaths );
 		}
 
+	case 'serve':
+		$host = 'localhost';
+		$port = '8000';
+
+		foreach ( array_slice( $argv, 2 ) as $argument ) {
+			if ( str_starts_with( $argument, '--host=' ) ) {
+				$host = substr( $argument, strlen( '--host=' ) );
+			} elseif ( str_starts_with( $argument, '--port=' ) ) {
+				$port = substr( $argument, strlen( '--port=' ) );
+			}
+		}
+
+		if ( ! ctype_digit( $port ) ) {
+			fwrite( STDERR, "Invalid port: {$port}" . PHP_EOL );
+			exit( 1 );
+		}
+
+		echo "Novaris is running at http://{$host}:{$port} (press Ctrl+C to stop)" . PHP_EOL;
+
+		$server = [ '-S', "{$host}:{$port}", '-t', $root, __DIR__ . '/server.php' ];
+
+		// Replace this process with the server when possible, so stopping
+		// it (Ctrl+C) stops the server too.
+		if ( function_exists( 'pcntl_exec' ) ) {
+			pcntl_exec( PHP_BINARY, $server );
+		}
+
+		passthru(
+			escapeshellarg( PHP_BINARY ) . ' ' . implode( ' ', array_map( 'escapeshellarg', $server ) ),
+			$status
+		);
+
+		exit( $status );
+
 	case '--version':
 	case '-V':
 		echo "Novaris {$version}" . PHP_EOL;
@@ -295,10 +329,13 @@ switch ( $command ) {
 		echo '  cache:clear    Clear all cache stores' . PHP_EOL;
 		echo '  theme:update   Update the active theme' . PHP_EOL;
 		echo '  export         Export the site as static HTML' . PHP_EOL;
+		echo '  serve          Run the site with PHP\'s built-in web server' . PHP_EOL;
 		echo PHP_EOL;
 		echo 'Options:' . PHP_EOL;
 		echo '  --url=URL        Set the URL for the static export' . PHP_EOL;
 		echo '  --watch          Watch for changes and re-export' . PHP_EOL;
+		echo '  --host=HOST      Host for serve (default: localhost)' . PHP_EOL;
+		echo '  --port=PORT      Port for serve (default: 8000)' . PHP_EOL;
 		echo '  -h, --help       Display help' . PHP_EOL;
 		echo '  -V, --version    Display the Novaris version' . PHP_EOL;
 		break;

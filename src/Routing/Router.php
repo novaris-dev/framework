@@ -16,7 +16,7 @@ use Novaris\Contracts\Routing\{RoutingRoute, RoutingRoutes, RoutingRouter};
 use Novaris\Core\Proxies\{Cache, Config};
 use Novaris\Controllers\Error404;
 use Novaris\Tools\Str;
-use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse, Request, Response};
 
 class Router implements RoutingRouter
 {
@@ -94,6 +94,13 @@ class Router implements RoutingRouter
 	 */
 	public function response(): Response
 	{
+		// Media files are normally served by the web server. When the user
+		// folder lives somewhere else (see `NOVARIS_USER_PATH`), the web
+		// server can't find them under `/user/media`, so serve them here.
+		if ( $media = $this->mediaResponse() ) {
+			return $media;
+		}
+
 		// Just return the response if global caching is disabled.
 		if ( ! Config::get( 'cache.global' ) ) {
 			return $this->getResponse();
@@ -175,6 +182,33 @@ class Router implements RoutingRouter
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Returns a response for a file under `/user/media`, read from the
+	 * user folder, or `null` when the request is for something else.
+	 *
+	 * @since 1.0.8
+	 */
+	protected function mediaResponse(): ?Response
+	{
+		$path = rawurldecode( $this->path() );
+
+		if ( ! str_starts_with( $path, '/user/media/' ) ) {
+			return null;
+		}
+
+		$root = realpath( media_path() );
+		$file = $root ? realpath( $root . substr( $path, strlen( '/user/media' ) ) ) : false;
+
+		// Only serve files inside the media folder, never `../` paths.
+		if ( ! $file || ! is_file( $file ) || ! str_starts_with( $file, $root . DIRECTORY_SEPARATOR ) ) {
+			return null;
+		}
+
+		return new BinaryFileResponse( $file, Response::HTTP_OK, [
+			'Content-Type' => mime_content_type( $file ) ?: 'application/octet-stream',
+		], true, null, false, true );
 	}
 
 	/**
