@@ -128,6 +128,36 @@ class Application extends Container implements ApplicationContract, Bootable
 	}
 
 	/**
+	 * Returns the URL path of the user folder, relative to the site URL.
+	 *
+	 * The site's own `user` folder is at `user`. A `NOVARIS_USER_PATH`
+	 * folder inside the site folder, such as `theme-test-data`, is at its own
+	 * path, so the web server can serve its media without any extra setup.
+	 * A folder outside the site has no URL of its own, so it stays at `user`
+	 * and Novaris serves its media.
+	 *
+	 * @since 1.0.9
+	 */
+	protected function userUrlPath(): string
+	{
+		$user = $this['path.user'];
+
+		// Compare with the real path too, in case the site folder is
+		// reached through a symlink.
+		foreach ( array_unique( [ $this['path'], (string) realpath( $this['path'] ) ] ) as $site ) {
+			$site = rtrim( $site, '/\\' );
+
+			foreach ( [ '/', '\\' ] as $separator ) {
+				if ( '' !== $site && str_starts_with( $user, $site . $separator ) ) {
+					return str_replace( '\\', '/', substr( $user, strlen( $site ) + 1 ) );
+				}
+			}
+		}
+
+		return 'user';
+	}
+
+	/**
 	 * Downloads and installs a theme from its GitHub release when it is not
 	 * already present in the `themes` directory.
 	 *
@@ -453,7 +483,7 @@ class Application extends Container implements ApplicationContract, Bootable
 		$this->instance( 'url.resource', Str::appendPath( $this['url'],         'resources' ) );
 		$this->instance( 'url.storage',  Str::appendPath( $this['url'],         'storage'   ) );
 		$this->instance( 'url.cache',    Str::appendPath( $this['url.storage'], 'cache'     ) );
-		$this->instance( 'url.user',     Str::appendPath( $this['url'],         'user'      ) );
+		$this->instance( 'url.user',     Str::appendPath( $this['url'],         $this->userUrlPath() ) );
 		$this->instance( 'url.content',  Str::appendPath( $this['url.user'],    'content'   ) );
 		$this->instance( 'url.media',    Str::appendPath( $this['url.user'],    'media'     ) );
 		$this->instance( 'url.vendor',   Str::appendPath( $this['url'],         'vendor'    ) );

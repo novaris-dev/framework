@@ -64,26 +64,41 @@ class Media
 	 */
 	public function __construct( string $filepath )
 	{
-		// The user folder can live outside the site (see
-		// `NOVARIS_USER_PATH`), but its URLs are always under `/user`.
+		// Content links to user files as `/user/...`. The user folder can
+		// be somewhere else (see `NOVARIS_USER_PATH`), with its own URL
+		// path, such as `/theme-test-data`, when it's inside the site.
 		$userPath = rtrim( user_path(), '/\\' );
+		$userUri  = '/' . trim( substr( user_url(), strlen( url() ) ), '/' );
 
 		// Convert a full application URL or filesystem path to a path
 		// relative to the application root.
 		if ( str_starts_with( $filepath, url() ) ) {
 			$filepath = substr( $filepath, strlen( url() ) );
 		} elseif ( str_starts_with( $filepath, $userPath . DIRECTORY_SEPARATOR ) ) {
-			$filepath = '/user' . substr( $filepath, strlen( $userPath ) );
+			$filepath = $userUri . substr( $filepath, strlen( $userPath ) );
 		} elseif ( str_starts_with( $filepath, path() ) ) {
 			$filepath = substr( $filepath, strlen( path() ) );
 		}
 
 		$filepath = '/' . ltrim( $filepath, '/' );
 
-		// Files under `/user` are read from the user folder.
-		$path = str_starts_with( $filepath, '/user/' )
-			? $userPath . substr( $filepath, strlen( '/user' ) )
-			: path( $filepath );
+		// Files under `/user` or the user folder's own URL path are read
+		// from the user folder and linked at its URL path.
+		$relative = null;
+
+		foreach ( array_unique( [ '/user', $userUri ] ) as $prefix ) {
+			if ( str_starts_with( $filepath, $prefix . '/' ) ) {
+				$relative = substr( $filepath, strlen( $prefix ) );
+				break;
+			}
+		}
+
+		if ( null !== $relative ) {
+			$path     = $userPath . $relative;
+			$filepath = $userUri . $relative;
+		} else {
+			$path = path( $filepath );
+		}
 
 		if ( file_exists( $path ) ) {
 			$this->path      = $path;

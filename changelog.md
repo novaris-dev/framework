@@ -5,6 +5,18 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- With `NOVARIS_USER_PATH` pointing at a folder inside the site, such as
+  `NOVARIS_USER_PATH="theme-test-data"`, images still linked to `/user/media`,
+  so web servers that serve images directly from disk (such as nginx) showed
+  them as missing. Links in content written as `/user/media/...` now point at
+  the folder's real address, such as `/theme-test-data/media/...`, and the
+  static export copies the media there. A folder outside the site still uses
+  `/user/media`, served by Novaris.
+
 ## [1.0.8] - 11.04.2026
 
 ### Added

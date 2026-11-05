@@ -59,9 +59,9 @@ class UserPathTest extends TestCase
 	 * Creates a folder laid out like a site's `user` folder, with a home
 	 * page, a post with a thumbnail, and the thumbnail image.
 	 */
-	private function makeUserFolder(): string
+	private function makeUserFolder( ?string $folder = null ): string
 	{
-		$folder = $this->temporaryDirectory();
+		$folder ??= $this->temporaryDirectory();
 
 		$files = [
 			'content/index.md'                            => $this->markdown( [ 'title' => 'Test data home' ], 'From the test data.' ),
@@ -78,7 +78,7 @@ class UserPathTest extends TestCase
 			$this->write( "{$folder}/{$path}", $content );
 		}
 
-		mkdir( "{$folder}/media" );
+		@mkdir( "{$folder}/media", 0755, true );
 		imagepng( imagecreatetruecolor( 40, 30 ), "{$folder}/media/photo.png" );
 
 		return $folder;
@@ -261,6 +261,45 @@ class UserPathTest extends TestCase
 			proc_terminate( $server );
 			proc_close( $server );
 		}
+	}
+
+	public function testFolderInsideTheSiteIsLinkedAtItsOwnPath(): void
+	{
+		if ( ! extension_loaded( 'gd' ) ) {
+			$this->markTestSkipped( 'Needs the GD extension to create a test image.' );
+		}
+
+		// Like `NOVARIS_USER_PATH="theme-test-data"` with the clone inside
+		// the site folder.
+		$site = $this->makeSiteUsing( '.' );
+		$this->makeUserFolder( "{$site}/theme-test-data" );
+		$this->write( "{$site}/.env", 'APP_URL="' . static::URL . '"' . PHP_EOL . 'NOVARIS_USER_PATH="theme-test-data"' . PHP_EOL );
+
+		$app = $this->boot( $site );
+
+		$this->assertSame( static::URL . '/theme-test-data/media', $app->mediaUrl() );
+
+		// Links written as `/user/media/...` in content point at the folder's
+		// real address, where the web server finds the files by itself.
+		$media = static::URL . '/theme-test-data/media';
+
+		$this->assertSame( "{$media}/photo.png", $this->testPost()->thumbnail()?->url() );
+		$this->assertSame( "{$media}/photo-20x10.png", $this->testPost()->thumbnail( 'tiny' )?->url() );
+		$this->assertStringContainsString( 'src="' . $media . '/photo.png"', $this->testPost()->content() );
+
+		// The export copies the media to the same address.
+		( new Exporter(
+			$app->make( RoutingRouter::class ),
+			$app->make( ContentTypes::class ),
+			$app->make( ContentQuery::class ),
+			$app->publicPath()
+		) )->export();
+
+		$this->assertFileExists( $app->publicPath( 'theme-test-data/media/photo.png' ) );
+		$this->assertStringContainsString(
+			'/theme-test-data/media/photo.png',
+			file_get_contents( $app->publicPath( 'blog/test-post/index.html' ) )
+		);
 	}
 
 	public function testMissingUserPathStopsWithAClearMessage(): void
