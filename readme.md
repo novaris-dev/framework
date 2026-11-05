@@ -29,16 +29,14 @@ To use another folder for a while, such as a clone of [theme-test-data](https://
 NOVARIS_USER_PATH=../theme-test-data
 ```
 
-The folder needs `content` and `media` folders, like `user/`. A relative path is relative to the site root. URLs stay under `/user`, so links such as `/user/media/photo.jpg` in content keep working. Remove the line to go back to the site's own `user/` folder.
+The folder needs `content` and `media` folders, like `user/`. A relative path is relative to the site root. Remove the line to go back to the site's own `user/` folder.
+
+Content links to images as `/user/media/...`, and Novaris rewrites those links to wherever the folder is:
+
+- **A folder inside the site**, such as `NOVARIS_USER_PATH="theme-test-data"`: images link to `/theme-test-data/media/...`, so the web server serves them directly. Nothing else to set up.
+- **A folder outside the site**, such as `../theme-test-data`: images keep their `/user/media/...` links and Novaris serves them, which works with servers that send missing files to `index.php`. PHP's built-in server doesn't, so use `vendor/bin/novaris serve` with it.
 
 Resized images are saved next to the originals, so they are written into that folder.
-
-On a live site, Novaris serves `/user/media` files from that folder when the web server can't find them, which works with servers that send missing files to `index.php` (Herd, Valet, Apache or nginx with the usual rewrite rules). PHP's built-in server doesn't, so run it through Novaris instead:
-
-```bash
-vendor/bin/novaris serve              # http://localhost:8000
-vendor/bin/novaris serve --port=8080
-```
 
 ## Themes
 

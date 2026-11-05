@@ -143,10 +143,11 @@ class Exporter
 			$this->path . '/assets'
 		);
 
-		// Copy user media.
+		// Copy user media to its URL path, which is `user/media` unless
+		// `NOVARIS_USER_PATH` points at a folder inside the site.
 		$this->copyDirectory(
 			App::resolve( 'path.media' ),
-			$this->path . '/user/media'
+			$this->path . '/' . trim( substr( (string) App::resolve( 'url.media' ), strlen( (string) App::resolve( 'url' ) ) ), '/' )
 		);
 
 		$this->writeManifest();
