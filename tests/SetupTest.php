@@ -204,8 +204,37 @@ class SetupTest extends TestCase
 		$this->assertStringContainsString( 'class="social-menu"', $html );
 		$this->assertStringContainsString( 'href="https://github.com/example"', $html );
 		$this->assertStringContainsString( '>GitHub<', $html );
+		$this->assertStringContainsString( '<svg', $html );
+		$this->assertStringContainsString( '>About<', $html );
 		$this->assertStringNotContainsString( 'href="/about"', $html );
 		$this->assertStringContainsString( '/about"', $html );
+	}
+
+	public function testSocialUsesTheLabelWithoutAnIcon(): void
+	{
+		$this->boot( $this->makeSite( [], [ 'social' => [ 'Example' => 'https://example.com' ] ] ) );
+
+		$html = (string) new \Novaris\Template\Tag\Social();
+
+		$this->assertStringContainsString( '>Example<', $html );
+		$this->assertStringNotContainsString( '<svg', $html );
+	}
+
+	public function testSocialMatchesWholeDomains(): void
+	{
+		$this->boot( $this->makeSite( [], [ 'social' => [ 'Fake' => 'https://notgithub.com/example' ] ] ) );
+
+		$this->assertStringNotContainsString( '<svg', (string) new \Novaris\Template\Tag\Social() );
+	}
+
+	public function testThemesCanReplaceSocialIcons(): void
+	{
+		$this->boot( $this->makeSite(
+			[ 'resources/svg/social/github.svg' => '<svg id="custom"></svg>' ],
+			[ 'social' => [ 'GitHub' => 'https://www.github.com/example' ] ]
+		) );
+
+		$this->assertStringContainsString( '<svg id="custom">', (string) new \Novaris\Template\Tag\Social() );
 	}
 
 	public function testSocialPrintsNothingWithoutLinks(): void
