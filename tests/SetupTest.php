@@ -191,4 +191,34 @@ class SetupTest extends TestCase
 		$this->assertSame( 1, $status );
 		$this->assertStringContainsString( 'unable to find vendor/autoload.php', $output );
 	}
+
+	public function testSocialPrintsExternalLinksFromConfig(): void
+	{
+		$this->boot( $this->makeSite( [], [ 'social' => [
+			'GitHub' => 'https://github.com/example',
+			'About'  => '/about',
+		] ] ) );
+
+		$html = (string) new \Novaris\Template\Tag\Social();
+
+		$this->assertStringContainsString( 'class="social-menu"', $html );
+		$this->assertStringContainsString( 'href="https://github.com/example"', $html );
+		$this->assertStringContainsString( '>GitHub<', $html );
+		$this->assertStringNotContainsString( 'href="/about"', $html );
+		$this->assertStringContainsString( '/about"', $html );
+	}
+
+	public function testSocialPrintsNothingWithoutLinks(): void
+	{
+		$this->boot( $this->makeSite() );
+
+		$this->assertSame( '', ( new \Novaris\Template\Tag\Social() )->toHtml() );
+	}
+
+	public function testSocialIsAvailableAsATemplateTag(): void
+	{
+		$this->boot( $this->makeSite() );
+
+		$this->assertTrue( app( 'template.tags' )->has( 'social' ) );
+	}
 }

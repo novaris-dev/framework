@@ -5,6 +5,15 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `$engine->social()` prints the links from the `social` list in
+  `config/app.php`, as a `.social-menu` list. Full URLs such as
+  `https://github.com/you` stay as they are, and paths such as `/about` get the
+  site's address. It prints nothing when the list is empty.
+
 ## [1.0.9] - 11.04.2026
 
 ### Fixed
