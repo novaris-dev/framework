@@ -19,7 +19,7 @@ use Novaris\Contracts\Template\{
 use Novaris\Contracts\View\View as ViewContract;
 use Novaris\Core\ServiceProvider;
 use Novaris\Template\Component;
-use Novaris\Template\Tag\{PoweredBy, Tag, Tags};
+use Novaris\Template\Tag\{PoweredBy, Social, Tag, Tags};
 use Novaris\View\{
 	Engine as ViewEngine,
 	View as ViewView
@@ -70,6 +70,10 @@ class Template extends ServiceProvider
 	 */
 	public function boot(): void
 	{
+		// Works with the `social` config, so every site has it. This comes first
+		// so a site's `template.tags` config can replace it.
+		$this->app->make( TemplateTags::class )->add( 'social', Social::class );
+
 		$this->app->make( Component::class )->boot();
 	}
 }
