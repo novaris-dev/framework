@@ -5,6 +5,16 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `$engine->social()` now prints an inline SVG icon for known sites, chosen from
+  the link's address, and keeps the label for screen readers. Links without an
+  icon still show their label. A theme can replace an icon with a file in
+  `resources/svg/social`.
+- 21 social icons from Font Awesome Free, in `src/Template/Icons/social`.
+
 ## [1.1.0] - 11.05.2026
 
 ### Added
