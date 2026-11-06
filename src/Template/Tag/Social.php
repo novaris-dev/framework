@@ -19,14 +19,14 @@ class Social extends Tag
 	/**
 	 * Stores the links, as label and URL pairs.
 	 *
-	 * @since 1.0.10
+	 * @since 1.1.0
 	 */
 	protected array $items;
 
 	/**
 	 * Sets up the links. Uses the `social` config when none are passed in.
 	 *
-	 * @since 1.0.10
+	 * @since 1.1.0
 	 */
 	public function __construct( ?array $items = null )
 	{
@@ -36,7 +36,7 @@ class Social extends Tag
 	/**
 	 * Returns the links as HTML, or an empty string when there are none.
 	 *
-	 * @since 1.0.10
+	 * @since 1.1.0
 	 */
 	public function toHtml(): string
 	{
@@ -59,7 +59,7 @@ class Social extends Tag
 	/**
 	 * Returns the link labels as plain text.
 	 *
-	 * @since 1.0.10
+	 * @since 1.1.0
 	 */
 	public function toText(): string
 	{
@@ -71,7 +71,7 @@ class Social extends Tag
 	 * links stay as they are, while anything else, such as `/about`, is treated
 	 * as a path on this site.
 	 *
-	 * @since 1.0.10
+	 * @since 1.1.0
 	 */
 	private function formatItem( string $label, string $url ): string
 	{
