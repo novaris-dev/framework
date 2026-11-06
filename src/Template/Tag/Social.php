@@ -21,7 +21,7 @@ class Social extends Tag
 	/**
 	 * Icon files for each site.
 	 *
-	 * @since 1.2.0
+	 * @since 1.1.1
 	 */
 	protected const ICONS = [
 		'behance.net'    => 'behance',
@@ -122,7 +122,7 @@ class Social extends Tag
 	/**
 	 * Returns the SVG for a link, or an empty string if it doesn't have one.
 	 *
-	 * @since 1.2.0
+	 * @since 1.1.1
 	 */
 	private function icon( string $url ): string
 	{
@@ -152,7 +152,7 @@ class Social extends Tag
 	/**
 	 * Returns the icon name for a link, from its address.
 	 *
-	 * @since 1.2.0
+	 * @since 1.1.1
 	 */
 	private function iconName( string $url ): string
 	{
