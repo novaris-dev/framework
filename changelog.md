@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Embeds, turned on with `supports.embeds` in `config/app.php` (`true`, or
+  `[ 'click_to_load' => …, 'privacy' => … ]`). It's off by default. A link on
+  its own line in Markdown becomes:
+  - a YouTube or Vimeo video, worked out from the link without fetching
+    anything, so it also works on static exports. By default it's "click
+    to load": a play button (with the thumbnail for YouTube) that the theme's
+    script swaps for the player, using youtube-nocookie.com and Vimeo's
+    `dnt=1`. Without the script, it's a link to the video.
+  - a `<video>` or `<audio>` player for links to media files, with site files
+    such as `/user/media/clip.mp4` getting their full URL.
+
+### Fixed
+
+- A linked image on its own line (`[![…](…)](…)`) was wrapped in `<p>`, which
+  can't contain the `<figure>` it renders as, so browsers split it into empty
+  paragraphs (extra cells in a gallery grid). It's now left unwrapped, like a
+  plain image.
+
+## [1.1.2] - 11.09.2026
+
+### Added
+
 - Search, turned on with `supports.search` in `config/app.php` (`true`, or
   `[ 'length' => 5000 ]`). It's off by default.
   - `/search.json` lists every public post and page with its title, URL,
@@ -272,7 +294,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Novaris\Console\Kernel` and `Novaris\Console\Output`. They were unused and
   duplicated `bin/novaris` (which remains the command-line entry point).
 
-[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.1...develop
+[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.2...develop
+[1.1.2]: https://github.com/novaris-dev/framework/releases/tag/v1.1.2
 [1.1.1]: https://github.com/novaris-dev/framework/releases/tag/v1.1.1
 [1.1.0]: https://github.com/novaris-dev/framework/releases/tag/v1.1.0
 [1.0.9]: https://github.com/novaris-dev/framework/releases/tag/v1.0.9
