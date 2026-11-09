@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.4] - 11.09.2026
+
 ### Added
 
 - Default templates for feeds (RSS 2.0 and Atom) and sitemaps (the index and
@@ -320,7 +322,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Novaris\Console\Kernel` and `Novaris\Console\Output`. They were unused and
   duplicated `bin/novaris` (which remains the command-line entry point).
 
-[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.3...develop
+[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.4...develop
+[1.1.4]: https://github.com/novaris-dev/framework/releases/tag/v1.1.4
 [1.1.3]: https://github.com/novaris-dev/framework/releases/tag/v1.1.3
 [1.1.2]: https://github.com/novaris-dev/framework/releases/tag/v1.1.2
 [1.1.1]: https://github.com/novaris-dev/framework/releases/tag/v1.1.1
