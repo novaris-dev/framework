@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A cropped and an uncropped image size with the same width and height
+  saved to the same file, so whichever was made first was used for both.
+  Uncropped sizes now get a `-fit` suffix (`photo-100x100-fit.jpg`).
+- Resized images that older versions enlarged (before 1.1.4) were reused.
+  They're now made again at the right size.
+- Excerpts and the search index included embed labels such as "Play video on
+  YouTube", so a video post's excerpt started with them and searching "play"
+  found every video post. Embeds are now left out of both.
+
 ## [1.1.5] - 11.09.2026
 
 ### Added

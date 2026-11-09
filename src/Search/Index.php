@@ -172,6 +172,10 @@ class Index
 	 */
 	protected function plain( string $html ): string
 	{
+		// Embeds have no words of their own, only labels such as "Play video
+		// on YouTube", so leave them out.
+		$html = (string) preg_replace( '#<figure class="embed\b.*?</figure>#is', ' ', $html );
+
 		// Keep words in separate elements apart, such as table cells.
 		$html = preg_replace( '/<(br|\/p|\/li|\/h[1-6]|\/td|\/th|\/div|\/figcaption|\/pre|\/blockquote)\b[^>]*>/i', '$0 ', $html );
 		$text = html_entity_decode( strip_tags( (string) $html ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );

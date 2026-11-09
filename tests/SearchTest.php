@@ -166,6 +166,23 @@ class SearchTest extends TestCase
 		$this->assertStringNotContainsString( '<', $entry['excerpt'] );
 	}
 
+	public function testEmbedLabelsAreNotSearchText(): void
+	{
+		$site = $this->makeSite( $this->searchContent() + [
+			'user/content/_posts/2025-04-01.video.md' => $this->markdown( [ 'title' => 'Video', 'published' => '2025-04-01' ], "Before the video.\n\nhttps://youtu.be/dQw4w9WgXcQ\n\nAfter the video." ),
+		], [ 'supports' => [ 'search' => true, 'embeds' => true ] ] );
+
+		$entry = $this->index( $site )['/blog/video'];
+
+		$this->assertSame( 'Before the video. After the video.', $entry['text'] );
+		$this->assertStringNotContainsString( 'Play video', $entry['excerpt'] );
+
+		// Themes' excerpts leave the label out too.
+		$post = app( 'content.query' )->make( [ 'path' => '_posts', 'slug' => 'video' ] )->single();
+		$this->assertStringNotContainsString( 'Play video', $post->excerpt() );
+		$this->assertStringContainsString( 'After the video.', $post->excerpt() );
+	}
+
 	public function testContentTypesCanBeLeftOutOrAdded(): void
 	{
 		$entries = $this->index( $this->makeSearchSite( true, [], [
