@@ -19,10 +19,9 @@
 
 namespace Novaris\Search;
 
+use Novaris\Content\Pages;
 use Novaris\Contracts\Content\{ContentEntry, ContentTypes};
-use Novaris\Core\Proxies\{App, Config, Query};
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use Novaris\Core\Proxies\{Config, Query};
 
 class Index
 {
@@ -97,7 +96,7 @@ class Index
 			// Pages are found by walking the content folder, as the
 			// export does, since they have no routes of their own.
 			$entries = 'page' === $type->name()
-				? $this->pages()
+				? Pages::all()
 				: Query::make( [
 					'type'    => $type->name(),
 					'number'  => 0,
@@ -164,63 +163,6 @@ class Index
 			'excerpt' => $this->plain( $entry->excerpt( 30 ) ),
 			'text'    => $text,
 		];
-	}
-
-	/**
-	 * Returns the public pages in the content folder, skipping private
-	 * (`_`) folders and files, the same way the export does.
-	 *
-	 * @since 1.1.2
-	 * @return iterable<ContentEntry>
-	 */
-	protected function pages(): iterable
-	{
-		$contentPath = App::resolve( 'path.content' );
-
-		if ( ! is_dir( $contentPath ) ) {
-			return;
-		}
-
-		$files = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator( $contentPath, RecursiveDirectoryIterator::SKIP_DOTS )
-		);
-
-		$paths = [];
-
-		foreach ( $files as $file ) {
-
-			if ( ! $file->isFile() || 'md' !== strtolower( $file->getExtension() ) ) {
-				continue;
-			}
-
-			$relative = str_replace( '\\', '/', substr(
-				$file->getPathname(),
-				strlen( rtrim( $contentPath, '/\\' ) ) + 1
-			) );
-
-			foreach ( explode( '/', $relative ) as $segment ) {
-				if ( str_starts_with( $segment, '_' ) ) {
-					continue 2;
-				}
-			}
-
-			$paths[] = preg_replace( '/\.md$/i', '', $relative );
-		}
-
-		sort( $paths );
-
-		foreach ( $paths as $path ) {
-			$directory = dirname( $path );
-
-			$page = Query::make( [
-				'path' => '.' === $directory ? '' : $directory,
-				'slug' => basename( $path ),
-			] )->single();
-
-			if ( $page ) {
-				yield $page;
-			}
-		}
 	}
 
 	/**

@@ -101,7 +101,10 @@ class Taxonomy extends Controller
 			'meta_value' => $name
 		] ) );
 
-		if ( $term && $term->isPublic() && $entries->all() ) {
+		// A term with no entries still has its first page, so links to it
+		// (such as from a list of categories) work. Later pages need
+		// entries.
+		if ( $term && $term->isPublic() && ( $entries->all() || 1 === $page ) ) {
 
 			// Set the current request context.
 			$this->context( 'taxonomy' );

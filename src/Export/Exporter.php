@@ -52,6 +52,18 @@ class Exporter
 	protected array $generated = [];
 
 	/**
+	 * Routes that return XML (feeds and sitemaps), mapped to the file each
+	 * is exported as, such as `/blog/feed` => `blog/feed.xml`. Static hosts
+	 * serve `.xml` files as XML, but would serve an extensionless file or an
+	 * `index.html` as something else, so links to these routes are
+	 * rewritten to the `.xml` files.
+	 *
+	 * @since 1.1.4
+	 * @var array<string, string>
+	 */
+	protected array $files = [];
+
+	/**
 	 * Sets up the object state.
 	 *
 	 * @since 1.0.0
@@ -78,6 +90,10 @@ class Exporter
 		$this->generated = [];
 
 		$this->prepareDirectory();
+
+		// Work out the feed and sitemap files first, so every exported page
+		// links to them.
+		$this->files = $this->xmlFiles();
 
 		// Export the homepage.
 		$this->exportPath( '/' );
@@ -137,6 +153,11 @@ class Exporter
 		if ( \Novaris\Search\Index::enabled() ) {
 			$this->exportPath( '/search' );
 			$this->exportFile( 'search.json' );
+		}
+
+		// Export feeds and sitemaps as `.xml` files.
+		foreach ( $this->files as $route => $file ) {
+			$this->exportFile( $route, $file );
 		}
 
 		// Copy compiled theme assets.
@@ -600,14 +621,65 @@ class Exporter
 	}
 
 	/**
+	 * Returns the feed and sitemap routes to export, mapped to their files.
+	 *
+	 * @since 1.1.4
+	 * @return array<string, string>
+	 */
+	protected function xmlFiles(): array
+	{
+		$urls = [];
+
+		foreach ( $this->types->all() as $type ) {
+
+			if ( ! $type->isPublic() ) {
+				continue;
+			}
+
+			// Feeds need the type's routes; sitemaps are listed for every
+			// type with one, including pages.
+			if ( $type->hasRouting() && $type->hasFeed() ) {
+				$urls[] = $type->rssFeedUrl();
+				$urls[] = $type->atomFeedUrl();
+			}
+
+			if ( $type->hasSitemap() ) {
+				$urls[] = $type->sitemapUrl();
+			}
+		}
+
+		if ( config( 'app.sitemap' ) ) {
+			$urls[] = (string) url( 'sitemap' );
+		}
+
+		$base  = rtrim( (string) url(), '/' );
+		$files = [];
+
+		foreach ( $urls as $url ) {
+			$route = str_starts_with( $url, $base ) ? substr( $url, strlen( $base ) ) : (string) parse_url( $url, PHP_URL_PATH );
+			$route = '/' . trim( $route, '/' );
+
+			if ( '/' !== $route ) {
+				$files[ $route ] = ltrim( $route, '/' ) . '.xml';
+			}
+		}
+
+		// Longest first, so `/blog/feed/atom` is rewritten before `/blog/feed`.
+		uksort( $files, fn( $a, $b ) => strlen( $b ) <=> strlen( $a ) );
+
+		return $files;
+	}
+
+	/**
 	 * Exports a route that returns a file rather than a page, such as
-	 * `search.json`, to the same path in the export.
+	 * `search.json`, to the same path in the export, or to `$target`.
 	 *
 	 * @since 1.1.2
 	 */
-	protected function exportFile( string $path ): bool
+	protected function exportFile( string $path, ?string $target = null ): bool
 	{
-		$path = trim( $path, '/' );
+		$path   = trim( $path, '/' );
+		$target = trim( $target ?? $path, '/' );
 
 		$response = $this->router->dispatch( Request::create( '/' . $path, 'GET' ) );
 
@@ -615,7 +687,7 @@ class Exporter
 			return false;
 		}
 
-		$file = $this->path . '/' . $path;
+		$file = $this->path . '/' . $target;
 
 		if ( ! is_dir( dirname( $file ) ) ) {
 			mkdir( dirname( $file ), 0755, true );
@@ -623,7 +695,7 @@ class Exporter
 
 		file_put_contents( $file, $this->rewriteUrls( (string) $response->getContent() ) );
 
-		$this->generated[] = $path;
+		$this->generated[] = $target;
 		$this->exported[]  = '/' . $path;
 
 		return true;
@@ -687,6 +759,18 @@ class Exporter
 			$assetUrl,
 			$content
 		);
+
+		// Point links to feeds and sitemaps at their `.xml` files. Only
+		// whole URLs match, so `/blog/feed` doesn't touch `/blog/feeding`.
+		if ( $runtimeUrl ) {
+			foreach ( $this->files as $route => $file ) {
+				$content = preg_replace(
+					'#' . preg_quote( $runtimeUrl . $route, '#' ) . '/?(?=["\'<\s]|$)#',
+					$runtimeUrl . '/' . $file,
+					$content
+				);
+			}
+		}
 
 		if (
 			! $this->url

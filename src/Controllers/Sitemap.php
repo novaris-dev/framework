@@ -11,6 +11,7 @@
 
 namespace Novaris\Controllers;
 
+use Novaris\Content\Pages;
 use Novaris\Core\Proxies\{App, Config, Query};
 use Novaris\Content\Entry\Virtual;
 use Novaris\Template\Tag\{DocumentTitle};
@@ -47,15 +48,26 @@ class Sitemap extends Controller
 			'meta'    => [ 'title' => 'Sitemap' ]
 		] );
 
-		$collection = Query::make( [
-			'type'      => $types->get( $type )->name(),
-			'number'    => 0,
-			'orderby'   => 'published',
-			'order'     => 'desc',
-			'nocontent' => true
-		] );
+		// Pages are spread across the content folder rather than in one
+		// folder, so they're found by walking it.
+		if ( 'page' === $type ) {
+			$collection = array_values( array_filter(
+				Pages::all(),
+				fn( $page ) => $page->isPublic()
+			) );
+			$hasEntries = (bool) $collection;
+		} else {
+			$collection = Query::make( [
+				'type'      => $types->get( $type )->name(),
+				'number'    => 0,
+				'orderby'   => 'published',
+				'order'     => 'desc',
+				'nocontent' => true
+			] );
+			$hasEntries = $collection->hasEntries();
+		}
 
-		if ( $single && $collection->hasEntries() ) {
+		if ( $single && $hasEntries ) {
 
 			// Get the sitemap view.
 			return $this->response( $this->view(

@@ -114,8 +114,11 @@ class Processor
 				$media->path()
 			);
 
+			// Never enlarge an image: a small image stays its own size
+			// (cropped to the size's shape), rather than being blown up
+			// and blurry.
 			if ( $crop ) {
-				$image->cover( $width, $height );
+				$image->coverDown( $width, $height );
 			} else {
 				$image->scaleDown(
 					width: $width,
