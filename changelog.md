@@ -5,6 +5,25 @@ All notable changes to the Novaris Framework are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Search, turned on with `supports.search` in `config/app.php` (`true`, or
+  `[ 'length' => 5000 ]`). It's off by default.
+  - `/search.json` lists every public post and page with its title, URL,
+    content type, date, terms, excerpt and plain text, for themes to search
+    in the browser. Hidden entries, private content types and private `_`
+    folders are left out, and so are taxonomies unless their `search` option
+    is `true`.
+  - `/search` renders the theme's `search` template, falling back to `page`.
+    `is_search()` is true on it.
+  - `novaris export` writes `search.json` and `search/index.html`, with the
+    export's URLs.
+  - A `search` option for content types in `config/content.php`.
+  - `search_enabled()`, `search_url()`, `search_index_url()` and
+    `search_query()` in `Novaris\Theme\Site`.
+
 ## [1.1.1] - 11.05.2026
 
 ### Added

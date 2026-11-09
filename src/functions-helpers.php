@@ -180,6 +180,18 @@ if ( ! function_exists( 'is_404' ) ) {
 	}
 }
 
+if ( ! function_exists( 'is_search' ) ) {
+	/**
+	 * Determines whether the current request is the search page.
+	 *
+	 * @since 1.1.2
+	 */
+	function is_search(): bool
+	{
+		return app( 'routing.context' )->isSearch();
+	}
+}
+
 if ( ! function_exists( 'body_class' ) ) {
 	/**
 	 * Returns CSS classes for the body element based on the current request.
