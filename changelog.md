@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 11.09.2026
+
 ### Added
 
 - Embeds, turned on with `supports.embeds` in `config/app.php` (`true`, or
@@ -294,7 +296,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Novaris\Console\Kernel` and `Novaris\Console\Output`. They were unused and
   duplicated `bin/novaris` (which remains the command-line entry point).
 
-[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.2...develop
+[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.3...develop
+[1.1.3]: https://github.com/novaris-dev/framework/releases/tag/v1.1.3
 [1.1.2]: https://github.com/novaris-dev/framework/releases/tag/v1.1.2
 [1.1.1]: https://github.com/novaris-dev/framework/releases/tag/v1.1.1
 [1.1.0]: https://github.com/novaris-dev/framework/releases/tag/v1.1.0
