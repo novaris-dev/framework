@@ -236,3 +236,15 @@ function search_query(): string
 
 	return is_string( $query ) ? trim( $query ) : '';
 }
+
+/**
+ * Returns the post formats the theme supports, from `supports.post-formats`
+ * in config/app.php, such as `[ 'aside', 'link', 'quote' ]`.
+ *
+ * @since 1.1.5
+ * @return list<string>
+ */
+function post_formats(): array
+{
+	return \Novaris\Content\PostFormats::supported();
+}
