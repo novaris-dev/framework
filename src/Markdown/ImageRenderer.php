@@ -78,11 +78,7 @@ class ImageRenderer implements NodeRendererInterface
                 $image = new HtmlElement( 'img', $args, '', true );
 
 		if ( $this->parent instanceof Link ) {
-			$url = $this->parent->getUrl();
-
-			if ( Str::startsWith( $url, '/' ) ) {
-				$url = Str::appendUri( url( $url ) );
-			}
+			$url = LinkRenderer::resolveUrl( $this->parent->getUrl() );
 
 			$image = new HtmlElement( 'a', [
 				'href' => e( $url )

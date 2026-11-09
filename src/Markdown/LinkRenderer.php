@@ -11,7 +11,7 @@
 
 namespace Novaris\Markdown;
 
-use Novaris\Tools\Str;
+use Novaris\Tools\{Media, Str};
 use League\CommonMark\Extension\CommonMark\Node\Inline\{Image, Link};
 use League\CommonMark\Node\Node;
 use League\CommonMark\Renderer\{ChildNodeRendererInterface, NodeRendererInterface};
@@ -25,11 +25,7 @@ class LinkRenderer implements NodeRendererInterface {
 	 */
 	public function render( Node $node, ChildNodeRendererInterface $childRenderer )
 	{
-		$url = $node->getUrl();
-
-		if ( Str::startsWith( $url, '/' ) ) {
-			$url = Str::appendUri( url( $url ) );
-		}
+		$url = static::resolveUrl( $node->getUrl() );
 
 		$attr = $node->data['attributes'] ?? [];
 
@@ -47,5 +43,26 @@ class LinkRenderer implements NodeRendererInterface {
 		$innerHtml = $childRenderer->renderNodes( $node->children() );
 
 		return new HtmlElement( 'a', $attr, $innerHtml );
+	}
+
+	/**
+	 * Returns the full URL for a link in content. Site paths get the site
+	 * URL, and links to the site's own files, such as
+	 * `/user/media/photo.jpg`, get the file's real URL, the same as images
+	 * do. That differs when `NOVARIS_USER_PATH` points at another folder.
+	 *
+	 * @since 1.1.6
+	 */
+	public static function resolveUrl( string $url ): string
+	{
+		if ( Str::startsWith( $url, '/user/' ) && ( $media = new Media( $url ) ) && $media->url() ) {
+			return $media->url();
+		}
+
+		if ( Str::startsWith( $url, '/' ) ) {
+			return Str::appendUri( url( $url ) );
+		}
+
+		return $url;
 	}
 }

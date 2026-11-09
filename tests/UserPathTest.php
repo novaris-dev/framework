@@ -302,6 +302,26 @@ class UserPathTest extends TestCase
 		);
 	}
 
+	public function testLinksToUserFilesFollowTheFolder(): void
+	{
+		if ( ! extension_loaded( 'gd' ) ) {
+			$this->markTestSkipped( 'Needs the GD extension to create a test image.' );
+		}
+
+		$site = $this->makeSiteUsing( '.' );
+		$this->makeUserFolder( "{$site}/theme-test-data" );
+		$this->write( "{$site}/.env", 'APP_URL="' . static::URL . '"' . PHP_EOL . 'NOVARIS_USER_PATH="theme-test-data"' . PHP_EOL );
+		$this->boot( $site );
+
+		$html = app( 'markdown' )->convert( "[![Photo](/user/media/photo.png)](/user/media/photo.png)\n\n[A file](/user/media/photo.png) and [a missing one](/user/media/missing.png)." )->content();
+
+		// The link and the image both point at the folder's real address.
+		$this->assertSame( 3, substr_count( $html, static::URL . '/theme-test-data/media/photo.png' ) );
+
+		// Links to missing files keep their address.
+		$this->assertStringContainsString( static::URL . '/user/media/missing.png', $html );
+	}
+
 	public function testMissingUserPathStopsWithAClearMessage(): void
 	{
 		$site = $this->makeSiteUsing( '../this-folder-does-not-exist' );

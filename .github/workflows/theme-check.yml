@@ -1,0 +1,75 @@
+name: Theme check
+
+# Builds Amicable with this framework and the theme test data, exports the
+# whole test site, and fails on PHP warnings, missing pages, broken links,
+# invalid feeds or sitemaps, and HTML problems. See .github/scripts/check-export.py.
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  amicable:
+    name: Amicable with theme-test-data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the framework
+        uses: actions/checkout@v4
+        with:
+          path: framework
+
+      - name: Check out Amicable
+        uses: actions/checkout@v4
+        with:
+          repository: novaris-dev/amicable
+          ref: develop
+          path: amicable
+
+      - name: Check out the theme test data
+        uses: actions/checkout@v4
+        with:
+          repository: novaris-dev/theme-test-data
+          ref: develop
+          path: amicable/theme-test-data
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: gd, zip
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: amicable/package-lock.json
+
+      # Install Amicable with this checkout of the framework instead of the
+      # released one. The made-up version only needs to match Amicable's
+      # `^1.0` requirement.
+      - name: Install Amicable with this framework
+        working-directory: amicable
+        run: |
+          composer config repositories.framework '{"type": "path", "url": "../framework", "options": {"symlink": false, "versions": {"novaris-dev/framework": "1.99.0"}}}'
+          composer require "novaris-dev/framework:1.99.0" --no-interaction --no-progress --update-with-dependencies
+
+      - name: Build Amicable's CSS and JavaScript
+        working-directory: amicable
+        run: |
+          npm ci
+          npm run prod
+
+      - name: Export the test site
+        working-directory: amicable
+        run: |
+          printf 'APP_URL="http://localhost"\nNOVARIS_USER_PATH="theme-test-data"\n' > .env
+          set -o pipefail
+          php -d error_reporting=-1 -d display_errors=1 vendor/novaris-dev/framework/src/bin/novaris export --count 2>&1 | tee export.log
+
+      - name: Check the export
+        run: python3 framework/.github/scripts/check-export.py amicable/public http://localhost amicable/export.log
