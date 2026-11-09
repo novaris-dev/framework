@@ -167,6 +167,29 @@ interface ContentEntry {
 	public function viewPaths(): array;
 
 	/**
+	 * Returns the entry's post format, or `standard`.
+	 *
+	 * @since 1.1.5
+	 */
+	public function format(): string;
+
+	/**
+	 * Whether the entry has a post format.
+	 *
+	 * @since 1.1.5
+	 */
+	public function hasFormat( string $format ): bool;
+
+	/**
+	 * Returns a template hierarchy with a template for the entry's format
+	 * first, such as `[ 'collection-quote', 'collection' ]`.
+	 *
+	 * @since 1.1.5
+	 * @return list<string>
+	 */
+	public function formatHierarchy( string $name ): array;
+
+	/**
 	 * Returns an array of Query arguments if assigned as metadata.
 	 *
 	 * @since  1.0.0

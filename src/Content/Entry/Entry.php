@@ -346,6 +346,47 @@ abstract class Entry implements ContentEntry
 	}
 
 	/**
+	 * Returns the entry's post format, such as `quote`, from `format:` in
+	 * its front matter. It's `standard` when there's none, or the theme
+	 * doesn't support it (see `Novaris\Content\PostFormats`).
+	 *
+	 * @since 1.1.5
+	 */
+	public function format(): string
+	{
+		return \Novaris\Content\PostFormats::resolve( $this->meta( 'format', null ) );
+	}
+
+	/**
+	 * Whether the entry has a format, such as `quote`. `standard` matches
+	 * entries with no supported format.
+	 *
+	 * @since 1.1.5
+	 */
+	public function hasFormat( string $format ): bool
+	{
+		return $this->format() === strtolower( trim( $format ) );
+	}
+
+	/**
+	 * Returns a template hierarchy for showing the entry as `$name`, such as
+	 * a list item (`collection`), with a template for its format first:
+	 * `[ 'collection-quote', 'collection' ]`. Standard entries get
+	 * `[ 'collection' ]`.
+	 *
+	 * @since 1.1.5
+	 * @return list<string>
+	 */
+	public function formatHierarchy( string $name ): array
+	{
+		$format = $this->format();
+
+		return \Novaris\Content\PostFormats::STANDARD === $format
+			? [ $name ]
+			: [ "{$name}-{$format}", $name ];
+	}
+
+	/**
 	 * Returns an array of view paths assigned as metadata.
 	 *
 	 * @since 1.0.0

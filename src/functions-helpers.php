@@ -238,12 +238,17 @@ if ( ! function_exists( 'body_class' ) ) {
 
 if ( ! function_exists( 'post_class' ) ) {
 	/**
-	 * Returns CSS classes for a content entry.
+	 * Returns CSS classes for a content entry. Pass the entry to add its
+	 * post format, such as `format-quote` (or `format-standard`).
 	 *
 	 * @since 1.0.0
 	 */
-	function post_class( array $classes = [] ): string
+	function post_class( array $classes = [], ?\Novaris\Contracts\Content\ContentEntry $entry = null ): string
 	{
+		if ( $entry ) {
+			$classes[] = 'format-' . $entry->format();
+		}
+
 		if ( is_single() ) {
 			$classes[] = 'single';
 		}

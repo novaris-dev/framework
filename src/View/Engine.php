@@ -230,7 +230,7 @@ class Engine
 		string $name,
 		iterable $items = [],
 		string $var = '',
-		array|string $hierarchy = [],
+		array|string|\Closure $hierarchy = [],
 		string $empty = '',
 		array|Collection $data = []
 	): void {
@@ -247,9 +247,12 @@ class Engine
 				$itemData[ $var ] = $item;
 			}
 
+			// A closure picks the hierarchy for each item, such as a
+			// template for each entry's post format:
+			// `fn( $entry ) => $entry->formatHierarchy( 'collection' )`.
 			$this->include(
 				$name,
-				$hierarchy,
+				$hierarchy instanceof \Closure ? $hierarchy( $item ) : $hierarchy,
 				$itemData
 			);
 		}

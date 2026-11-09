@@ -27,9 +27,16 @@ class Hierarchy
 	{
 		$entry_name = $entry->name();
 		$post_type  = $entry->type()->name();
+		$format     = $entry->format();
 
-		return array_merge( $entry->viewPaths(), [
-			"single.{$entry_name}",
+		// Posts with a format, such as `quote`, look for a template for it
+		// first: `single-post-quote`, then `single-format-quote`.
+		$formats = 'standard' === $format ? [] : [
+			"single-{$post_type}-{$format}",
+			"single-format-{$format}",
+		];
+
+		return array_merge( $entry->viewPaths(), [ "single.{$entry_name}" ], $formats, [
 			"single-{$post_type}",
 			'single'
 		] );

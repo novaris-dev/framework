@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Post formats, as in ClassicPress. A post sets `format:` in its front
+  matter (`aside`, `audio`, `chat`, `gallery`, `image`, `link`, `quote`,
+  `status` or `video`), and a theme lists the formats it supports with
+  `supports.post-formats` in `config/app.php` (`true` for all). Other posts
+  are `standard`.
+  - `$entry->format()`, `$entry->hasFormat()` and
+    `$entry->formatHierarchy( 'collection' )`, which gives
+    `[ 'collection-quote', 'collection' ]` for a quote post.
+  - Single posts look for `single-post-{format}` and
+    `single-format-{format}` templates before `single-post`.
+  - `post_class( [], $entry )` adds `format-{format}`.
+  - `$engine->each()` accepts a closure as the hierarchy, to pick a template
+    for each item, such as by its format.
+  - `Novaris\Theme\Site\post_formats()` returns the supported formats.
+
 ## [1.1.4] - 11.09.2026
 
 ### Added

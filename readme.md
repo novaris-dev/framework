@@ -111,6 +111,31 @@ The framework renders them with its own templates in `resources/views` (`feed/rs
 
 `novaris export` writes them as `.xml` files, such as `blog/feed.xml` and `sitemap/post.xml`, so static hosts serve them as XML, and points links to them at those files.
 
+## Post formats
+
+A post format lets a theme show some posts differently, as in ClassicPress: a quote post can show just the quote, a link post can link straight to the page it's about, and so on. A post sets its format in its front matter:
+
+```yaml
+format: quote
+```
+
+The formats are `aside`, `audio`, `chat`, `gallery`, `image`, `link`, `quote`, `status` and `video`. A theme lists the ones it supports in its `config/app.php`:
+
+```php
+'supports' => [
+    'post-formats' => [ 'aside', 'link', 'quote' ],   // or true for all
+],
+```
+
+A post whose format the theme doesn't support, or that has none, is `standard`.
+
+In templates:
+
+- `$entry->format()` returns the format, and `$entry->hasFormat( 'quote' )` checks it.
+- `post_class( [], $entry )` adds a `format-quote` class.
+- Single posts use a `single-post-quote` or `single-format-quote` template if the theme has one.
+- For lists, `$engine->each( 'entry', $entries, 'entry', fn( $entry ) => $entry->formatHierarchy( 'collection' ) )` uses `entry/collection-quote.php` for quote posts and `entry/collection.php` for the rest.
+
 ## Themes
 
 A site picks its theme in `config/app.php`:
