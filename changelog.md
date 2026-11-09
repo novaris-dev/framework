@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.6] - 11.09.2026
+
 ### Fixed
 
 - Links to the site's own files, such as an image linking to its full size
@@ -356,7 +358,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Novaris\Console\Kernel` and `Novaris\Console\Output`. They were unused and
   duplicated `bin/novaris` (which remains the command-line entry point).
 
-[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.5...develop
+[Unreleased]: https://github.com/novaris-dev/framework/compare/v1.1.6...develop
+[1.1.6]: https://github.com/novaris-dev/framework/releases/tag/v1.1.6
 [1.1.5]: https://github.com/novaris-dev/framework/releases/tag/v1.1.5
 [1.1.4]: https://github.com/novaris-dev/framework/releases/tag/v1.1.4
 [1.1.3]: https://github.com/novaris-dev/framework/releases/tag/v1.1.3
