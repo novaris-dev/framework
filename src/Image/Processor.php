@@ -97,11 +97,15 @@ class Processor
 
 		$pathinfo = pathinfo( $media->path() );
 
+		// Cropped and uncropped sizes with the same width and height make
+		// different images, so uncropped ones get a `-fit` suffix and the
+		// two never share a file.
 		$filename = sprintf(
-			'%s-%dx%d.%s',
+			'%s-%dx%d%s.%s',
 			$pathinfo['filename'],
 			$width,
 			$height,
+			$crop ? '' : '-fit',
 			$pathinfo['extension']
 		);
 
@@ -109,7 +113,7 @@ class Processor
 			. DIRECTORY_SEPARATOR
 			. $filename;
 
-		if ( ! is_file( $destination ) ) {
+		if ( ! is_file( $destination ) || $this->isEnlarged( $destination, $media ) ) {
 			$image = $this->manager->read(
 				$media->path()
 			);
@@ -130,5 +134,22 @@ class Processor
 		}
 
 		return new Media( $destination );
+	}
+
+	/**
+	 * Whether a resized image is bigger than its original. Versions before
+	 * 1.1.4 enlarged small images for cropped sizes, so those files are made
+	 * again rather than reused.
+	 *
+	 * @since 1.1.6
+	 */
+	protected function isEnlarged( string $destination, Media $media ): bool
+	{
+		$size = @getimagesize( $destination );
+
+		return $size
+			&& $media->width()
+			&& $media->height()
+			&& ( $size[0] > $media->width() || $size[1] > $media->height() );
 	}
 }

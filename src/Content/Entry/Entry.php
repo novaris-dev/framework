@@ -481,9 +481,10 @@ abstract class Entry implements ContentEntry
 				$content
 			)->content();
 		}
-		// Remove `<figcaption>` so that its text isn't in the excerpt.
+		// Remove `<figcaption>` so that its text isn't in the excerpt, and
+		// embeds, whose only text is labels such as "Play video on YouTube".
 		$content = preg_replace(
-			"/<figcaption.*?>(.*?)<\/figcaption>/i",
+			[ "/<figcaption.*?>(.*?)<\/figcaption>/i", '#<figure class="embed\b.*?</figure>#is' ],
 			"",
 			$content ?: $this->content()
 		);
