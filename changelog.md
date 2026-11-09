@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Links to the site's own files, such as an image linking to its full size
+  (`[![…](/user/media/photo.jpg)](/user/media/photo.jpg)`), pointed at
+  `/user/media/…` even when `NOVARIS_USER_PATH` moved the files, so they
+  were broken. Links now get the file's real URL, the same as images.
 - A cropped and an uncropped image size with the same width and height
   saved to the same file, so whichever was made first was used for both.
   Uncropped sizes now get a `-fit` suffix (`photo-100x100-fit.jpg`).

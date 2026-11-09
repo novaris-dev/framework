@@ -1,0 +1,66 @@
+name: Release
+
+# When a pull request from a `release/x.y.z` branch is merged into develop,
+# tags the merge commit `vx.y.z` and publishes the GitHub release, with the
+# notes from that version's section of changelog.md. The tag is always on
+# the merged code, so `novaris --version` matches it.
+
+on:
+  pull_request:
+    types: [ closed ]
+    branches: [ develop ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && startsWith( github.event.pull_request.head.ref, 'release/' )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the merged code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Check the version
+        id: version
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${BRANCH#release/}"
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::The branch name ($BRANCH) isn't release/x.y.z."
+              exit 1
+          fi
+
+          CODE_VERSION=$(grep -oP "const VERSION = '\K[^']+" src/Core/Application.php)
+
+          if [ "$CODE_VERSION" != "$VERSION" ]; then
+              echo "::error::Application::VERSION is $CODE_VERSION, but the branch is for $VERSION."
+              exit 1
+          fi
+
+          if gh release view "v$VERSION" > /dev/null 2>&1; then
+              echo "::error::A v$VERSION release already exists."
+              exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Write the release notes
+        run: python3 .github/scripts/release-notes.py changelog.md "${{ steps.version.outputs.version }}" > release-notes.md
+
+      - name: Tag and publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          gh release create "v$VERSION" \
+            --target "$SHA" \
+            --title "v$VERSION" \
+            --notes-file release-notes.md
