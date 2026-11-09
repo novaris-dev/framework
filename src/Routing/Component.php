@@ -98,6 +98,20 @@ class Component implements Bootable
 			] );
 		}
 
+		// Add search routes if supported: the index that themes search in
+		// the browser, and the search page.
+		if ( \Novaris\Search\Index::enabled() ) {
+			$this->routes->add( 'search.json', [
+				'name'       => 'search.index',
+				'controller' => Controllers\SearchIndex::class
+			] );
+
+			$this->routes->add( 'search', [
+				'name'       => 'search',
+				'controller' => Controllers\Search::class
+			] );
+		}
+
 		// Add homepage route.
 		$this->routes->add( '/', [
 			'name'       => 'home',

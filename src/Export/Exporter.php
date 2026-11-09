@@ -133,6 +133,12 @@ class Exporter
 			}
 		}
 
+		// Export the search page and the index that themes search.
+		if ( \Novaris\Search\Index::enabled() ) {
+			$this->exportPath( '/search' );
+			$this->exportFile( 'search.json' );
+		}
+
 		// Copy compiled theme assets.
 		$theme       = config( 'app.theme' ) ? Name::slug( config( 'app.theme' ) ) : '';
 		$parent      = app( 'theme.metadata' )->parent();
@@ -589,6 +595,36 @@ class Exporter
 		);
 
 		$this->exported[] = $path;
+
+		return true;
+	}
+
+	/**
+	 * Exports a route that returns a file rather than a page, such as
+	 * `search.json`, to the same path in the export.
+	 *
+	 * @since 1.1.2
+	 */
+	protected function exportFile( string $path ): bool
+	{
+		$path = trim( $path, '/' );
+
+		$response = $this->router->dispatch( Request::create( '/' . $path, 'GET' ) );
+
+		if ( ! $response->isSuccessful() ) {
+			return false;
+		}
+
+		$file = $this->path . '/' . $path;
+
+		if ( ! is_dir( dirname( $file ) ) ) {
+			mkdir( dirname( $file ), 0755, true );
+		}
+
+		file_put_contents( $file, $this->rewriteUrls( (string) $response->getContent() ) );
+
+		$this->generated[] = $path;
+		$this->exported[]  = '/' . $path;
 
 		return true;
 	}

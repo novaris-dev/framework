@@ -30,6 +30,7 @@ class Content
 			'collection'      => Expect::array(),
 			'feed'            => Expect::type( 'bool|array' )->nullable(),
 			'sitemap'         => Expect::bool( true ),
+			'search'          => Expect::bool()->nullable(),
 			'date_archives'   => Expect::bool( false ),
 			'time_archives'   => Expect::bool( false ),
 			'directory'       => Expect::bool( false ),

@@ -120,6 +120,15 @@ class Type implements ContentType
 	protected bool $sitemap = true;
 
 	/**
+	 * Whether to include the content type in the search index. Defaults to
+	 * `true`, except for taxonomies. Search must also be turned on with
+	 * `supports.search` in config/app.php.
+	 *
+	 * @since 1.1.2
+	 */
+	protected bool $search = true;
+
+	/**
 	 * Whether to generate date-based archives for the content type.
 	 *
 	 * @since 1.0.0
@@ -153,6 +162,7 @@ class Type implements ContentType
 		$this->term_collect    = $options['term_collect']    ?? null;
 		$this->term_collection = $options['term_collection'] ?? [];
 		$this->sitemap         = $options['sitemap']         ?? true;
+		$this->search          = $options['search']          ?? ! $this->taxonomy;
 		$this->has_routing     = isset( $options['routing'] ) && false !== $options['routing'];
 
 		// Unless the `collect` option is explicitly set to `false`,
@@ -410,6 +420,20 @@ class Type implements ContentType
 		return Config::get( 'app.sitemap' )
 			&& $this->sitemap
 			&& $this->isPublic();
+	}
+
+	/**
+	 * Whether the content type is in the search index: search is turned on,
+	 * the type is public and has URLs, and its `search` option isn't `false`.
+	 *
+	 * @since 1.1.2
+	 */
+	public function hasSearch(): bool
+	{
+		return \Novaris\Search\Index::enabled()
+			&& $this->search
+			&& $this->isPublic()
+			&& ( $this->hasRouting() || 'page' === $this->name() );
 	}
 
 	/**

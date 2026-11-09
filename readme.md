@@ -38,6 +38,39 @@ Content links to images as `/user/media/...`, and Novaris rewrites those links t
 
 Resized images are saved next to the originals, so they are written into that folder.
 
+## Search
+
+Novaris can build a search index that themes search in the browser, so search works the same on live sites and static exports. Turn it on in `config/app.php`, under `supports`:
+
+```php
+'supports' => [
+    'search' => true,                  // or [ 'length' => 5000 ]
+],
+```
+
+A theme can turn it on in its own `config/app.php`, and a site can turn it off with `'search' => false`.
+
+With search on:
+
+- **`/search.json`** lists every public post and page: its `title`, `url`, content `type`, `date`, `terms` (such as categories), a short `excerpt`, and its `text` as plain text, without Markdown or HTML. Hidden entries (`visibility: hidden`), private content types and private `_` folders are left out, and so are taxonomies such as categories. `length` sets the most characters of text per entry (default 5000).
+- **`/search`** is a page for the results. It uses the theme's `search` template, or the `page` template if there isn't one, and `is_search()` is true on it.
+- **`novaris export`** writes both, as `search.json` and `search/index.html`, with URLs for the exported site.
+
+A content type can be left out, or a taxonomy added, with its `search` option in `config/content.php`:
+
+```php
+'post' => [ 'path' => '_posts', 'search' => false ],
+```
+
+Themes show the search box and results. These functions in `Novaris\Theme\Site` help:
+
+| Function | Returns |
+|----------|---------|
+| `search_enabled()` | Whether search is on |
+| `search_url( $query = '' )` | The search page URL, such as `/search?q=gallery` |
+| `search_index_url()` | The URL of `search.json`, for the theme's script to load |
+| `search_query()` | The `?q=` query on live sites, for filling in the search box. Static exports have no request, so scripts should read the query from the address |
+
 ## Themes
 
 A site picks its theme in `config/app.php`:

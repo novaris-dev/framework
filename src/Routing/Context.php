@@ -137,4 +137,14 @@ class Context
 	{
 		return $this->is( '404' );
 	}
+
+	/**
+	 * Whether the current request is the search page.
+	 *
+	 * @since 1.1.2
+	 */
+	public function isSearch(): bool
+	{
+		return $this->is( 'search' );
+	}
 }

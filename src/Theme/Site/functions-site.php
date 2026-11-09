@@ -189,3 +189,50 @@ function featured_image(
 
 	return $entry->thumbnail();
 }
+
+/**
+ * Whether search is turned on with `supports.search` in config/app.php.
+ *
+ * @since 1.1.2
+ */
+function search_enabled(): bool
+{
+	return \Novaris\Search\Index::enabled();
+}
+
+/**
+ * Returns the search page URL, with a search query if given.
+ *
+ * @since 1.1.2
+ */
+function search_url( string $query = '' ): string
+{
+	$url = (string) \url( 'search' );
+
+	return '' === $query ? $url : $url . '?q=' . rawurlencode( $query );
+}
+
+/**
+ * Returns the URL of the search index, `search.json`, for a theme's search
+ * script to load. It's the same on live sites and static exports.
+ *
+ * @since 1.1.2
+ */
+function search_index_url(): string
+{
+	return (string) \url( 'search.json' );
+}
+
+/**
+ * Returns the search query from the current request (`?q=`), for filling in
+ * a search box on live sites. Static exports have no request, so a theme's
+ * script should read the query from the address instead.
+ *
+ * @since 1.1.2
+ */
+function search_query(): string
+{
+	$query = \Symfony\Component\HttpFoundation\Request::createFromGlobals()->query->get( 'q', '' );
+
+	return is_string( $query ) ? trim( $query ) : '';
+}
