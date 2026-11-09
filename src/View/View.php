@@ -168,6 +168,18 @@ class View implements ViewContract
 			}
 		}
 
+		// Last, the framework's own default templates, such as feeds and
+		// sitemaps, which themes rarely need to change. Checked only after
+		// every theme template, so a theme's `feed.php` still wins over the
+		// framework's `feed/rss.php`.
+		foreach ( $this->hierarchy() as $template ) {
+			$default = dirname( __DIR__, 2 ) . "/resources/views/{$template}";
+
+			if ( is_file( $default ) ) {
+				return $default;
+			}
+		}
+
 		return null;
 	}
 

@@ -103,6 +103,14 @@ Turn embeds on in `config/app.php`, under `supports`:
 
 Embeds render as `<figure class="embed embed--youtube">` (or `--vimeo`, `--video`, `--audio`), with the player inside `.embed__frame`. Themes style them, usually as a 16:9 box.
 
+## Feeds and sitemaps
+
+Content types with `'feed' => true` in `config/content.php` get an RSS feed (such as `/blog/feed`) and an Atom feed (`/blog/feed/atom`). With `'sitemap' => true` in `config/app.php`, `/sitemap` lists a sitemap for each public content type, such as `/sitemap/post` and `/sitemap/page`.
+
+The framework renders them with its own templates in `resources/views` (`feed/rss.php`, `feed/atom.php`, `sitemap.php` and `sitemap-index.php`). A theme can replace any of them with a template of the same name, or with `feed.php` for both feed formats.
+
+`novaris export` writes them as `.xml` files, such as `blog/feed.xml` and `sitemap/post.xml`, so static hosts serve them as XML, and points links to them at those files.
+
 ## Themes
 
 A site picks its theme in `config/app.php`:

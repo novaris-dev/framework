@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Default templates for feeds (RSS 2.0 and Atom) and sitemaps (the index and
+  each content type's), in `resources/views`. They're used when a theme has
+  none, so feeds and sitemaps now have content: before, they rendered empty
+  unless the theme provided `feed`, `sitemap` and `sitemap-index`
+  templates. A theme's templates still win.
+
+### Fixed
+
+- Static exports now include feeds and sitemaps, written as `.xml` files
+  (`blog/feed.xml`, `blog/feed/atom.xml`, `sitemap.xml`, `sitemap/post.xml`)
+  so static hosts serve them as XML. Links to them in exported pages, feeds
+  and sitemaps point at the `.xml` files.
+- `/sitemap/page` returned 404, though the sitemap index linked to it,
+  because pages aren't in one folder. It now lists every page, found the
+  same way as for search and the export.
+- Categories and other terms with no posts returned 404, so lists of
+  categories had broken links. Their first page now shows, with no posts;
+  later pages are still 404.
+- Cropped image sizes enlarged smaller images, so a 120 × 80 thumbnail
+  became a blurry 1366 × 768. Images are now never enlarged: they're cropped
+  to the size's shape at their own size.
+
 ## [1.1.3] - 11.09.2026
 
 ### Added
