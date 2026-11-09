@@ -71,6 +71,38 @@ Themes show the search box and results. These functions in `Novaris\Theme\Site` 
 | `search_index_url()` | The URL of `search.json`, for the theme's script to load |
 | `search_query()` | The `?q=` query on live sites, for filling in the search box. Static exports have no request, so scripts should read the query from the address |
 
+## Embeds
+
+With embeds on, a link on its own line in Markdown becomes an embed:
+
+```markdown
+Some text.
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+https://vimeo.com/76979871
+
+/user/media/clip.mp4
+```
+
+- **YouTube** (`youtube.com/watch`, `youtu.be`, `/shorts/`, `/live/`, `/embed/`, with a `t=` start time) and **Vimeo** (including unlisted and channel links) become videos.
+- **Video and audio files** (`.mp4`, `.webm`, `.ogv`, `.mov`, `.mp3`, `.m4a`, `.ogg`, `.wav`, `.flac`, `.opus`) get a `<video>` or `<audio>` player.
+
+Nothing is fetched from the internet while building the page, so embeds work the same on live sites and static exports. Links inside a sentence, links with their own text (`[My video](…)`), and links to anything else stay links.
+
+Turn embeds on in `config/app.php`, under `supports`:
+
+```php
+'supports' => [
+    'embeds' => true,   // or [ 'click_to_load' => true, 'privacy' => true ]
+],
+```
+
+- **`click_to_load`** (default `true`): YouTube and Vimeo show a play button, with the video's thumbnail for YouTube, and the theme's script swaps in the real player when it's clicked (`.embed__play[data-embed-src]`). The provider's scripts only load for people who play the video, and without the script the play button is a link to the video. Set it to `false` to put the player in the page straight away, as a lazy-loaded iframe, with no script needed.
+- **`privacy`** (default `true`): YouTube players use youtube-nocookie.com and Vimeo players use `dnt=1`.
+
+Embeds render as `<figure class="embed embed--youtube">` (or `--vimeo`, `--video`, `--audio`), with the player inside `.embed__frame`. Themes style them, usually as a 16:9 box.
+
 ## Themes
 
 A site picks its theme in `config/app.php`:
