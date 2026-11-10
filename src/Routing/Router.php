@@ -224,9 +224,48 @@ class Router implements RoutingRouter
 			return null;
 		}
 
-		return new BinaryFileResponse( $file, Response::HTTP_OK, [
-			'Content-Type' => mime_content_type( $file ) ?: 'application/octet-stream',
-		], true, null, false, true );
+		return new BinaryFileResponse( $file, Response::HTTP_OK, static::mediaHeaders( $file ), true, null, false, true );
+	}
+
+	/**
+	 * File types a browser runs scripts in when the file is opened
+	 * directly, such as an SVG with a `<script>` in it.
+	 *
+	 * @since 1.1.8
+	 */
+	protected const ACTIVE_MEDIA_TYPES = [
+		'image/svg+xml',
+		'text/html',
+		'application/xhtml+xml',
+		'text/xml',
+		'application/xml',
+	];
+
+	/**
+	 * Returns the headers for a media file. Browsers are told not to guess
+	 * a file's type, and files they could run scripts in, such as SVGs, are
+	 * sandboxed: they still show, inline and in `<img>`, but their scripts
+	 * don't run, even when the file is opened directly.
+	 *
+	 * @since 1.1.8
+	 * @return array<string, string>
+	 */
+	public static function mediaHeaders( string $file ): array
+	{
+		$type = in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), [ 'svg', 'svgz' ], true )
+			? 'image/svg+xml'
+			: ( mime_content_type( $file ) ?: 'application/octet-stream' );
+
+		$headers = [
+			'Content-Type'           => $type,
+			'X-Content-Type-Options' => 'nosniff',
+		];
+
+		if ( in_array( $type, static::ACTIVE_MEDIA_TYPES, true ) ) {
+			$headers['Content-Security-Policy'] = "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox";
+		}
+
+		return $headers;
 	}
 
 	/**
