@@ -231,6 +231,18 @@ class UserPathTest extends TestCase
 			$this->assertSame( 'nosniff', $headers->get( 'X-Content-Type-Options' ), $name );
 		}
 
+		// A gzipped `.svgz` is marked as gzipped, so browsers unzip it, and
+		// is still sandboxed. One that isn't gzipped is sent as plain SVG.
+		file_put_contents( "{$folder}/media/packed.svgz", gzencode( '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>' ) );
+		file_put_contents( "{$folder}/media/unpacked.svgz", '<svg xmlns="http://www.w3.org/2000/svg"/>' );
+
+		$packed = $this->get( $site, '/user/media/packed.svgz' )->headers;
+		$this->assertSame( 'gzip', $packed->get( 'Content-Encoding' ) );
+		$this->assertSame( 'image/svg+xml', $packed->get( 'Content-Type' ) );
+		$this->assertStringContainsString( 'sandbox', (string) $packed->get( 'Content-Security-Policy' ) );
+		$this->assertNull( $this->get( $site, '/user/media/unpacked.svgz' )->headers->get( 'Content-Encoding' ) );
+		$this->assertNull( $this->get( $site, '/user/media/bare.svg' )->headers->get( 'Content-Encoding' ) );
+
 		// SVGs are always served as SVG, even without an XML declaration.
 		$this->assertSame( 'image/svg+xml', $this->get( $site, '/user/media/bare.svg' )->headers->get( 'Content-Type' ) );
 
