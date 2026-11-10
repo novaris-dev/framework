@@ -209,6 +209,38 @@ class UserPathTest extends TestCase
 		$this->assertSame( 404, $this->get( $site, '/user/media/%2E%2E/content/index.md' )->getStatusCode() );
 	}
 
+	public function testMediaFilesThatCouldRunScriptsAreSandboxed(): void
+	{
+		if ( ! extension_loaded( 'gd' ) ) {
+			$this->markTestSkipped( 'Needs the GD extension to create the test folder.' );
+		}
+
+		$folder = $this->makeUserFolder();
+		$site   = $this->makeSiteUsing( $folder );
+
+		file_put_contents( "{$folder}/media/icon.svg", '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>' );
+		file_put_contents( "{$folder}/media/bare.svg", '<svg><circle r="1"/></svg>' );
+		file_put_contents( "{$folder}/media/page.html", '<script>alert(1)</script>' );
+		file_put_contents( "{$folder}/media/notes.txt", 'Plain text.' );
+
+		foreach ( [ 'icon.svg', 'bare.svg', 'page.html' ] as $name ) {
+			$headers = $this->get( $site, "/user/media/{$name}" )->headers;
+
+			$this->assertStringContainsString( 'sandbox', (string) $headers->get( 'Content-Security-Policy' ), $name );
+			$this->assertStringContainsString( "default-src 'none'", (string) $headers->get( 'Content-Security-Policy' ), $name );
+			$this->assertSame( 'nosniff', $headers->get( 'X-Content-Type-Options' ), $name );
+		}
+
+		// SVGs are always served as SVG, even without an XML declaration.
+		$this->assertSame( 'image/svg+xml', $this->get( $site, '/user/media/bare.svg' )->headers->get( 'Content-Type' ) );
+
+		// Other files only get `nosniff`, so PDFs and the like still open
+		// in the browser's own viewer.
+		$text = $this->get( $site, '/user/media/notes.txt' )->headers;
+		$this->assertSame( 'nosniff', $text->get( 'X-Content-Type-Options' ) );
+		$this->assertNull( $text->get( 'Content-Security-Policy' ) );
+	}
+
 	public function testServeCommandServesPagesAssetsAndMedia(): void
 	{
 		// Without pcntl, the command runs the server as a child process,

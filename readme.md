@@ -38,6 +38,32 @@ Content links to images as `/user/media/...`, and Novaris rewrites those links t
 
 Resized images are saved next to the originals, so they are written into that folder.
 
+### Serving media safely
+
+An SVG can contain a script, and if someone opens the file directly, the script runs as part of your site. The same goes for HTML and XML files. When Novaris serves a media file itself, it sends headers that stop this: `X-Content-Type-Options: nosniff` on every file and, on SVG, HTML and XML files, a `Content-Security-Policy` with `sandbox`. SVGs still show, inline and in `<img>` tags. Only their scripts are blocked.
+
+Most of the time the web server serves `/user/media` directly, without Novaris, so add the same headers there. With nginx, in the site's `server` block:
+
+```nginx
+location ~* ^/user/media/.+\.(svgz?|html?|xhtml|xml)$ {
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" always;
+}
+```
+
+nginx drops `add_header` lines from the `server` block inside a `location` that has its own, so repeat any you rely on, such as `Strict-Transport-Security`, in it.
+
+With Apache and `mod_headers`, in the site's `.htaccess`:
+
+```apache
+<If "%{REQUEST_URI} =~ m#^/user/media/.+\.(svgz?|html?|xhtml|xml)$#i">
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox"
+</If>
+```
+
+If `NOVARIS_USER_PATH` points at a folder inside the site, use its media path, such as `/theme-test-data/media/`, instead of `/user/media/`. Static exports copy media to `user/media`, so set the same headers on the static host if it lets you.
+
 ## Search
 
 Novaris can build a search index that themes search in the browser, so search works the same on live sites and static exports. Turn it on in `config/app.php`, under `supports`:

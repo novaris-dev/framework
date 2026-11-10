@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Media files that Novaris serves itself (with `NOVARIS_USER_PATH` or
+  `novaris serve`) are sent with `X-Content-Type-Options: nosniff`, and SVG,
+  HTML and XML files with a `Content-Security-Policy` that includes
+  `sandbox`. A script inside an SVG no longer runs when the file is opened
+  directly. SVGs still show inline and in `<img>` tags. SVGs are always
+  served as `image/svg+xml`.
+- The readme has nginx and Apache settings that add the same headers when
+  the web server serves `/user/media` itself, which is the usual setup.
+
 ## [1.1.7] - 11.10.2026
 
 ### Added
