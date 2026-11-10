@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.8] - 11.10.2026
+
 ### Security
 
 - Media files that Novaris serves itself (with `NOVARIS_USER_PATH` or
