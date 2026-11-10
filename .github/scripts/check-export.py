@@ -5,6 +5,7 @@ Checks a static export of a Novaris site, for the theme check workflow.
 
 Fails (exit 1) on:
 - PHP warnings, notices, deprecations or errors in the export log
+- pages the export skipped because they returned an error
 - missing pages that the theme test data should always produce
 - links or images to this site that don't point at an exported file,
   except the test data's deliberately missing files (`does-not-exist`)
@@ -28,6 +29,8 @@ log = open(log_file, encoding='utf-8', errors='replace').read()
 for line in log.splitlines():
     if re.search(r'\b(PHP )?(Warning|Notice|Deprecated|Fatal error|Parse error)\b', line):
         problems.append(f'PHP message in export: {line.strip()[:300]}')
+    if line.startswith('Skipped '):
+        problems.append(f'Page not exported: {line[len("Skipped "):].strip()[:300]}')
 
 # Pages the theme test data always produces.
 expected = [

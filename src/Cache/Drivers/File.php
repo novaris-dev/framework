@@ -127,7 +127,9 @@ class File extends Driver
 				return null;
 			}
 
-			$data = @unserialize( $content );
+			// Cached data is only arrays and scalars, so objects are never
+			// created from a cache file.
+			$data = @unserialize( $content, [ 'allowed_classes' => false ] );
 
 			if ( ! is_array( $data ) ) {
 				$this->forget( $key );

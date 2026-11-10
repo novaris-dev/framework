@@ -12,9 +12,11 @@
 namespace Novaris\Tests;
 
 use Novaris\Contracts\Content\{ContentQuery, ContentTypes};
-use Novaris\Contracts\Routing\RoutingRouter;
+use Novaris\Contracts\Routing\{RoutingRouter, RoutingRoutes};
 use Novaris\Export\Exporter;
+use Novaris\Routing\Router;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 class ExporterTest extends TestCase
 {
@@ -83,6 +85,52 @@ class ExporterTest extends TestCase
 			$this->assertFileExists( "{$public}/{$listing}/page/3/index.html", "{$listing} page 3" );
 			$this->assertFileDoesNotExist( "{$public}/{$listing}/page/4/index.html", "{$listing} page 4" );
 		}
+	}
+
+	public function testListsPagesThatCouldNotBeExported(): void
+	{
+		$app = $this->boot( $this->makeSite() );
+
+		// A router where one page fails, as a page with a PHP error would.
+		$router = new class( $app->make( RoutingRoutes::class ) ) extends Router {
+			public function dispatch( Request $request ): Response
+			{
+				if ( '/about' === $request->getPathInfo() ) {
+					return new Response( 'Error', 500 );
+				}
+
+				return parent::dispatch( $request );
+			}
+		};
+
+		$exporter = new Exporter(
+			$router,
+			$app->make( ContentTypes::class ),
+			$app->make( ContentQuery::class ),
+			$app->publicPath()
+		);
+
+		$exporter->export();
+
+		$this->assertSame( [ '/about' => 500 ], $exporter->skipped() );
+		$this->assertFileDoesNotExist( $app->publicPath( 'about/index.html' ) );
+	}
+
+	public function testPagingPastTheLastPageIsNotAFailure(): void
+	{
+		$app = $this->boot( $this->makeSite() );
+
+		$exporter = new Exporter(
+			$app->make( RoutingRouter::class ),
+			$app->make( ContentTypes::class ),
+			$app->make( ContentQuery::class ),
+			$app->publicPath()
+		);
+
+		$exporter->export();
+
+		// Every listing ends with a 404 for the page after its last one.
+		$this->assertSame( [], $exporter->skipped() );
 	}
 
 	public function testExportsEachContentTypesOwnEntries(): void

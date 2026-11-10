@@ -13,6 +13,20 @@ namespace Novaris\Tests;
 
 use Novaris\Cache\Drivers\File;
 use Novaris\Directory\Repository;
+use Novaris\Routing\Router;
+
+/**
+ * Records when a cache file creates and wakes it, which it never should.
+ */
+class CacheWakeupProbe
+{
+	public static bool $woken = false;
+
+	public function __wakeup(): void
+	{
+		static::$woken = true;
+	}
+}
 
 class CacheTest extends TestCase
 {
@@ -82,6 +96,79 @@ class CacheTest extends TestCase
 
 		$store = $this->get( $site, '/purge/cache/content/secret123' );
 		$this->assertStringContainsString( 'Cache Store Flushed', $store->getContent() );
+	}
+
+	public function testPathsThatLookAlikeGetTheirOwnCacheFiles(): void
+	{
+		$this->assertSame( 'index', Router::cacheKey( 'index' ) );
+		$this->assertSame( 'blog.hello', Router::cacheKey( 'blog/hello' ) );
+		$this->assertSame( 'search%2Ejson', Router::cacheKey( 'search.json' ) );
+		$this->assertSame( 'search.json', Router::cacheKey( 'search/json' ) );
+		$this->assertSame( '%252E', Router::cacheKey( '%2E' ) );
+
+		$site = $this->cachedSite( [
+			'user/content/search/json.md'     => $this->markdown( [ 'title' => 'Nested page' ], 'The nested page.' ),
+			'user/content/search.json/index.md' => $this->markdown( [ 'title' => 'Dotted page' ], 'The dotted page.' ),
+		] );
+
+		$this->assertStringContainsString( 'The nested page.', $this->get( $site, '/search/json' )->getContent() );
+		$this->assertStringContainsString( 'The dotted page.', $this->get( $site, '/search.json' )->getContent() );
+
+		// Served again from the cache, each path still gets its own page.
+		$this->assertStringContainsString( 'The nested page.', $this->get( $site, '/search/json' )->getContent() );
+		$this->assertStringContainsString( 'The dotted page.', $this->get( $site, '/search.json' )->getContent() );
+
+		$this->assertFileExists( "{$site}/storage/cache/global/search.json.cache" );
+		$this->assertFileExists( "{$site}/storage/cache/global/search%2Ejson.cache" );
+	}
+
+	public function testCheckIntervalReusesTheLastCheck(): void
+	{
+		$site = $this->makeSite( [], [], [ 'global' => true, 'expires' => 0, 'global_check' => 60 ] );
+		$file = "{$site}/user/content/about/index.md";
+
+		// Make every site file older than the cached page.
+		foreach ( new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $site, \FilesystemIterator::SKIP_DOTS ), \RecursiveIteratorIterator::SELF_FIRST ) as $item ) {
+			touch( $item->getPathname(), time() - 120 );
+		}
+
+		// The first request caches the page; the second is served from the
+		// cache and saves the result of checking the files.
+		$this->assertStringContainsString( 'About us.', $this->get( $site, '/about' )->getContent() );
+		$this->assertStringContainsString( 'About us.', $this->get( $site, '/about' )->getContent() );
+		$this->assertFileExists( "{$site}/storage/cache/global/.last-modified.cache" );
+
+		// Within the interval, the cached page is served without checking
+		// the files again.
+		file_put_contents( $file, $this->markdown( [ 'title' => 'About' ], 'Edited text.' ) );
+		$this->assertStringContainsString( 'About us.', $this->get( $site, '/about' )->getContent() );
+
+		// Once the last check expires, the edit shows.
+		unlink( "{$site}/storage/cache/global/.last-modified.cache" );
+		$this->assertStringContainsString( 'Edited text.', $this->get( $site, '/about' )->getContent() );
+	}
+
+	public function testCacheFilesNeverCreateObjects(): void
+	{
+		$path  = $this->temporaryDirectory();
+		$store = ( new File( 'test', [ 'path' => $path ] ) )->make();
+
+		CacheWakeupProbe::$woken = false;
+
+		file_put_contents( "{$path}/object.cache", serialize( [
+			'meta' => [ 'expires' => 0, 'created' => time() ],
+			'data' => [ 'probe' => new CacheWakeupProbe() ],
+		] ) );
+
+		$data = $store->get( 'object' );
+
+		$this->assertFalse( CacheWakeupProbe::$woken );
+		$this->assertNotInstanceOf( CacheWakeupProbe::class, $data['probe'] );
+
+		// Arrays and scalars still come back as they were stored.
+		$store->put( 'plain', [ 'a' => 1, 'b' => [ 'c' => 'd' ], 'e' => true ] );
+		$fresh = ( new File( 'test', [ 'path' => $path ] ) )->make();
+		$this->assertSame( [ 'a' => 1, 'b' => [ 'c' => 'd' ], 'e' => true ], $fresh->get( 'plain' ) );
 	}
 
 	public function testCorruptCacheFilesAreTreatedAsMissing(): void

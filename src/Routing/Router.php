@@ -132,7 +132,7 @@ class Router implements RoutingRouter
 			$path = 'index';
 		}
 
-		$cache_key = str_replace( [ '/', '\\' ], '.', $path );
+		$cache_key = static::cacheKey( $path );
 		$store     = Cache::store( 'global' );
 		$content   = $store->get( $cache_key );
 		$response  = false;
@@ -185,6 +185,24 @@ class Router implements RoutingRouter
 	}
 
 	/**
+	 * Returns the global cache key for a path, such as `blog.hello` for
+	 * `blog/hello`. Characters that could make two paths share a key are
+	 * escaped, so `search.json` (`search%2Ejson`) and `search/json`
+	 * (`search.json`) are cached separately.
+	 *
+	 * @since 1.1.7
+	 */
+	public static function cacheKey( string $path ): string
+	{
+		$segments = explode( '/', str_replace( '\\', '/', $path ) );
+
+		return implode( '.', array_map(
+			fn( string $segment ) => str_replace( [ '%', '.' ], [ '%25', '%2E' ], $segment ),
+			$segments
+		) );
+	}
+
+	/**
 	 * Returns a response for a file under `/user/media`, read from the
 	 * user folder, or `null` when the request is for something else.
 	 *
@@ -213,7 +231,8 @@ class Router implements RoutingRouter
 
 	/**
 	 * Returns the newest modified time across content and theme files.
-	 * Calculated once per request.
+	 * Calculated once per request, or once every `cache.global_check`
+	 * seconds when that's set.
 	 *
 	 * @since 1.0.0
 	 */
@@ -221,6 +240,15 @@ class Router implements RoutingRouter
 	{
 		if ( null !== $this->lastModified ) {
 			return $this->lastModified;
+		}
+
+		// With `cache.global_check` set, reuse the last result for that
+		// many seconds instead of checking every file on every request.
+		$interval = (int) Config::get( 'cache.global_check' );
+		$store    = Cache::store( 'global' );
+
+		if ( $interval > 0 && is_int( $checked = $store->get( '.last-modified' ) ) ) {
+			return $this->lastModified = $checked;
 		}
 
 		$time  = 0;
@@ -259,6 +287,10 @@ class Router implements RoutingRouter
 			}
 
 			$time = max( $time, (int) filemtime( $path ) );
+		}
+
+		if ( $interval > 0 ) {
+			$store->put( '.last-modified', $time, $interval );
 		}
 
 		return $this->lastModified = $time;
