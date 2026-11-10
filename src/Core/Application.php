@@ -39,7 +39,7 @@ class Application extends Container implements ApplicationContract, Bootable
 	 *
 	 * @since 1.0.0
 	 */
-	const VERSION = '1.1.8';
+	const VERSION = '1.1.9';
 
 	/**
 	 * Registers the default bindings, providers, and proxies for the
