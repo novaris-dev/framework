@@ -45,21 +45,32 @@ An SVG can contain a script, and if someone opens the file directly, the script 
 Most of the time the web server serves `/user/media` directly, without Novaris, so add the same headers there. With nginx, in the site's `server` block:
 
 ```nginx
-location ~* ^/user/media/.+\.(svgz?|html?|xhtml|xml)$ {
+location ~* ^/user/media/.+\.svgz$ {
+    add_header Content-Encoding "gzip" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" always;
+}
+
+location ~* ^/user/media/.+\.(svg|html?|xhtml|xml)$ {
     add_header X-Content-Type-Options "nosniff" always;
     add_header Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" always;
 }
 ```
 
+The `.svgz` block comes first, because nginx uses the first matching one. It tells the browser that the file is gzipped, which it needs to show it.
+
 nginx drops `add_header` lines from the `server` block inside a `location` that has its own, so repeat any you rely on, such as `Strict-Transport-Security`, in it.
 
-With Apache and `mod_headers`, in the site's `.htaccess`:
+With Apache and `mod_headers`, in the site's `.htaccess` (the last two lines let browsers show gzipped `.svgz` files):
 
 ```apache
 <If "%{REQUEST_URI} =~ m#^/user/media/.+\.(svgz?|html?|xhtml|xml)$#i">
     Header always set X-Content-Type-Options "nosniff"
     Header always set Content-Security-Policy "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox"
 </If>
+
+AddType image/svg+xml .svgz
+AddEncoding gzip .svgz
 ```
 
 If `NOVARIS_USER_PATH` points at a folder inside the site, use its media path, such as `/theme-test-data/media/`, instead of `/user/media/`. Static exports copy media to `user/media`, so set the same headers on the static host if it lets you.

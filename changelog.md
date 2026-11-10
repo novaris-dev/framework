@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Gzipped `.svgz` files served by Novaris didn't show, because they were
+  sent without `Content-Encoding: gzip`. They now have it. A `.svgz` that
+  isn't actually gzipped is sent without it, so it still shows. The
+  readme's nginx and Apache settings do the same for `.svgz` files the web
+  server serves.
+
 ## [1.1.8] - 11.10.2026
 
 ### Security

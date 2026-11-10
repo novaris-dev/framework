@@ -245,14 +245,18 @@ class Router implements RoutingRouter
 	 * Returns the headers for a media file. Browsers are told not to guess
 	 * a file's type, and files they could run scripts in, such as SVGs, are
 	 * sandboxed: they still show, inline and in `<img>`, but their scripts
-	 * don't run, even when the file is opened directly.
+	 * don't run, even when the file is opened directly. A gzipped `.svgz`
+	 * is sent as it is, with `Content-Encoding: gzip`, so the browser
+	 * unzips it.
 	 *
 	 * @since 1.1.8
 	 * @return array<string, string>
 	 */
 	public static function mediaHeaders( string $file ): array
 	{
-		$type = in_array( strtolower( pathinfo( $file, PATHINFO_EXTENSION ) ), [ 'svg', 'svgz' ], true )
+		$extension = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
+
+		$type = in_array( $extension, [ 'svg', 'svgz' ], true )
 			? 'image/svg+xml'
 			: ( mime_content_type( $file ) ?: 'application/octet-stream' );
 
@@ -260,6 +264,12 @@ class Router implements RoutingRouter
 			'Content-Type'           => $type,
 			'X-Content-Type-Options' => 'nosniff',
 		];
+
+		// Only say it's gzipped when it is, so a plain SVG named `.svgz`
+		// still shows.
+		if ( 'svgz' === $extension && "\x1f\x8b" === (string) file_get_contents( $file, false, null, 0, 2 ) ) {
+			$headers['Content-Encoding'] = 'gzip';
+		}
 
 		if ( in_array( $type, static::ACTIVE_MEDIA_TYPES, true ) ) {
 			$headers['Content-Security-Policy'] = "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox";
