@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.9] - 11.10.2026
+
 ### Fixed
 
 - Gzipped `.svgz` files served by Novaris didn't show, because they were
