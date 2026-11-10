@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `cache.global_check` (seconds) in `config/cache.php`. With the full-page
+  cache on, every cached request checks the content, config and theme files
+  for changes, which takes longer the bigger the site. Set this to reuse the
+  last check for that many seconds. Edits can then take up to that long to
+  show. The default, `0`, checks on every request as before.
+- `novaris export` lists any page it couldn't export because it returned an
+  error, such as `Skipped /about (HTTP 500)`, followed by how many were
+  skipped. Before, those pages were silently left out of the export.
+  `Exporter::skipped()` returns the same list.
+
+### Security
+
+- Cache files are read with `unserialize()` limited to arrays and scalars
+  (`allowed_classes => false`), so a cache file can never create an object.
+  Cached data was already only arrays and strings.
+
+### Fixed
+
+- Two paths could share a full-page cache file, such as `/search.json` and
+  `/search/json`, so each could be served the other's page. Dots and `%` in
+  a path are now escaped in the cache key (`search%2Ejson`). Pages already
+  cached under the old names are rebuilt on their next request.
+
 ## [1.1.6] - 11.09.2026
 
 ### Fixed

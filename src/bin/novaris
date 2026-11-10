@@ -144,6 +144,17 @@ switch ( $command ) {
 			$exported = $exporter->export();
 			$total    = count( $exported );
 
+			// List pages that returned an error, so a broken page doesn't
+			// just go missing from the export. This goes to STDERR, before
+			// the count, which `--watch` reads from the last line.
+			foreach ( $exporter->skipped() as $skippedPath => $status ) {
+				fwrite( STDERR, "Skipped {$skippedPath} (HTTP {$status})" . PHP_EOL );
+			}
+
+			if ( $skipped = count( $exporter->skipped() ) ) {
+				fwrite( STDERR, sprintf( 'Novaris: %d %s could not be exported.', $skipped, 1 === $skipped ? 'page' : 'pages' ) . PHP_EOL );
+			}
+
 			if ( $count ) {
 				echo $total . PHP_EOL;
 			}

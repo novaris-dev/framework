@@ -64,6 +64,14 @@ class Exporter
 	protected array $files = [];
 
 	/**
+	 * Paths that couldn't be exported, mapped to their HTTP status code.
+	 *
+	 * @since 1.1.7
+	 * @var array<string, int>
+	 */
+	protected array $skipped = [];
+
+	/**
 	 * Sets up the object state.
 	 *
 	 * @since 1.0.0
@@ -88,6 +96,7 @@ class Exporter
 	{
 		$this->exported  = [];
 		$this->generated = [];
+		$this->skipped   = [];
 
 		$this->prepareDirectory();
 
@@ -586,7 +595,7 @@ class Exporter
 	 *
 	 * @since 1.0.0
 	 */
-	protected function exportPath( string $path ): bool
+	protected function exportPath( string $path, bool $probe = false ): bool
 	{
 		$path = '/' . trim( $path, '/' );
 
@@ -602,6 +611,12 @@ class Exporter
 		$response = $this->router->dispatch( $request );
 
 		if ( ! $response->isSuccessful() ) {
+			// A 404 while looking for the next page is how paging stops,
+			// not a failure.
+			if ( ! ( $probe && 404 === $response->getStatusCode() ) ) {
+				$this->skipped[ $path ] = $response->getStatusCode();
+			}
+
 			return false;
 		}
 
@@ -618,6 +633,18 @@ class Exporter
 		$this->exported[] = $path;
 
 		return true;
+	}
+
+	/**
+	 * Returns the paths the last export couldn't write because they
+	 * returned an error, mapped to their HTTP status code.
+	 *
+	 * @since 1.1.7
+	 * @return array<string, int>
+	 */
+	public function skipped(): array
+	{
+		return $this->skipped;
 	}
 
 	/**
@@ -684,6 +711,8 @@ class Exporter
 		$response = $this->router->dispatch( Request::create( '/' . $path, 'GET' ) );
 
 		if ( ! $response->isSuccessful() ) {
+			$this->skipped[ '/' . $path ] = $response->getStatusCode();
+
 			return false;
 		}
 
@@ -715,7 +744,7 @@ class Exporter
 
 		// The limit only guards against a route that never returns a 404.
 		for ( $page = 2; $page <= 1000; $page++ ) {
-			if ( ! $this->exportPath( rtrim( $path, '/' ) . "/page/{$page}" ) ) {
+			if ( ! $this->exportPath( rtrim( $path, '/' ) . "/page/{$page}", true ) ) {
 				break;
 			}
 		}
